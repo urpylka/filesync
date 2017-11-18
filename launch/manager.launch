@@ -1,0 +1,16 @@
+<launch>
+    <node name="px4logs_manager" pkg="ros_px4logs" type="manager.py">
+        <param name="user_email" value="i@smirart.ru" />
+        <param name="user_feedback" value="F451 @urpylka 16112017" />
+
+        <param name="finder_interval" value="10" />
+        <param name="arming_protect" value="True" />
+        <param name="downloaders_count" value="1" />
+        <param name="uploaders_count" value="3" />
+        <param name="check_file_checksum" value="False" />
+        <param name="uploader_url" value="https://logs.px4.io/upload" />
+
+        <param name="logs_directory" value="$(find ros_px4logs)/logs" />
+        <param name="db_json_path" value="$(find ros_px4logs)/logs/px4logs.json" />
+    </node>
+</launch>
