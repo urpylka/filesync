@@ -1,5 +1,5 @@
 <launch>
-    <node name="px4logs_manager" pkg="ros_px4logs" type="manager.py">
+    <node name="px4logs_manager" pkg="ros_px4logs" type="manager.py" output="screen">
         <param name="user_email" value="i@smirart.ru" />
         <param name="user_feedback" value="F451 @urpylka 16112017" />
 
