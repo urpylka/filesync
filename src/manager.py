@@ -13,7 +13,7 @@ from threading import Thread, Lock
 import requests
 from mavros.utils import *
 from mavros.nuttx_crc32 import *
-import ftp # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
+from mavros import ftp # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
 
 
 stop_operation = False
@@ -30,29 +30,11 @@ def convert_to_rpi_path(log_directory, path_on_px4):
 
 
 def downloader(db, _LOGS_DIRECTORY, _CHECK_FILE_CHECKSUM, mavftp_lock):
-    print("Создан downloader")
+    print("Created downloader")
     """
     По-хорошему, нужна проверка что лог уже не скачен, и имя не повторяется
-    
-    rosrun mavros mavftp download /fs/microsd/log/2017-10-20/13_29_53.ulg 13_29_53.ulg
-    
-    rosservice call /mavros/ftp/open /fs/microsd/log/2017-10-20/10_53_02.ulg 0
-    size: 1676016
-    success: True
-    r_errno: 0
-    
-    rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 1676015
-    data: []
-    success: False
-    r_errno: 5
-    
-    Ошибка 9 возникает когда файл не открыт
-    
-    rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 100
-    data: [85, 76, 111, 103, 1, 18, 53, 1, 58, 201, 155, 24, 0, 0, 0, 0, 40, 0, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 73, 15, 99, 104, 97, 114, 91, 52, 48, 93, 32, 118, 101, 114, 95, 115, 119, 53, 56, 50, 48, 98, 102, 98, 55, 57, 52, 48, 101, 99, 54, 57, 53, 55, 51, 99, 97, 101, 51]
-    success: True
-    r_errno: 0
-    
+    https://gist.github.com/urpylka/0b0c2dcd55141ae1735df00b78f713fb
+
     Кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете), но туповато это самому реализовывать поэтому возьму это из mavftp
     """
     while True:
@@ -75,7 +57,7 @@ def downloader(db, _LOGS_DIRECTORY, _CHECK_FILE_CHECKSUM, mavftp_lock):
 
 
 def uploader(db, _USER_EMAIL, _USER_FEEDBACK, _UPLOADER_URL):
-    print("Создан uploader")
+    print("Created uploader")
     while True: #тк демон
         log = db.uq.get()
 
@@ -98,7 +80,7 @@ ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
 
 
 def finder(db, _FINDER_INTERVAL, mavftp_lock):
-    print("Создан finder")
+    print("Created finder")
     """
     Функция поиска новых логов на PX4.
 
@@ -167,7 +149,8 @@ def download(file_path,file_name,verbose=True,no_progressbar=False,no_verify=Fal
     # optimized transfer size for FTP message payload
     # XXX: bug in ftp.cpp cause a doubling request of last package.
     # -1 fixes that.
-    FTP_CHUNK = 239 * 18 - 1
+    #FTP_CHUNK = 239 * 18 - 1
+    FTP_CHUNK = 500 * 1000 - 1
 
     mavros.set_namespace("/mavros")
     
@@ -195,26 +178,16 @@ def download(file_path,file_name,verbose=True,no_progressbar=False,no_verify=Fal
                     if local_crc != remote_crc:
                         fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
 
-    except rospy.ServiceException as ex:
+    except Exception as ex:
         print("Download error: " + str(ex))
+        ftp.reset_server()
 
 
 def upload(description, additional_feedback, file_path, email, uploader_url, allow_for_analysis = 'false', obfuscated = 'false'):
-
-    #print('description: ' + description)
-    #print('additional_feedback: ' + additional_feedback)
-    #print('email: ' + email)
-    #print('uploader_url: ' + uploader_url)
-    #print('file_path: ' + file_path)
-    #print('allow_for_analysis: ' + allow_for_analysis)
-    #print('obfuscated: ' + obfuscated)
-
+	
     files = {'filearg': open(file_path,'rb')}
     values = {'description': description, 'feedback': additional_feedback, 'email': email, 'allowForAnalysis': allow_for_analysis, 'obfuscated': obfuscated}
     r = requests.post(uploader_url, files = files, data = values)
-    
-    #print('server_response_status_code: ' + str(r.status_code))
-    #print('log\'s url: ' + r.url)
 
     return r.status_code, r.url
     #if stop_operation: raise Exception("ARMING: Скачивание лога " + file_path + " приостановлено")
