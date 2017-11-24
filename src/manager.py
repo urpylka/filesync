@@ -65,11 +65,7 @@ def uploader(db, _USER_EMAIL, _USER_FEEDBACK, _UPLOADER_URL, accept_operation):
                 # вообще можно перейти к другому элементу из очереди
 
 
-
-ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
-
-
-def finder(db, _FINDER_INTERVAL, mavftp_lock, accept_operation):
+def finder(db, _FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call):
     print("Created finder")
     """
     Функция поиска новых логов на PX4.
@@ -128,8 +124,8 @@ def create_uploaders(db, count, _USER_EMAIL, _USER_FEEDBACK, _UPLOADER_URL, acce
       t.start()
 
 
-def create_finder(db, _FINDER_INTERVAL, mavftp_lock, accept_operation):
-    t = Thread(target = finder, args = (db, _FINDER_INTERVAL, mavftp_lock, accept_operation, ))
+def create_finder(db, _FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call):
+    t = Thread(target = finder, args = (db, _FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call, ))
     t.daemon = True
     t.start()
 
@@ -202,6 +198,7 @@ def main():
 
     rospy.loginfo('Inited px4logs_manager')
 
+    ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
 
     accept_operation = Event()
     accept_operation.set()
@@ -223,7 +220,7 @@ def main():
     db = JSONDatabase(DB_JSON_PATH)
     create_downloaders(db, DOWNLOADERS_COUNT, LOGS_DIRECTORY, CHECK_FILE_CHECKSUM, mavftp_lock, accept_operation)
     create_uploaders(db, UPLOADERS_COUNT, USER_EMAIL, USER_FEEDBACK, UPLOADER_URL, accept_operation)
-    create_finder(db, FINDER_INTERVAL, mavftp_lock, accept_operation)
+    create_finder(db, FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call)
 
     rospy.spin()
     #db.dq.join()
