@@ -138,6 +138,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
     # optimized transfer size for FTP message payload
     # XXX: bug in ftp.cpp cause a doubling request of last package.
     # -1 fixes that.
+    # Размер чанка особо не влияет на скорость порядка 36Kb
     FTP_CHUNK = 239 * 18 - 1
 
     mavros.set_namespace("/mavros")
