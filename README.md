@@ -11,6 +11,7 @@ ___
 
 ## Возможные улучшения:
 
-* Найти ошибку в crc32
-* Понять нужны ли join()
+* Найти ошибку в crc32 для проверки файлов по контрольной сумме
+* Понять нужны ли join() для thread'ов
 * Загрузка чанками requests https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
+* Замена json_database на http://tinydb.readthedocs.io/en/latest/
