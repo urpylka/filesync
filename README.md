@@ -15,3 +15,7 @@ ___
 * Понять нужны ли join() для thread'ов
 * Загрузка чанками requests https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
 * Замена json_database на http://tinydb.readthedocs.io/en/latest/
+* Добавление сервисов для работы с внутренней базой данных
+* Брать описание для логов с /etc/coex.conf
+* Поэксперементировать с относительнымы путями для директории логов
+* Ускорить загрузку логов https://github.com/mavlink/mavros/issues/874
