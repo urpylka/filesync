@@ -1,7 +1,7 @@
 <launch>
     <node name="px4logs_manager" pkg="ros_px4logs" type="manager.py" output="screen">
-        <param name="user_email" value="i@smirart.ru" />
-        <param name="user_feedback" value="F451 @urpylka 16112017" />
+        <param name="user_email" value="smirnov@copterexpress.com" />
+        <param name="user_feedback" value="F450 @urpylka" />
 
         <param name="finder_interval" value="10" />
         <param name="arming_protect" value="True" />
