@@ -1,0 +1,12 @@
+[Unit]
+Description=MAVROS + manager log-files service
+Requires=mavros.service
+After=mavros.service
+
+[Service]
+EnvironmentFile=/home/pi/catkin_ws/src/clever/deploy/roscore.env
+ExecStart=/opt/ros/kinetic/bin/roslaunch ros_px4logs manager_w_mavros.launch --wait
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
