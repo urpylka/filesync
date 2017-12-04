@@ -26,15 +26,14 @@ def downloader(db, _LOGS_DIRECTORY, _CHECK_FILE_CHECKSUM, mavftp_lock, accept_op
     """
     while True:
         log = db.dq.get()
-
+        path_on_rpi = convert_to_rpi_path(_LOGS_DIRECTORY, log['path_on_px4'])
         while not log['downloaded']:
-            path_on_rpi = convert_to_rpi_path(_LOGS_DIRECTORY, log['path_on_px4'])
             try:
                 with mavftp_lock:
                     time.sleep(1)
-                    download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
+                    size_on_px4 = download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
                 # если успешно донладим, меняем флаг в словаре в памяти
-                db.on_download(log, path_on_rpi)
+                db.on_download(log, path_on_rpi, size_on_px4)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 print("Downloader error: " + str(ex))
@@ -152,6 +151,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
     try:
         #remote_file = ftp.open(file_path, 'r')
         with ftp.open(file_path, 'r') as remote_file:
+            if remote_file.size == 0: return 0 #raise Exception("File size = 0!")
             while True:
 
                 accept_operation.wait()
@@ -169,8 +169,10 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
                     if local_crc != remote_crc:
                         fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
 
+            return remote_file.size
+
     except Exception as ex:
-        print("Download error: " + str(ex))
+        raise Exception("Download error: " + str(ex))
         ftp.reset_server()
 
 

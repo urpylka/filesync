@@ -20,10 +20,10 @@ class JSONDatabase:
         self.uq = Queue()
         for _log in self._logs_records:
             if not _log['downloaded']: self.dq.put(_log)
-            elif not _log['uploaded']: self.uq.put(_log)
+            elif not _log['uploaded'] and _log['size_on_px4'] > 0: self.uq.put(_log)
 
 
-    def on_download(self, _log, path_on_rpi):
+    def on_download(self, _log, path_on_rpi, size_on_px4):
         """
         Функция успешного завершения загрузки лога на RPI.
 
@@ -36,7 +36,9 @@ class JSONDatabase:
         """
         _log["downloaded"] = True
         _log["path_on_rpi"] = path_on_rpi
-        self.uq.put(_log)
+        _log["size_on_px4"] = size_on_px4
+        if size_on_px4 > 0: self.uq.put(_log)
+        else: print("File size = 0! " + path_on_rpi)
         self._dump_json(self._logs_records, self._json_path)
         print("Downloaded " + _log["path_on_px4"] + " to " + path_on_rpi)
         self.dq.task_done()
@@ -71,7 +73,7 @@ class JSONDatabase:
         теоретически способная заблокировать следующую операцию downloader
         """
         print("Find " + path_on_px4)
-        self._logs_records.append({"path_on_px4":path_on_px4, "path_on_rpi":"", "downloaded":False, "uploaded":False, "url_px4io":""})
+        self._logs_records.append({"path_on_px4":path_on_px4, "size_on_px4":"", "path_on_rpi":"", "downloaded":False, "uploaded":False, "url_px4io":""})
         self.dq.put(self._logs_records[len(self._logs_records) - 1])
         self._dump_json(self._logs_records, self._json_path)
 
