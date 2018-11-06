@@ -24,7 +24,10 @@ class FlirDuoCamera():
         t.daemon = True
         t.start()
 
-    def get_list_of_files(path = self.MOUNT_POINT, files_extentions = self._files_extentions):
+    def get_list_of_files():
+        _get_list_of_files(self.MOUNT_POINT, self._files_extentions)
+
+    def _get_list_of_files(path = self.MOUNT_POINT, files_extentions = self._files_extentions):
         """
         Get list of files
         """
