@@ -36,7 +36,7 @@ def create_downloaders(count, db, files, local_directory):
       t.daemon = True
       t.start()
 
-def finder(files, db, files, search_interval):
+def finder(files, db, search_interval):
     print("Created the Finder")
     """
     Function for searching files on remote device
