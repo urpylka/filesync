@@ -9,7 +9,7 @@ from Queue import Queue
 class JSONDatabase:
     def __init__(self, json_path):
         self._json_path = json_path
-        self._logs_records = self._load_json(json_path)
+        self._files_records = self._load_json(json_path)
         self._init_work()
         print("Инициализирована БД")
 
@@ -17,9 +17,9 @@ class JSONDatabase:
     def _init_work(self):
         self.dq = Queue()
         #self.uq = Queue()
-        for _log in self._logs_records:
-            if not _log['downloaded']: self.dq.put(_log)
-            #elif not _log['uploaded'] and _log['size_on_flash'] > 0: self.uq.put(_log)
+        for _file in self._files_records:
+            if not _file['downloaded']: self.dq.put(_file)
+            #elif not _file['uploaded'] and _file['size_on_flash'] > 0: self.uq.put(_file)
 
 
     def on_download(self, file, local_path):
@@ -27,7 +27,7 @@ class JSONDatabase:
         Функция успешного завершения загрузки лога на RPI.
 
         По-хорошему надо все эти операции сделать атомарными.
-        Также нет смысла блокировать доступ к _log,
+        Также нет смысла блокировать доступ к _file,
         тк обращение к этим полям в другом месте в принципе нет
 
         dump_json исполняется после uq.put тк это более долгая операция,
@@ -35,16 +35,16 @@ class JSONDatabase:
         """
         file["downloaded"] = True
         file["local_path"] = local_path
-        self._dump_json(self._logs_records, self._json_path)
+        self._dump_json(self._files_records, self._json_path)
         print("Downloaded " + file["remote_path"] + " to " + local_path)
         self.dq.task_done()
 
 
-    def on_upload(self, _log, url_px4io):
-        _log["uploaded"] = True
-        _log["url_px4io"] = url_px4io
-        self._dump_json(self._logs_records, self._json_path)
-        print("Uploaded " + _log["path_on_rpi"] + " to " + url_px4io)
+    def on_upload(self, _file, url_px4io):
+        _file["uploaded"] = True
+        _file["url_px4io"] = url_px4io
+        self._dump_json(self._files_records, self._json_path)
+        print("Uploaded " + _file["path_on_rpi"] + " to " + url_px4io)
         self.uq.task_done()
 
 
@@ -56,22 +56,22 @@ class JSONDatabase:
         и нужно сделать отлов ошибки
         AttributeError: 'dict' object has no attribute 'name'
         """
-        for _log in self._logs_records:
-            if _log['path_on_flash'] == log_path: return True
+        for _file in self._files_records:
+            if _file['path_on_flash'] == log_path: return True
         return False
 
 
-    def on_find(self, path_on_flash):
+    def on_find(self, remote_path):
         """
         Функция добавления в массив найденного нового лога.
 
         dump_json исполняется после dq.put тк это более долгая операция,
         теоретически способная заблокировать следующую операцию downloader
         """
-        print("Find " + path_on_flash)
-        self._logs_records.append({"path_on_flash":path_on_flash, "size_on_flash":"", "checksum_on_flash":"", path_on_rpi":"", "downloaded":False, "uploaded":False, "url_px4io":""})
-        self.dq.put(self._logs_records[len(self._logs_records) - 1])
-        self._dump_json(self._logs_records, self._json_path)
+        print("Find " + remote_path)
+        self._files_records.append({"remote_path":remote_path, "local_path":"", "downloaded":False})
+        self.dq.put(self._files_records[len(self._files_records) - 1])
+        self._dump_json(self._files_records, self._json_path)
 
 
     _file_lock = Lock()
