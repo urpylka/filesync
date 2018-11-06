@@ -5,7 +5,7 @@
 import os.path, time
 from json_database import JSONDatabase
 from flir_duo import FlirDuoCamera
-from threading import Thread, Lock, Event
+from threading import Thread, Event
 
 def convert_to_rpi_path(local_directory, remote_path):
     return local_directory + '/' + os.path.basename(os.path.dirname(remote_path)).replace('-','') + '_' + os.path.basename(remote_path).replace('_','')
