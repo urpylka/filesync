@@ -33,7 +33,7 @@ class FlirDuoCamera():
                 if files_extentions.count(file.split('.')[-1]) == 1:
                     return os.path.join(rootdir, file)
 
-    def _bash_command(command)
+    def _bash_command(command):
         print("Execute: " + command)
         try:
             do_command = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
