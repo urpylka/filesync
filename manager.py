@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-import os.path, time, requests
+import os.path, time
 from json_database import JSONDatabase
 from flir_duo import FlirDuoCamera
 from threading import Thread, Lock, Event
