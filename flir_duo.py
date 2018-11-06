@@ -5,6 +5,29 @@
 import subprocess, os
 from threading import Thread, Event
 
+ def _get_list_of_files(path, files_extentions):
+        """
+        Get list of files
+        """
+        for rootdir, dirs, files in os.walk(path):
+            for file in files:
+                if files_extentions.count(file.split('.')[-1]) == 1:
+                    return os.path.join(rootdir, file)
+
+    def _bash_command(command):
+        print("Execute: " + command)
+        try:
+            do_command = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as grepexc:                                                                                                   
+            print("Error code", grepexc.returncode, grepexc.output)
+            return 1, None
+        if do_command.returncode == 0:
+            output, error = do_command.communicate()
+            return 0, output
+        else:
+            print("Can't exec command " + command)
+            return 1, None
+
 class FlirDuoCamera():
     """
     It can work w USB flash drive
@@ -28,32 +51,9 @@ class FlirDuoCamera():
     def get_list_of_files(self):
         _get_list_of_files(self.MOUNT_POINT, self._files_extentions)
 
-    def _get_list_of_files(path, files_extentions):
-        """
-        Get list of files
-        """
-        for rootdir, dirs, files in os.walk(path):
-            for file in files:
-                if files_extentions.count(file.split('.')[-1]) == 1:
-                    return os.path.join(rootdir, file)
-
-    def _bash_command(command):
-        print("Execute: " + command)
-        try:
-            do_command = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-        except subprocess.CalledProcessError as grepexc:                                                                                                   
-            print("Error code", grepexc.returncode, grepexc.output)
-            return 1, None
-        if do_command.returncode == 0:
-            output, error = do_command.communicate()
-            return 0, output
-        else:
-            print("Can't exec command " + command)
-            return 1, None
-
     def _mount(self):
         while True:
-            code, output = self._bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | awk '{if(NR>1) print $1;}'")
+            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | awk '{if(NR>1) print $1;}'")
             if code == 0:
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
