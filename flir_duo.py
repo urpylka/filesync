@@ -15,7 +15,7 @@ def _get_list_of_files(path, files_extentions):
                 return os.path.join(rootdir, file)
 
 def _bash_command(command):
-    print("Execute: " + command)
+    print("Execute: " + str(command))
     try:
         do_command = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:                                                                                                   
@@ -25,7 +25,7 @@ def _bash_command(command):
         output, error = do_command.communicate()
         return 0, output
     else:
-        print("Can't exec command " + command)
+        print("Can't exec command " + str(command))
         return 1, None
 
 class FlirDuoCamera():
@@ -70,7 +70,7 @@ class FlirDuoCamera():
                 if code == 32:
                     time.sleep(1)
                 else:
-                    print("lsblk returned code: " + code)
+                    print("lsblk returned code: " + str(code))
 
     def _get_checksum_flash():
         return True
@@ -91,7 +91,7 @@ class FlirDuoCamera():
                     if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                         return True
                 else:
-                    print("cp returned code: " + code + " and message: " + output)
+                    print("cp returned code: " + str(code) + " and message: " + str(output))
                     time.sleep(1)
             except Exception as ex:
                 raise Exception("Download error: " + str(ex))
