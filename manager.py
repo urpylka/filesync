@@ -91,7 +91,7 @@ def main():
 
     create_downloaders(DOWNLOADERS_COUNT, db, files, LOCAL_DIRECTORY)
     create_finder(db, files, SEARCH_INTERVAL)
-    #db.dq.join()
+    db.dq.join()
     #db.uq.join()
 
 if __name__ == '__main__':
