@@ -3,6 +3,7 @@
 # vim:set ts=4 sw=4 et:
 
 import subprocess, os
+from threading import Thread, Event
 
 class FlirDuoCamera():
     """
