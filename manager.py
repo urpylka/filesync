@@ -36,7 +36,7 @@ def create_downloaders(count, db, files, local_directory):
       t.daemon = True
       t.start()
 
-def finder(files, db, search_interval):
+def finder(db, files, search_interval):
     print("Created the Finder")
     """
     Function for searching files on remote device
@@ -55,8 +55,8 @@ def finder(files, db, search_interval):
 
         time.sleep(search_interval)
 
-def create_finder(files, db, search_interval):
-    t = Thread(target = finder, args = (files, db, search_interval, ))
+def create_finder(db, files, search_interval):
+    t = Thread(target = finder, args = (db, files, search_interval, ))
     t.daemon = True
     t.start()
 
@@ -90,7 +90,7 @@ def main():
     files = FlirDuoCamera(UUID, FILES_EXTENTIONS)
 
     create_downloaders(DOWNLOADERS_COUNT, db, files, LOCAL_DIRECTORY)
-    create_finder(db, SEARCH_INTERVAL)
+    create_finder(db, files, SEARCH_INTERVAL)
     #db.dq.join()
     #db.uq.join()
 
