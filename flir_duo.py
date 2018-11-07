@@ -24,7 +24,7 @@ def _bash_command(command, verbose = True):
 
     output, error = do_command.communicate()
     retcode = do_command.returncode
-    if verbose: print("returncode: " + str(retcode) + "\nSTDOUT: " + str(output))
+    if verbose: print("RETCODE: " + str(retcode) + "\nSTDOUT: " + str(output) + "\nSTDERR: " + str(error))
     do_command.wait()
     return retcode, output
 
