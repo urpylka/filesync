@@ -75,7 +75,7 @@ class FlirDuoCamera():
                     print("Раздел недоступен, все операции заблокированы")
 
                 if code == 32:
-                    print("The partition isn't finded yet")
+                    print("The partition isn't found yet")
                 else:
                     print("lsblk returned code: " + str(code))
 
@@ -89,7 +89,7 @@ class FlirDuoCamera():
         """
         Можно реализовать проверку по размеру файла на то копировать его просто, используя cp, или чанками
         """
-        if verbose: print("Downloading from", remote_path, "to", local_path)
+        if verbose: print("Downloading from", str(remote_path), "to", str(local_path))
         while True:
             try:
                 code, output, error = _bash_command("/bin/cp " + remote_path + " " + local_path)
