@@ -5,11 +5,11 @@
 import subprocess, os, time
 from threading import Thread, Event
 
-def _get_list_of_files(path, files_extentions):
+def _get_list_of_files(path, files_extentions, verbose = True):
     """
     Get list of files
     """
-    print(path, str(files_extentions))
+    if verbose: print(path, str(files_extentions))
     for rootdir, dirs, files in os.walk(path):
         for file in files:
             if files_extentions.count(file.split('.')[-1]) == 1:
@@ -53,7 +53,6 @@ class FlirDuoCamera():
         t.start()
 
     def get_list_of_files(self):
-        print("fasfgadas")
         _get_list_of_files(self.MOUNT_POINT, self._files_extentions)
 
     def _mount(self):
