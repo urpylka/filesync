@@ -52,8 +52,9 @@ class FlirDuoCamera():
     def _mount(self):
         while True:
             time.sleep(1)
-            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | /usr/bin/awk '{if(NR>1) print $1;}'")
+            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
             if code == 0:
+                print("STDOUT: " + output)
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
