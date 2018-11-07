@@ -47,7 +47,8 @@ def finder(db, files, search_interval):
 
         try:
             print("Searching a new files...")
-            for item in files.get_list_of_files():
+            my_list = files.get_list_of_files()
+            for item in my_list:
                 if not db.is_file_in_records(item): db.on_find(item)
 
         except Exception as ex:
