@@ -81,17 +81,18 @@ class JSONDatabase:
         """
         Функция для загрузки словаря из json-файла.
         """
+        records = []
         try:
             with self._file_lock:
-                    with open(path, 'r') as infile:
-                            records = json.load(infile)
+                with open(path, 'r') as infile:
+                    records = json.load(infile)
 
         except ValueError as ex:
             print("Ошибка: некорректный json: " + str(ex))
 
         except IOError as ex:
             if ex.errno == 2:
-                records = []
+                #records = []
                 print("Файл базы данных не создан, да и фиг с ним: " + str(ex))
 
         return records
