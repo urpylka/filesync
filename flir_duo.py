@@ -55,15 +55,16 @@ class FlirDuoCamera():
     def _mount(self):
         while True:
             time.sleep(1)
+            code = None
+            output = None
             code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
             if code == 0:
-                output
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
                         print("Раздел доступен, все операции разблокированы")
                 else:
-                    mount_code, mount_output = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
+                    a, b = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
                     continue
             else:
                 if self.is_remote_available.is_set():
