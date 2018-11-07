@@ -15,6 +15,7 @@ def _get_list_of_files(path, files_extentions, verbose = True):
         for file in files:
             if files_extentions.count(file.split('.')[-1]) == 1:
                 my_list.append(os.path.join(rootdir, file))
+    return my_list
 
 def _bash_command(command, verbose = True):
     if verbose: print("Execute: " + str(command))
