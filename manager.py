@@ -36,7 +36,7 @@ def create_downloaders(count, db, files, local_directory):
       t.daemon = True
       t.start()
 
-def finder(db, files, search_interval):
+def finder(db, files, search_interval, verbose = True):
     print("Created the Finder")
     """
     Function for searching files on remote device
@@ -48,6 +48,7 @@ def finder(db, files, search_interval):
         try:
             print("Searching a new files...")
             my_list = files.get_list_of_files()
+            if verbose: print(my_list)
             for item in my_list:
                 if not db.is_file_in_records(item): db.on_find(item)
 
