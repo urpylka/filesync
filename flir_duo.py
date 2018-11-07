@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-import subprocess, os
+import subprocess, os, time
 from threading import Thread, Event
 
 def _get_list_of_files(path, files_extentions):
