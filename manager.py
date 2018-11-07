@@ -17,13 +17,14 @@ def downloader(i, db, files, local_directory, verbose = True):
     """
     while True:
         file = db.dq.get()
-        local_path = convert_to_rpi_path(local_directory, file['remote_path'])
+        remote_path = file['remote_path']
+        local_path = convert_to_rpi_path(local_directory, remote_path)
         if verbose: print(local_path)
-        if verbose: print(file['remote_path'])
+        if verbose: print(remote_path)
         while not file['downloaded']:
             try:
                 files.is_remote_available.wait()
-                if files.download(file['remote_path'], local_path):
+                if files.download(remote_path, local_path):
                     db.on_download(file, local_path)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
