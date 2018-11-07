@@ -68,7 +68,7 @@ class JSONDatabase:
         dump_json исполняется после dq.put тк это более долгая операция,
         теоретически способная заблокировать следующую операцию downloader
         """
-        print("Find " + remote_path)
+        print("Find " + str(remote_path))
         self._files_records.append({"remote_path":remote_path, "local_path":"", "downloaded":False})
         self.dq.put(self._files_records[len(self._files_records) - 1])
         self._dump_json(self._files_records, self._json_path)
