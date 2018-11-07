@@ -23,9 +23,11 @@ def _bash_command(command, verbose = True):
         return 1000, None
 
     output, error = do_command.communicate()
-    if verbose: print("returncode: " + str(do_command.returncode) + "\nSTDOUT: " + str(output))
+    retcode = do_command.returncode
+    if verbose: print("returncode: " + str(retcode) + "\nSTDOUT: " + str(output))
     do_command.wait()
-    return do_command.returncode, output
+    do_command.terminate()
+    return retcode, output
 
 class FlirDuoCamera():
     """
