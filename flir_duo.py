@@ -20,13 +20,13 @@ def _bash_command(command, verbose = True):
         do_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:                                                                                       
         print("Error code", grepexc.returncode, grepexc.output)
-        return 1000, None
+        return 1000, None, None
 
     output, error = do_command.communicate()
     retcode = do_command.returncode
     if verbose: print("RETCODE: " + str(retcode) + "\nSTDOUT: " + str(output) + "\nSTDERR: " + str(error))
     do_command.wait()
-    return retcode, output
+    return retcode, output, error
 
 class FlirDuoCamera():
     """
@@ -57,14 +57,14 @@ class FlirDuoCamera():
             time.sleep(1)
             code = None
             output = None
-            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
+            code, output, error = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
             if code == 0:
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
                         print("Раздел доступен, все операции разблокированы")
                 else:
-                    a, b = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
+                    a, b, c = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
                     continue
             else:
                 if self.is_remote_available.is_set():
@@ -89,7 +89,7 @@ class FlirDuoCamera():
         if verbose: print("Downloading from", remote_path, "to", local_path)
         while True:
             try:
-                code, output = _bash_command("/bin/cp " + remote_path + " " + local_path)
+                code, output, error = _bash_command("/bin/cp " + remote_path + " " + local_path)
                 if code == 0:
                     if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                         return True
@@ -100,7 +100,7 @@ class FlirDuoCamera():
                 raise Exception("Download error: " + str(ex))
 
     def del_file(file_path):
-        code, output = _bash_command("/bin/rm " + file_path)
+        code, output, error = _bash_command("/bin/rm " + file_path)
         if code != 0:
             print(output)
         return code
