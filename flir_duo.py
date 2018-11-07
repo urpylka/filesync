@@ -22,12 +22,8 @@ def _bash_command(command, verbose = True):
         print("Error code", grepexc.returncode, grepexc.output)
         return 1, None
 
-    if do_command.returncode == 0:
-        output, error = do_command.communicate()
-        return 0, output
-    else:
-        print("Can't exec command " + str(command))
-        return 1, None
+    output, error = do_command.communicate()
+    return do_command.returncode, output
 
 class FlirDuoCamera():
     """
