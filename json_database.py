@@ -44,7 +44,7 @@ class JSONDatabase:
         _file["uploaded"] = True
         _file["url_px4io"] = url_px4io
         self._dump_json(self._files_records, self._json_path)
-        print("Uploaded " + _file["path_on_rpi"] + " to " + url_px4io)
+        print("Uploaded " + _file["local_path"] + " to " + url_px4io)
         self.uq.task_done()
 
 
@@ -57,7 +57,7 @@ class JSONDatabase:
         AttributeError: 'dict' object has no attribute 'name'
         """
         for _file in self._files_records:
-            if _file['path_on_flash'] == log_path: return True
+            if _file['remote_path'] == log_path: return True
         return False
 
 
