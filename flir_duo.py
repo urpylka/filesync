@@ -23,6 +23,7 @@ def _bash_command(command, verbose = True):
         return 1000, None
 
     output, error = do_command.communicate()
+    if verbose: print("returncode: " + str(do_command.returncode) + "\nSTDOUT: " + str(output))
     return do_command.returncode, output
 
 class FlirDuoCamera():
@@ -50,6 +51,7 @@ class FlirDuoCamera():
 
     def _mount(self):
         while True:
+            time.sleep(1)
             code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | /usr/bin/awk '{if(NR>1) print $1;}'")
             if code == 0:
                 if output == self.MOUNT_POINT:
@@ -65,7 +67,7 @@ class FlirDuoCamera():
                     print("Раздел недоступен все операции заблокированы")
 
                 if code == 32:
-                    time.sleep(1)
+                    print("The partition isn't finded yet")
                 else:
                     print("lsblk returned code: " + str(code))
 
