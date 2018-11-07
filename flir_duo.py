@@ -14,8 +14,8 @@ def _get_list_of_files(path, files_extentions):
             if files_extentions.count(file.split('.')[-1]) == 1:
                 return os.path.join(rootdir, file)
 
-def _bash_command(command, verbose = False):
-    print_if(verbose, "Execute: " + str(command))
+def _bash_command(command, verbose = True):
+    if verbose: print("Execute: " + str(command))
     try:
         do_command = subprocess.Popen(command.split(), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:                                                                                                   
@@ -79,12 +79,11 @@ class FlirDuoCamera():
     def _get_checksum_local():
         return True
 
-    def download(remote_path, local_path):
+    def download(remote_path, local_path, verbose = True):
         """
         Можно реализовать проверку по размеру файла на то копировать его просто, используя cp, или чанками
         """
-        verbose = True
-        print_if(verbose, "Downloading from", remote_path, "to", local_path)
+        if verbose: print("Downloading from", remote_path, "to", local_path)
         while True:
             try:
                 code, output = _bash_command("/sbin/cp " + remote_path + " " + local_path)
