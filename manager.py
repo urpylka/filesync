@@ -42,15 +42,14 @@ def finder(db, files, search_interval, verbose = True):
     Function for searching files on remote device
     """
     while True:
-
         files.is_remote_available.wait()
-
         try:
             print("Searching a new files...")
             my_list = files.get_list_of_files()
-            if verbose: print(my_list)
-            for item in my_list:
-                if not db.is_file_in_records(item): db.on_find(item)
+            if verbose: print("List of files: " + my_list)
+            if my_list != None:
+                for item in my_list:
+                    if not db.is_file_in_records(item): db.on_find(item)
 
         except Exception as ex:
             print("Finder error: " + str(ex))
@@ -86,7 +85,7 @@ def main():
     REMOTE_DIRECTORY = "/"
     DB_JSON_PATH = "/home/pi/flir.json"
     UUID = "66F8-E5D9"
-    FILES_EXTENTIONS = ['jpg', 'png']
+    FILES_EXTENTIONS = ['JPG', 'png']
 
     db = JSONDatabase(DB_JSON_PATH)
     files = FlirDuoCamera(UUID, FILES_EXTENTIONS)
