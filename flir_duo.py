@@ -9,7 +9,7 @@ def _get_list_of_files(path, files_extentions):
     """
     Get list of files
     """
-    print(path, str(files_extentions)
+    print(path, str(files_extentions))
     for rootdir, dirs, files in os.walk(path):
         for file in files:
             if files_extentions.count(file.split('.')[-1]) == 1:
