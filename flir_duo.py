@@ -42,6 +42,7 @@ class FlirDuoCamera():
 
         self.is_remote_available = Event()
         self.is_remote_available.clear()
+        print("Раздел недоступен все операции заблокированы")
         t = Thread(target = self._mount, args = ())
         t.daemon = True
         t.start()
