@@ -53,7 +53,7 @@ class FlirDuoCamera():
         t.start()
 
     def get_list_of_files(self):
-        _get_list_of_files(self.MOUNT_POINT, self._files_extentions)
+        return _get_list_of_files(self.MOUNT_POINT, self._files_extentions)
 
     def _mount(self):
         while True:

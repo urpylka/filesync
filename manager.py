@@ -46,10 +46,11 @@ def finder(db, files, search_interval, verbose = True):
         try:
             print("Searching a new files...")
             my_list = files.get_list_of_files()
-            if verbose: print("List of files: " + str(my_list))
             if my_list != None:
+                if verbose: print("List of files: " + str(my_list))
                 for item in my_list:
                     if not db.is_file_in_records(item): db.on_find(item)
+            elif verbose: print("List of files is None")
 
         except Exception as ex:
             print("Finder error: " + str(ex))
