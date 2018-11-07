@@ -20,7 +20,7 @@ def _bash_command(command, verbose = True):
         do_command = subprocess.Popen(command.split(), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:                                                                                                   
         print("Error code", grepexc.returncode, grepexc.output)
-        return 1, None
+        return 1000, None
 
     output, error = do_command.communicate()
     return do_command.returncode, output
