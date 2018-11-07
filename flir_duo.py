@@ -17,8 +17,8 @@ def _get_list_of_files(path, files_extentions):
 def _bash_command(command, verbose = True):
     if verbose: print("Execute: " + str(command))
     try:
-        do_command = subprocess.Popen(command.split(), shell=True, stdout=subprocess.STDOUT, stderr=subprocess.STDERR)
-    except subprocess.CalledProcessError as grepexc:                                                                                                   
+        do_command = subprocess.Popen(command.split(), shell=True, stdout=subprocess.STDOUT)
+    except subprocess.CalledProcessError as grepexc:                                                                                       
         print("Error code", grepexc.returncode, grepexc.output)
         return 1000, None
 
