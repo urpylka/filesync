@@ -10,7 +10,7 @@ from threading import Thread, Event
 def convert_to_rpi_path(local_directory, remote_path):
     return local_directory + '/' + os.path.basename(os.path.dirname(remote_path)).replace('-','') + '_' + os.path.basename(remote_path).replace('_','')
 
-def downloader(i, db, files, local_directory):
+def downloader(i, db, files, local_directory, verbose = True):
     print("Created the Downloader-" + str(i))
     """
     Function for downloading files from remote device
@@ -18,6 +18,8 @@ def downloader(i, db, files, local_directory):
     while True:
         file = db.dq.get()
         local_path = convert_to_rpi_path(local_directory, file['remote_path'])
+        if verbose: print(local_path)
+        if verbose: print(file['remote_path'])
         while not file['downloaded']:
             try:
                 files.is_remote_available.wait()
