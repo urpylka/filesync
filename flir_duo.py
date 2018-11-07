@@ -40,7 +40,7 @@ class FlirDuoCamera():
         self.MOUNT_POINT = "/mnt"
 
         self.is_remote_available = Event()
-        self.is_remote_available.set()
+        self.is_remote_available.clear()
         t = Thread(target = self._mount, args = ())
         t.daemon = True
         t.start()
