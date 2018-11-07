@@ -4,7 +4,7 @@
 
 import os.path, time
 from json_database import JSONDatabase
-from flir_duo import FlirDuoCamera
+from flir_duo import FlirDuoCamera, download
 from threading import Thread, Event
 
 def convert_to_rpi_path(local_directory, remote_path):
@@ -24,7 +24,7 @@ def downloader(i, db, files, local_directory, verbose = True):
         while not file['downloaded']:
             try:
                 files.is_remote_available.wait()
-                if files.download(remote_path, local_path):
+                if download(remote_path, local_path):
                     db.on_download(file, local_path)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
