@@ -33,12 +33,6 @@ def _bash_command(command, verbose = True):
     do_command.wait()
     return retcode, output, error
 
-def _get_checksum_flash(a):
-    return True
-
-def _get_checksum_local(a):
-    return True
-
 def download(remote_path, local_path, verbose = True):
     """
     Можно реализовать проверку по размеру файла на то копировать его просто, используя cp, или чанками
@@ -48,7 +42,8 @@ def download(remote_path, local_path, verbose = True):
         try:
             code, output, error = _bash_command("/bin/cp " + str(remote_path) + " " + str(local_path))
             if code == 0:
-                if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
+                #if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
+                if True:
                     return True
             else:
                 print("cp returned code: " + str(code) + " and message: " + str(output))
