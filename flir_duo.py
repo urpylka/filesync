@@ -14,13 +14,14 @@ def _get_list_of_files(path, files_extentions):
             if files_extentions.count(file.split('.')[-1]) == 1:
                 return os.path.join(rootdir, file)
 
-def _bash_command(command):
-    print("Execute: " + str(command))
+def _bash_command(command, verbose = False):
+    printif(verbose, "Execute: " + str(command))
     try:
         do_command = subprocess.Popen(command.split(), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:                                                                                                   
         print("Error code", grepexc.returncode, grepexc.output)
         return 1, None
+
     if do_command.returncode == 0:
         output, error = do_command.communicate()
         return 0, output
@@ -53,7 +54,7 @@ class FlirDuoCamera():
 
     def _mount(self):
         while True:
-            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | awk '{if(NR>1) print $1;}'")
+            code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\" | /usr/bin/awk '{if(NR>1) print $1;}'")
             if code == 0:
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
