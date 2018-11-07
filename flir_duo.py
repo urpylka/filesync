@@ -9,11 +9,12 @@ def _get_list_of_files(path, files_extentions, verbose = True):
     """
     Get list of files
     """
+    my_list = []
     if verbose: print(path, str(files_extentions))
     for rootdir, dirs, files in os.walk(path):
         for file in files:
             if files_extentions.count(file.split('.')[-1]) == 1:
-                return os.path.join(rootdir, file)
+                my_list.append(os.path.join(rootdir, file))
 
 def _bash_command(command, verbose = True):
     if verbose: print("Execute: " + str(command))
