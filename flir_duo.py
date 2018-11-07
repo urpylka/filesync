@@ -17,7 +17,7 @@ def _get_list_of_files(path, files_extentions):
 def _bash_command(command, verbose = True):
     if verbose: print("Execute: " + str(command))
     try:
-        do_command = subprocess.Popen(command.split(), shell=True, executable='/bin/bash', stdout=subprocess.PIPE)
+        do_command = subprocess.Popen(command.split(), shell=True, executable='/bin/bash')
     except subprocess.CalledProcessError as grepexc:                                                                                                   
         print("Error code", grepexc.returncode, grepexc.output)
         return 1000, None
@@ -54,7 +54,6 @@ class FlirDuoCamera():
             time.sleep(1)
             code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
             if code == 0:
-                print("STDOUT: " + output)
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
