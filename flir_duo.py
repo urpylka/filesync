@@ -26,7 +26,6 @@ def _bash_command(command, verbose = True):
     retcode = do_command.returncode
     if verbose: print("returncode: " + str(retcode) + "\nSTDOUT: " + str(output))
     do_command.wait()
-    do_command.kill()
     return retcode, output
 
 class FlirDuoCamera():
