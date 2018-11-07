@@ -57,7 +57,7 @@ class FlirDuoCamera():
                         self.is_remote_available.set()
                         print("Раздел доступен все операции разблокированы")
                 else:
-                    mount_code, mount_output = _bash_command("/sbin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
+                    mount_code, mount_output = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
                     continue
             else:
                 if self.is_remote_available.is_set():
@@ -82,7 +82,7 @@ class FlirDuoCamera():
         if verbose: print("Downloading from", remote_path, "to", local_path)
         while True:
             try:
-                code, output = _bash_command("/sbin/cp " + remote_path + " " + local_path)
+                code, output = _bash_command("/bin/cp " + remote_path + " " + local_path)
                 if code == 0:
                     if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                         return True
@@ -93,7 +93,7 @@ class FlirDuoCamera():
                 raise Exception("Download error: " + str(ex))
 
     def del_file(file_path):
-        code, output = _bash_command("/sbin/rm " + file_path)
+        code, output = _bash_command("/bin/rm " + file_path)
         if code != 0:
             print(output)
         return code
