@@ -24,6 +24,7 @@ def _bash_command(command, verbose = True):
 
     output, error = do_command.communicate()
     if verbose: print("returncode: " + str(do_command.returncode) + "\nSTDOUT: " + str(output))
+    do_command.wait()
     return do_command.returncode, output
 
 class FlirDuoCamera():
@@ -55,6 +56,7 @@ class FlirDuoCamera():
             time.sleep(1)
             code, output = _bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._UUID + "\"")
             if code == 0:
+                output
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
