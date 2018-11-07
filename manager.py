@@ -10,8 +10,8 @@ from threading import Thread, Event
 def convert_to_rpi_path(local_directory, remote_path):
     return local_directory + '/' + os.path.basename(os.path.dirname(remote_path)).replace('-','') + '_' + os.path.basename(remote_path).replace('_','')
 
-def downloader(db, files, local_directory):
-    print("Created the Downloader")
+def downloader(i, db, files, local_directory):
+    print("Created the Downloader #" + i)
     """
     Function for downloading files from remote device
     """
@@ -32,7 +32,7 @@ def downloader(db, files, local_directory):
 
 def create_downloaders(count, db, files, local_directory):
     for i in range(count):
-      t = Thread(target = downloader, args = (db, files, local_directory, ))
+      t = Thread(target = downloader, args = (i, db, files, local_directory, ))
       t.daemon = True
       t.start()
 
@@ -91,8 +91,9 @@ def main():
 
     create_downloaders(DOWNLOADERS_COUNT, db, files, LOCAL_DIRECTORY)
     create_finder(db, files, SEARCH_INTERVAL)
-    db.dq.join()
-    #db.uq.join()
+    #db.dq.join()
+    while True:
+        time.sleep(10)
 
 if __name__ == '__main__':
     main()
