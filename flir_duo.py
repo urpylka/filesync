@@ -33,10 +33,10 @@ def _bash_command(command, verbose = True):
     do_command.wait()
     return retcode, output, error
 
-def _get_checksum_flash():
+def _get_checksum_flash(a):
     return True
 
-def _get_checksum_local():
+def _get_checksum_local(a):
     return True
 
 def download(remote_path, local_path, verbose = True):
