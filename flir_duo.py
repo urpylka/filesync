@@ -91,10 +91,10 @@ class FlirDuoCamera():
         """
         Можно реализовать проверку по размеру файла на то копировать его просто, используя cp, или чанками
         """
-        if verbose: print("Downloading from " + str(remote_path) + " to " + str(local_path))
+        if verbose: print("Downloading from " + remote_path + " to " + local_path)
         while True:
             try:
-                code, output, error = _bash_command("/bin/cp " + str(remote_path) + " " + str(local_path))
+                code, output, error = _bash_command("/bin/cp " + remote_path + " " + local_path)
                 if code == 0:
                     if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                         return True
