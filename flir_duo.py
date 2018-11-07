@@ -42,7 +42,7 @@ class FlirDuoCamera():
 
         self.is_remote_available = Event()
         self.is_remote_available.clear()
-        print("Раздел недоступен все операции заблокированы")
+        print("Раздел недоступен, все операции заблокированы")
         t = Thread(target = self._mount, args = ())
         t.daemon = True
         t.start()
@@ -58,14 +58,14 @@ class FlirDuoCamera():
                 if output == self.MOUNT_POINT:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        print("Раздел доступен все операции разблокированы")
+                        print("Раздел доступен, все операции разблокированы")
                 else:
                     mount_code, mount_output = _bash_command("/bin/mount /dev/disk/by-uuid/" + self._UUID + " " + self.MOUNT_POINT)
                     continue
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    print("Раздел недоступен все операции заблокированы")
+                    print("Раздел недоступен, все операции заблокированы")
 
                 if code == 32:
                     print("The partition isn't finded yet")
