@@ -25,7 +25,7 @@ class FTP(TargetUploader):
         self.is_remote_available = Event()
         self.is_remote_available.clear()
 
-        t = Thread(target = self._connect, args = (conn_params,))
+        t = Thread(target = self._connect, args = ())
         t.daemon = True
         t.start()
 
