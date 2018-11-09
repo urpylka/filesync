@@ -48,13 +48,13 @@ class FilesRecords:
                 with open(path, 'r') as infile:
                     records = json.load(infile)
 
-        except ValueError as ex:
-            print("Ошибка: некорректный json: " + str(ex))
-
         except IOError as ex:
             if ex.errno == 2:
-                #records = []
                 print("Файл базы данных еще не создан")
+
+        except ValueError as ex:
+            print("Ошибка: некорректный json: " + str(ex))
+            exit
 
         return records
 
