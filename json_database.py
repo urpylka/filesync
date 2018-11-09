@@ -13,13 +13,6 @@ class FilesRecords:
     def __init__(self, json_path):
         self._json_path = json_path
         self.files_records = self.load_json()
-
-        self.dq = Queue()
-        self.uq = Queue()
-        for _file in self.files_records:
-            if not _file['downloaded']: self.dq.put(_file)
-            elif not _file['uploaded']: self.uq.put(_file)
-
         print("Инициализирована БД")
 
 
@@ -57,6 +50,7 @@ class FilesRecords:
             exit
 
         return records
+
 
     def dump_json(self):
         """
