@@ -59,7 +59,7 @@ def finder(number, args):
             if my_list != None:
                 if verbose: print("List of source: " + str(my_list))
                 for item in my_list:
-                    if not db.in_records(item):
+                    if not db.in_records(key, item):
                         record[key] = item
                         db.files_records.append(record)
                         db.dump_json()
@@ -94,7 +94,7 @@ def uploader(number, args):
 
 def create_threads(count, function, *args):
     for i in range(count):
-        t = Thread(target = function, args = (i, args,))
+        t = Thread(target = function, args = (i+1, args,))
         t.daemon = True
         t.start()
 

@@ -23,7 +23,7 @@ class FilesRecords:
         print("Инициализирована БД")
 
 
-    def in_records(self, source_path):
+    def in_records(self, key, value):
         """
         Функция поиска лога лога в словаре.
     
@@ -32,7 +32,7 @@ class FilesRecords:
         AttributeError: 'dict' object has no attribute 'name'
         """
         for _file in self.files_records:
-            if _file['source_path'] == source_path: return True
+            if _file[key] == value: return True
         return False
 
 
