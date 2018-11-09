@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-from source_downloader import SourceDownloader
+from source_abstract import Source
 import subprocess, os, time
 from threading import Thread, Event
 
@@ -46,7 +46,7 @@ def del_file(file_path):
         print(output)
     return code
 
-class FlirDuoCamera(SourceDownloader):
+class FlirDuoCamera(Source):
     """
     It can work w USB flash drive
 
