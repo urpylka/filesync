@@ -10,7 +10,7 @@ def bash_command(command, verbose = True):
     if verbose: print("Execute: " + str(command))
     try:
         do_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    except subprocess.CalledProcessError as grepexc:                                                                                       
+    except subprocess.CalledProcessError as grepexc:
         print("Error code", grepexc.returncode, grepexc.output)
         return 1000, None, None
 
