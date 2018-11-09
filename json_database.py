@@ -12,7 +12,7 @@ class FilesRecords:
     def __init__(self, json_path):
         self._json_path = json_path
         self.files_records = self.load_json()
-        print("Инициализирована БД")
+        print("БД инициализирована")
 
 
     def in_records(self, key, value):
