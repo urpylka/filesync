@@ -11,7 +11,7 @@ class SourceDownloader(object):
     def __init__(self, *args):
         raise NotImplementedError()
 
-    def get_list_of_files(self)):
+    def get_list_of_files(self):
         raise NotImplementedError()
     
     def download(self, remote_path, local_path):
