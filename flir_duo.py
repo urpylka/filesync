@@ -95,6 +95,7 @@ class FlirDuoCamera(Source):
                         self.is_remote_available.set()
                         print("Раздел доступен, все операции разблокированы")
                 else:
+                    print("Try to mount partition")
                     a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self._uuid + " " + self._mount_point, self.verbose)
                     continue
             else:
@@ -102,7 +103,7 @@ class FlirDuoCamera(Source):
                     self.is_remote_available.clear()
                     print("Раздел недоступен, все операции заблокированы")
 
-                if code == 32:
-                    print("The partition isn't found yet")
-                else:
-                    print("lsblk returned code: " + str(code))
+                    if code == 32:
+                        print("The partition isn't found yet")
+                    else:
+                        print("lsblk returned code: " + str(code))
