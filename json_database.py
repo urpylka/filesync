@@ -36,10 +36,12 @@ class FilesRecords:
         return False
 
 
-    def load_json(self, path = self._json_path):
+    def load_json(self):
         """
         Функция для загрузки словаря из json-файла.
         """
+        path = self._json_path
+
         records = []
         try:
             with self._file_lock:
@@ -56,10 +58,13 @@ class FilesRecords:
 
         return records
 
-    def dump_json(self, data = self.files_records, path = self._json_path):
+    def dump_json(self):
         """
         Функция для сохранения словаря в json-файл.
         """
+        data = self.files_records
+        path = self._json_path
+
         with self._file_lock:
 
             if not os.path.exists(os.path.dirname(path)):
