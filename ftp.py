@@ -8,13 +8,11 @@ from threading import Thread, Event
 
 class FTP(TargetUploader):
 
-    def __init__(self, conn_params, verbose = False):
-        self.verbose = verbose
-
-        self.conn_params = conn_params
-
-        self.is_remote_available = Event()
-        self.is_remote_available.clear()
+    verbose = False
+    is_remote_available = Event()
+    
+    def __init__(self, *args):
+        self.host, self.user, self.passwd = args
 
         t = Thread(target = self._connect, args = ())
         t.daemon = True
@@ -24,10 +22,11 @@ class FTP(TargetUploader):
         self.ftp.quit()
 
     def _connect(self):
+        self.is_remote_available.clear()
         while True:
             time.sleep(1)
             try:
-                self.ftp = ftplib.FTP(self.conn_params[0], self.conn_params[1], self.conn_params[2])
+                self.ftp = ftplib.FTP(self.host, self.user, self.passwd)
                 self.ftp.login()
             except Exception as ex:
                 if self.is_remote_available.is_set():

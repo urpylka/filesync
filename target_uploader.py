@@ -10,7 +10,7 @@ class TargetUploader(object):
     db_fileds = []
     verbose = False
 
-    def __init__(self, conn_params, verbose = False):
+    def __init__(self, *args):
         raise NotImplementedError()
 
     def upload(self, local_path, remote_path):
