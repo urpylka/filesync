@@ -54,7 +54,7 @@ class FilesRecords:
         except IOError as ex:
             if ex.errno == 2:
                 #records = []
-                print("Файл базы данных не создан, да и фиг с ним: " + str(ex))
+                print("Файл базы данных еще не создан")
 
         return records
 
