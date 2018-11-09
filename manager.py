@@ -7,96 +7,93 @@ from json_database import JSONDatabase
 from flir_duo import FlirDuoCamera, download
 from threading import Thread, Event
 
-def convert_to_rpi_path(local_directory, remote_path):
-    return local_directory + '/' + os.path.basename(os.path.dirname(remote_path)).replace('-','') + '_' + os.path.basename(remote_path).replace('_','')
 
-def downloader(i, db, files, local_directory, verbose = True):
-    print("Created the Downloader-" + str(i))
+def downloader(number, args):
+    db, source, local_directory = args
+    verbose = True
+    print("Created the Downloader-" + str(number))
     """
     Function for downloading files from remote device
     """
     while True:
         file = db.dq.get()
-        remote_path = file['remote_path']
-        local_path = convert_to_rpi_path(local_directory, remote_path)
+        source_path = file['source_path']
+        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
         if verbose: print(local_path)
-        if verbose: print(remote_path)
+        if verbose: print(source_path)
         while not file['downloaded']:
             try:
-                files.is_remote_available.wait()
-                if download(remote_path, local_path):
+                source.is_remote_available.wait()
+                if download(source_path, local_path):
                     db.on_download(file, local_path)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                print("Downloader error: " + str(ex))
+                print("Downloader-" + str(number) + "error: " + str(ex))
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 time.sleep(2)
                 # вообще можно перейти к другому элементу из очереди
 
-def create_downloaders(count, db, files, local_directory):
-    for i in range(count):
-      t = Thread(target = downloader, args = (i, db, files, local_directory, ))
-      t.daemon = True
-      t.start()
 
-def finder(db, files, search_interval, verbose = True):
-    print("Created the Finder")
+def finder(number, args):
+    db, source, search_interval = args
+    verbose = True
+    print("Created the Finder-" + str(number))
     """
     Function for searching files on remote device
     """
     while True:
-        files.is_remote_available.wait()
+        source.is_remote_available.wait()
         try:
-            print("Searching a new files...")
-            my_list = files.get_list_of_files()
+            print("Searching a new source...")
+            my_list = source.get_list_of_files()
             if my_list != None:
-                if verbose: print("List of files: " + str(my_list))
+                if verbose: print("List of source: " + str(my_list))
                 for item in my_list:
                     if not db.is_file_in_records(item): db.on_find(item)
-            elif verbose: print("List of files is None")
+            elif verbose: print("List of source is None")
 
         except Exception as ex:
-            print("Finder error: " + str(ex))
+            print("Finder-" + str(number) + "error: " + str(ex))
 
         time.sleep(search_interval)
 
-def create_finder(db, files, search_interval):
-    t = Thread(target = finder, args = (db, files, search_interval, ))
-    t.daemon = True
-    t.start()
 
-# def load_param(param, default=None):
-#     if rospy.has_param(param):
-#         return rospy.get_param(param)
-#     elif not default is None:
-#         print("Param: " + str(param) + " not set & use default value: " + str(default))
-#         return rospy.get_param(param, default)
-#     else:
-#         print("Error: " + str(param) + " not set & have not default value")
-#         raise SystemExit
+def uploader(number, args):
+    db, target = args
+    print("Created the Uploader-" + str(number))
+    while True:
+
+        file = db.uq.get()
+        local_path = file['local_path']
+        target_path = '/' + os.path.basename(local_path)
+
+        while not file['uploaded']:
+            target.is_remote_available.wait()
+            try:
+                if target.upload(local_path, target_path):
+                    db.on_upload(file, target_path)
+            except Exception as ex:
+                print("Uploader-" + str(number) + "error: " + str(ex))
+                time.sleep(2)
+
+
+def create_threads(count, function, *args):
+    for i in range(count):
+        t = Thread(target = function, args = (i, args,))
+        t.daemon = True
+        t.start()
+
 
 def main():
 
-    # SEARCH_INTERVAL = load_param('~search_interval', 10)
-    # DOWNLOADERS_COUNT = load_param('~downloaders_count', 5)
-    # LOCAL_DIRECTORY = load_param('~local_directory')
-    # REMOTE_DIRECTORY = load_param('~remote_directory')
-    # DB_JSON_PATH = load_param('~db_json_path')
+    db = JSONDatabase("/home/pi/flir/db.json")
+    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'])
+    target = FTP(['localhost:21'])
 
-    SEARCH_INTERVAL = 10
-    DOWNLOADERS_COUNT = 5
-    LOCAL_DIRECTORY = "/home/pi/flir"
-    REMOTE_DIRECTORY = "/"
-    DB_JSON_PATH = "/home/pi/flir.json"
-    UUID = "66F8-E5D9"
-    FILES_EXTENTIONS = ['JPG', 'png']
+    create_threads(1, finder, db, source, 10)
+    create_threads(5, downloader, db, source, "/home/pi/flir")
+    create_threads(3, uploader, db, target)
 
-    db = JSONDatabase(DB_JSON_PATH)
-    files = FlirDuoCamera(UUID, FILES_EXTENTIONS)
-
-    create_downloaders(DOWNLOADERS_COUNT, db, files, LOCAL_DIRECTORY)
-    create_finder(db, files, SEARCH_INTERVAL)
-    #db.dq.join()
     while True:
         time.sleep(10)
 
