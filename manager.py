@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-import os.path, time
+
 from json_database import JSONDatabase
 from flir_duo import FlirDuoCamera, download
+from ftp import FTP
+
+import os.path, time
 from threading import Thread, Event
 
 
