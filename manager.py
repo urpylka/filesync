@@ -9,6 +9,7 @@ from ftp import FTP
 
 import os.path, time
 from threading import Thread, Event
+from Queue import Queue
 
 
 def downloader(number, args):

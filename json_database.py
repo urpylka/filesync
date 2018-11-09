@@ -4,7 +4,6 @@
 
 import os, json
 from threading import Lock
-from Queue import Queue
 
 class FilesRecords:
 
