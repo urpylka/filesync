@@ -3,7 +3,7 @@
 # vim:set ts=4 sw=4 et:
 
 
-from json_database import JSONDatabase
+from json_database import FilesRecords
 from flir_duo import FlirDuoCamera, download
 from ftp import FTP
 
@@ -28,17 +28,24 @@ def downloader(number, args):
             try:
                 source.is_remote_available.wait()
                 if download(source_path, local_path):
-                    db.on_download(file, local_path)
+                    file["downloaded"] = True
+                    file["local_path"] = local_path
+                    # объект _files_records уже изменен,
+                    # тк объект file = db.dq.get() был передан по ссылке
+                    db.dump_json()
+                    db.uq.put(file)
+                    print("Downloaded " + file["source_path"] + " to " + local_path)
+                    db.dq.task_done()
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 print("Downloader-" + str(number) + "error: " + str(ex))
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 time.sleep(2)
-                # вообще можно перейти к другому элементу из очереди
+                # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
 
 
 def finder(number, args):
-    db, source, search_interval = args
+    db, source, search_interval, record, key = args
     verbose = True
     print("Created the Finder-" + str(number))
     """
@@ -52,7 +59,12 @@ def finder(number, args):
             if my_list != None:
                 if verbose: print("List of source: " + str(my_list))
                 for item in my_list:
-                    if not db.is_file_in_records(item): db.on_find(item)
+                    if not db.in_records(item):
+                        record[key] = item
+                        db.files_records.append(record)
+                        db.dump_json()
+                        db.dq.put(db.files_records[len(db.files_records) - 1])
+                        print("Found " + str(source_path))
             elif verbose: print("List of source is None")
 
         except Exception as ex:
@@ -89,11 +101,14 @@ def create_threads(count, function, *args):
 
 def main():
 
-    db = JSONDatabase("/home/pi/flir/db.json")
+    db = FilesRecords("/home/pi/flir/db.json")
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'])
     target = FTP(["localhost","",""])
 
-    create_threads(1, finder, db, source, 10)
+    record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    key = "source_path"
+
+    create_threads(1, finder, db, source, 10, record, key)
     create_threads(5, downloader, db, source, "/home/pi/flir")
     create_threads(3, uploader, db, target)
 

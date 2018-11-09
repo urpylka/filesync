@@ -6,49 +6,24 @@ import os, json
 from threading import Lock
 from Queue import Queue
 
-class JSONDatabase:
+class FilesRecords:
+
+    _file_lock = Lock()
+
     def __init__(self, json_path):
         self._json_path = json_path
-        self._files_records = self._load_json(json_path)
-        self._init_work()
+        self.files_records = self.load_json()
+
+        self.dq = Queue()
+        self.uq = Queue()
+        for _file in self.files_records:
+            if not _file['downloaded']: self.dq.put(_file)
+            elif not _file['uploaded']: self.uq.put(_file)
+
         print("Инициализирована БД")
 
 
-    def _init_work(self):
-        self.dq = Queue()
-        #self.uq = Queue()
-        for _file in self._files_records:
-            if not _file['downloaded']: self.dq.put(_file)
-            #elif not _file['uploaded'] and _file['size_on_flash'] > 0: self.uq.put(_file)
-
-
-    def on_download(self, file, local_path):
-        """
-        Функция успешного завершения загрузки лога на RPI.
-
-        По-хорошему надо все эти операции сделать атомарными.
-        Также нет смысла блокировать доступ к _file,
-        тк обращение к этим полям в другом месте в принципе нет
-
-        dump_json исполняется после uq.put тк это более долгая операция,
-        теоретически способная заблокировать следующую операцию uploader
-        """
-        file["downloaded"] = True
-        file["local_path"] = local_path
-        self._dump_json(self._files_records, self._json_path)
-        print("Downloaded " + file["source_path"] + " to " + local_path)
-        self.dq.task_done()
-
-
-    def on_upload(self, _file, url_px4io):
-        _file["uploaded"] = True
-        _file["url_px4io"] = url_px4io
-        self._dump_json(self._files_records, self._json_path)
-        print("Uploaded " + _file["local_path"] + " to " + url_px4io)
-        self.uq.task_done()
-
-
-    def is_file_in_records(self, log_path):
+    def in_records(self, source_path):
         """
         Функция поиска лога лога в словаре.
     
@@ -56,28 +31,12 @@ class JSONDatabase:
         и нужно сделать отлов ошибки
         AttributeError: 'dict' object has no attribute 'name'
         """
-        for _file in self._files_records:
-            if _file['source_path'] == log_path: return True
+        for _file in self.files_records:
+            if _file['source_path'] == source_path: return True
         return False
 
 
-    def on_find(self, source_path):
-        """
-        Функция добавления в массив найденного нового лога.
-
-        dump_json исполняется после dq.put тк это более долгая операция,
-        теоретически способная заблокировать следующую операцию downloader
-        """
-        print("Find " + str(source_path))
-        self._files_records.append({"source_path":source_path, "local_path":"", "downloaded":False})
-        self.dq.put(self._files_records[len(self._files_records) - 1])
-        self._dump_json(self._files_records, self._json_path)
-
-
-    _file_lock = Lock()
-
-
-    def _load_json(self, path):
+    def load_json(self, path = self._json_path):
         """
         Функция для загрузки словаря из json-файла.
         """
@@ -97,8 +56,7 @@ class JSONDatabase:
 
         return records
 
-
-    def _dump_json(self, data, path):
+    def dump_json(self, data = self.files_records, path = self._json_path):
         """
         Функция для сохранения словаря в json-файл.
         """
