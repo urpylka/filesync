@@ -38,6 +38,7 @@ class FTP(TargetUploader):
         try:
             socket.gethostbyaddr(self.conn_params[0])
         except socket.gaierror:
+            print "fsfakgfdopsioh"
             return False
         return True
 
