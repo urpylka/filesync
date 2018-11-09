@@ -3,19 +3,10 @@
 # vim:set ts=4 sw=4 et:
 
 from target_uploader import TargetUploader
-
 import time, ftplib
 from threading import Thread, Event
 
-# https://python-scripts.com/ftplib
-
-
 class FTP(TargetUploader):
-    """
-    Может доступность проверять по пингу до сервера?
-    И каждый коннект отдельное соединение
-    """
-
 
     def __init__(self, conn_params, verbose = False):
         self.verbose = verbose
@@ -29,10 +20,8 @@ class FTP(TargetUploader):
         t.daemon = True
         t.start()
 
-
     def __del__(self):
         self.ftp.quit()
-
 
     def _connect(self):
         while True:
@@ -49,7 +38,6 @@ class FTP(TargetUploader):
                 self.is_remote_available.set()
                 print("Раздел доступен, все операции разблокированы")
 
-
     def upload(self, local_path, remote_path):
         try:
             with open(local_path, 'rb') as fobj:
@@ -60,9 +48,3 @@ class FTP(TargetUploader):
             print "Error on upload to FTP server: " + str(ex)
             return False
         return True
-
-
-    # def download(self, local_path, remote_path):
-    #     out = 'C:\\files\\README.html'
-    #     with open(out, 'wb') as f:
-    #         self.ftp.retrbinary('RETR ' + 'README.html', f.write)
