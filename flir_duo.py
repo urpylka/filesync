@@ -84,7 +84,7 @@ class FlirDuoCamera(Source):
 
     def _mount(self):
         self.is_remote_available.clear()
-        print("Раздел недоступен, все операции заблокированы")
+        print("SOURCE: Раздел недоступен, все операции заблокированы")
         while True:
             time.sleep(1)
             code = None
@@ -94,15 +94,15 @@ class FlirDuoCamera(Source):
                 if output.find(self._mount_point) > -1:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        print("Раздел доступен, все операции разблокированы")
+                        print("SOURCE: Раздел доступен, все операции разблокированы")
                 else:
-                    print("Try to mount partition")
+                    print("SOURCE: Try to mount partition")
                     a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self._uuid + " " + self._mount_point, self.verbose)
                     continue
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    print("Раздел недоступен, все операции заблокированы")
+                    print("SOURCE: Раздел недоступен, все операции заблокированы")
 
-                    if code == 32: print("The partition was ejected")
-                    else: print("lsblk returned code: " + str(code))
+                    if code == 32: print("SOURCE: The partition was ejected")
+                    else: print("SOURCE: lsblk returned code: " + str(code))

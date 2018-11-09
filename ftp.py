@@ -23,7 +23,7 @@ class FTP(Target):
 
     def _connect(self):
         self.is_remote_available.clear()
-        print("Раздел недоступен, все операции заблокированы")
+        print("TARGET: Раздел недоступен, все операции заблокированы")
 
         while True:
             time.sleep(1)
@@ -32,12 +32,12 @@ class FTP(Target):
                 self.ftp.login()
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
-                    print("Раздел доступен, все операции разблокированы")
+                    print("TARGET: Раздел доступен, все операции разблокированы")
             except Exception as ex:
                 if self.verbose: print str(ex)
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    print("Раздел недоступен, все операции заблокированы")
+                    print("TARGET: Раздел недоступен, все операции заблокированы")
             
 
     def upload(self, local_path, remote_path):
@@ -47,6 +47,6 @@ class FTP(Target):
             # with open(path) as fobj:
             #     ftp.storlines('STOR ' + path, fobj)
         except Exception as ex:
-            print "Error on upload to FTP server: " + str(ex)
+            print "TARGET: Error on upload to FTP server: " + str(ex)
             return False
         return True
