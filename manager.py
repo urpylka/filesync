@@ -104,7 +104,8 @@ def main():
 
     db = FilesRecords("/home/pi/flir/db.json")
 
-    dq, uq = Queue()
+    dq = Queue()
+    uq = Queue()
     for _record in db.files_records:
         if not _record['downloaded']: dq.put(_record)
         elif not _record['uploaded']: uq.put(_record)
