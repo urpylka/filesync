@@ -91,7 +91,7 @@ def main():
 
     db = JSONDatabase("/home/pi/flir/db.json")
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'])
-    target = FTP(["localhost:21","",""])
+    target = FTP(["localhost","",""])
 
     create_threads(1, finder, db, source, 10)
     create_threads(5, downloader, db, source, "/home/pi/flir")
