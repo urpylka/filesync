@@ -4,7 +4,7 @@
 
 from target_uploader import TargetUploader
 
-import socket, time, ftplib
+import time, ftplib
 from threading import Thread, Event
 
 # https://python-scripts.com/ftplib
@@ -34,29 +34,18 @@ class FTP(TargetUploader):
         self.ftp.quit()
 
 
-    def check_host(self):
-        try:
-            socket.gethostbyaddr(self.conn_params[0])
-        except socket.gaierror:
-            print "fsfakgfdopsioh"
-            return False
-        return True
-
-
     def _connect(self):
         while True:
-            if not self.check_host():
+            try:
+                self.ftp = ftplib.FTP(self.conn_params[0], self.conn_params[1], self.conn_params[2])
+                self.ftp.login()
+            except Exception as ex:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     print("Раздел недоступен, все операции заблокированы")
-                while not self.check_host():
-                    time.sleep(1)
-            else:
-                self.ftp = ftplib.FTP(self.conn_params[0], self.conn_params[1], self.conn_params[2])
-                self.ftp.login()
-                if not self.is_remote_available.is_set():
-                    self.is_remote_available.set()
-                    print("Раздел доступен, все операции разблокированы")
+            if not self.is_remote_available.is_set():
+                self.is_remote_available.set()
+                print("Раздел доступен, все операции разблокированы")
 
 
     def upload(self, local_path, remote_path):
