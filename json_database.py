@@ -36,7 +36,7 @@ class JSONDatabase:
         file["downloaded"] = True
         file["local_path"] = local_path
         self._dump_json(self._files_records, self._json_path)
-        print("Downloaded " + file["remote_path"] + " to " + local_path)
+        print("Downloaded " + file["source_path"] + " to " + local_path)
         self.dq.task_done()
 
 
@@ -57,19 +57,19 @@ class JSONDatabase:
         AttributeError: 'dict' object has no attribute 'name'
         """
         for _file in self._files_records:
-            if _file['remote_path'] == log_path: return True
+            if _file['source_path'] == log_path: return True
         return False
 
 
-    def on_find(self, remote_path):
+    def on_find(self, source_path):
         """
         Функция добавления в массив найденного нового лога.
 
         dump_json исполняется после dq.put тк это более долгая операция,
         теоретически способная заблокировать следующую операцию downloader
         """
-        print("Find " + str(remote_path))
-        self._files_records.append({"remote_path":remote_path, "local_path":"", "downloaded":False})
+        print("Find " + str(source_path))
+        self._files_records.append({"source_path":source_path, "local_path":"", "downloaded":False})
         self.dq.put(self._files_records[len(self._files_records) - 1])
         self._dump_json(self._files_records, self._json_path)
 
