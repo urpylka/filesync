@@ -3,8 +3,9 @@
 # vim:set ts=4 sw=4 et:
 
 from target_uploader import TargetUploader
+
+import socket, time, ftplib
 from threading import Thread, Event
-from ftplib import FTP
 
 # https://python-scripts.com/ftplib
 
