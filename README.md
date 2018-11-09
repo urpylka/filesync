@@ -1,4 +1,4 @@
-# Synchronizer of a files
+# Files transporter
 
 ## Logic model
 
