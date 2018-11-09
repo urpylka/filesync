@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-
 from json_database import FilesRecords
-from flir_duo import FlirDuoCamera
-from ftp import FTP
+from source_flir_duo import FlirDuoCamera
+from target_ftp import FTP
 
 import os.path, time
 from threading import Thread, Event
