@@ -18,8 +18,10 @@ class FTP(Target):
         t.daemon = True
         t.start()
 
+
     def __del__(self):
         self.ftp.quit()
+
 
     def _connect(self):
         self.is_remote_available.clear()
@@ -38,6 +40,7 @@ class FTP(Target):
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     print("TARGET: FTP недоступен, все операции заблокированы")
+
 
     def upload(self, local_path, remote_path):
         try:

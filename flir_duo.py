@@ -22,6 +22,7 @@ def bash_command(command, verbose = True):
     do_command.wait()
     return retcode, output, error
 
+
 def copy(remote_path, local_path, verbose = True):
     """
     Можно реализовать проверку по размеру файла на то копировать его просто, используя cp, или чанками
@@ -40,11 +41,13 @@ def copy(remote_path, local_path, verbose = True):
         except Exception as ex:
             raise Exception("Download error: " + str(ex))
 
+
 def del_file(file_path):
     code, output, error = bash_command("/bin/rm " + file_path)
     if code != 0:
         print(output)
     return code
+
 
 class FlirDuoCamera(Source):
     """
@@ -59,12 +62,14 @@ class FlirDuoCamera(Source):
     verbose = False
     is_remote_available = Event()
 
+
     def __init__(self, *args):
         self._uuid, self._files_extentions, self._mount_point = args
 
         t = Thread(target = self._mount, args = ())
         t.daemon = True
         t.start()
+
 
     def get_list_of_files(self):
         """
@@ -78,8 +83,10 @@ class FlirDuoCamera(Source):
                     my_list.append(os.path.join(rootdir, file))
         return my_list
 
+
     def download(self, remote_path, local_path, verbose = True):
         return copy(remote_path, local_path, self.verbose)
+
 
     def _mount(self):
         self.is_remote_available.clear()
