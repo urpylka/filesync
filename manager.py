@@ -102,8 +102,8 @@ def create_threads(count, function, *args):
 def main():
 
     db = FilesRecords("/home/pi/flir/db.json")
-    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'])
-    target = FTP(["localhost","",""])
+    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt")
+    target = FTP("localhost", "", "")
 
     record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     key = "source_path"

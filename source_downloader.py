@@ -8,7 +8,7 @@ class SourceDownloader(object):
     db_fileds = []
     verbose = False
 
-    def __init__(self, conn_params, verbose = False)):
+    def __init__(self, *args)):
         raise NotImplementedError()
 
     def get_list_of_files(self)):
