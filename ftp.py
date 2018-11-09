@@ -36,6 +36,7 @@ class FTP(TargetUploader):
 
     def _connect(self):
         while True:
+            time.sleep(1)
             try:
                 self.ftp = ftplib.FTP(self.conn_params[0], self.conn_params[1], self.conn_params[2])
                 self.ftp.login()
@@ -43,6 +44,7 @@ class FTP(TargetUploader):
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     print("Раздел недоступен, все операции заблокированы")
+                    continue
             if not self.is_remote_available.is_set():
                 self.is_remote_available.set()
                 print("Раздел доступен, все операции разблокированы")
