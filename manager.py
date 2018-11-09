@@ -12,14 +12,14 @@ from threading import Thread, Event
 
 
 def downloader(number, args):
-    db, source, local_directory = args
+    db, source, local_directory, dq, uq = args
     verbose = True
     print("Created the Downloader-" + str(number))
     """
     Function for downloading files from remote device
     """
     while True:
-        file = db.dq.get()
+        file = dq.get()
         source_path = file['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
         if verbose: print(local_path)
@@ -31,11 +31,11 @@ def downloader(number, args):
                     file["downloaded"] = True
                     file["local_path"] = local_path
                     # объект _files_records уже изменен,
-                    # тк объект file = db.dq.get() был передан по ссылке
+                    # тк объект file = dq.get() был передан по ссылке
                     db.dump_json()
-                    db.uq.put(file)
+                    uq.put(file)
                     print("Downloaded " + file["source_path"] + " to " + local_path)
-                    db.dq.task_done()
+                    dq.task_done()
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 print("Downloader-" + str(number) + "error: " + str(ex))
@@ -45,7 +45,7 @@ def downloader(number, args):
 
 
 def finder(number, args):
-    db, source, search_interval, record, key = args
+    db, source, search_interval, record, key, dq = args
     verbose = True
     print("Created the Finder-" + str(number))
     """
@@ -63,7 +63,7 @@ def finder(number, args):
                         record[key] = item
                         db.files_records.append(record)
                         db.dump_json()
-                        db.dq.put(db.files_records[len(db.files_records) - 1])
+                        dq.put(db.files_records[len(db.files_records) - 1])
                         print("Found " + str(source_path))
             elif verbose: print("List of source is None")
 
@@ -74,11 +74,11 @@ def finder(number, args):
 
 
 def uploader(number, args):
-    db, target = args
+    db, target, uq = args
     print("Created the Uploader-" + str(number))
     while True:
 
-        file = db.uq.get()
+        file = uq.get()
         local_path = file['local_path']
         target_path = '/' + os.path.basename(local_path)
 
@@ -102,15 +102,21 @@ def create_threads(count, function, *args):
 def main():
 
     db = FilesRecords("/home/pi/flir/db.json")
+
+    dq, uq = Queue()
+    for _record in db.files_records:
+        if not _record['downloaded']: dq.put(_record)
+        elif not _record['uploaded']: uq.put(_record)
+
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt")
     target = FTP("localhost", "", "")
 
     record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     key = "source_path"
 
-    create_threads(1, finder, db, source, 10, record, key)
-    create_threads(5, downloader, db, source, "/home/pi/flir")
-    create_threads(3, uploader, db, target)
+    create_threads(1, finder, db, source, 10, record, key, dq)
+    create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq)
+    create_threads(3, uploader, db, target, uq)
 
     while True:
         time.sleep(10)
