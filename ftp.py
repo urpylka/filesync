@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-from target_uploader import TargetUploader
+from target_abstract import Target
 import time, ftplib
 from threading import Thread, Event
 
-class FTP(TargetUploader):
+class FTP(Target):
 
     verbose = False
     is_remote_available = Event()
