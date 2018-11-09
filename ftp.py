@@ -10,7 +10,7 @@ class FTP(TargetUploader):
 
     verbose = False
     is_remote_available = Event()
-    
+
     def __init__(self, *args):
         self.host, self.user, self.passwd = args
 
