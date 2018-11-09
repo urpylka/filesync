@@ -38,7 +38,6 @@ class FTP(Target):
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     print("TARGET: Раздел недоступен, все операции заблокированы")
-            
 
     def upload(self, local_path, remote_path):
         try:
