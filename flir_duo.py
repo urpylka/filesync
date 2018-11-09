@@ -62,7 +62,6 @@ class FlirDuoCamera(Source):
     verbose = False
     is_remote_available = Event()
 
-
     def __init__(self, *args):
         self._uuid, self._files_extentions, self._mount_point = args
 
