@@ -81,7 +81,6 @@ class FlirDuoCamera(Source):
     def download(self, remote_path, local_path, verbose = True):
         return copy(remote_path, local_path, self.verbose)
 
-
     def _mount(self):
         self.is_remote_available.clear()
         print("SOURCE: Раздел недоступен, все операции заблокированы")
