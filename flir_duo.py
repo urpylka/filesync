@@ -84,6 +84,7 @@ class FlirDuoCamera(Source):
 
     def _mount(self):
         self.is_remote_available.clear()
+        print("Раздел недоступен, все операции заблокированы")
         while True:
             time.sleep(1)
             code = None
@@ -103,7 +104,5 @@ class FlirDuoCamera(Source):
                     self.is_remote_available.clear()
                     print("Раздел недоступен, все операции заблокированы")
 
-                    if code == 32:
-                        print("The partition isn't found yet")
-                    else:
-                        print("lsblk returned code: " + str(code))
+                    if code == 32: print("The partition was ejected")
+                    else: print("lsblk returned code: " + str(code))
