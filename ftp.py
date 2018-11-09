@@ -23,6 +23,8 @@ class FTP(TargetUploader):
 
     def _connect(self):
         self.is_remote_available.clear()
+        print("Раздел недоступен, все операции заблокированы")
+
         while True:
             time.sleep(1)
             try:
