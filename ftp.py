@@ -28,16 +28,15 @@ class FTP(TargetUploader):
             try:
                 self.ftp = ftplib.FTP(self.host, self.user, self.passwd)
                 self.ftp.login()
+                if not self.is_remote_available.is_set():
+                    self.is_remote_available.set()
+                    print("Раздел доступен, все операции разблокированы")
             except Exception as ex:
                 if self.verbose: print str(ex)
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     print("Раздел недоступен, все операции заблокированы")
-                    continue
-                    print "dada"
-            if not self.is_remote_available.is_set():
-                self.is_remote_available.set()
-                print("Раздел доступен, все операции разблокированы")
+            
 
     def upload(self, local_path, remote_path):
         try:
