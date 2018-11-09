@@ -51,7 +51,7 @@ class FTP(TargetUploader):
                 while not self.check_host():
                     time.sleep(1)
             else:
-                self.ftp = ftplib.FTP(conn_params[0], conn_params[1], conn_params[2])
+                self.ftp = ftplib.FTP(self.conn_params[0], self.conn_params[1], self.conn_params[2])
                 self.ftp.login()
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
