@@ -4,7 +4,7 @@
 
 
 from json_database import FilesRecords
-from flir_duo import FlirDuoCamera, download
+from flir_duo import FlirDuoCamera
 from ftp import FTP
 
 import os.path, time
@@ -27,7 +27,7 @@ def downloader(number, args):
         while not file['downloaded']:
             try:
                 source.is_remote_available.wait()
-                if download(source_path, local_path):
+                if source.download(source_path, local_path):
                     file["downloaded"] = True
                     file["local_path"] = local_path
                     # объект _files_records уже изменен,
