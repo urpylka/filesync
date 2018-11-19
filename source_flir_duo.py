@@ -31,7 +31,7 @@ def copy(remote_path, local_path, logging):
     logging.debug("copy: Downloading from " + str(remote_path) + " to " + str(local_path))
     while True:
         try:
-            code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path), self._logging)
+            code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path),  logging)
             if code == 0:
                 #if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                 if True:
@@ -40,7 +40,7 @@ def copy(remote_path, local_path, logging):
                 logging.error("copy: cp returned code: " + str(code) + " and message: " + str(output))
                 time.sleep(1)
         except Exception as ex:
-            raise Exception("Download error: " + str(ex))
+            raise Exception("copy: " + str(ex))
 
 
 def del_file(file_path):
