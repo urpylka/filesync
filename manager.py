@@ -111,6 +111,7 @@ def create_threads(count, function, *args):
 def main():
 
     # Logger
+    # https://python-scripts.com/logging-python
     logger = logging.getLogger("filesync")
     logger.setLevel(logging.INFO)
     # create the logging file handler
@@ -129,7 +130,7 @@ def main():
         elif not _record['uploaded']: uq.put(_record)
 
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logging)
-    target = FTP("192.168.0.10", "smirart", "passwd", logging)
+    target = FTP("192.168.0.10", "test-1", "passwd", logging)
 
     record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     key = "source_path"
