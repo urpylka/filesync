@@ -34,12 +34,11 @@ class FilesRecords:
         """
         Функция для загрузки словаря из json-файла.
         """
-        path = self._json_path
 
         records = []
         try:
             with self._file_lock:
-                with open(path, 'r') as infile:
+                with open(self._json_path, 'r') as infile:
                     records = json.load(infile)
 
         except IOError as ex:
@@ -57,17 +56,16 @@ class FilesRecords:
         """
         Функция для сохранения словаря в json-файл.
         """
-        path = self._json_path
 
         with self._file_lock:
 
-            if not os.path.exists(os.path.dirname(path)):
+            if not os.path.exists(os.path.dirname(self._json_path)):
                 try:
-                    os.makedirs(os.path.dirname(path))
+                    os.makedirs(os.path.dirname(self._json_path))
                 except OSError as exc:  # Guard against race condition
                     if exc.errno != errno.EEXIST:
                         raise
 
-            with open(path, 'w') as outfile:
+            with open(self._json_path, 'w') as outfile:
                 json.dump(self.files_records, outfile)
                 self._logging.debug("dump_json: File of the DB was updated successful!")
