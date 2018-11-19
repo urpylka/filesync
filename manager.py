@@ -13,8 +13,8 @@ import logging
 
 
 def downloader(number, args):
-    db, source, local_directory, dq, uq, logging = args
-    logging.debug("Downloader-" + str(number) + " was created.")
+    db, source, local_directory, dq, uq, logger = args
+    logger.debug("Downloader-" + str(number) + " was created.")
     """
     Function for downloading files from remote device
     """
@@ -24,8 +24,8 @@ def downloader(number, args):
         file = dq.get()
         source_path = file['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
-        logging.debug("Downloader-" + str(number) + ": local_path " + local_path)
-        logging.debug("Downloader-" + str(number) + ": source_path " + source_path)
+        logger.debug("Downloader-" + str(number) + ": local_path " + local_path + \
+        "\nDownloader-" + str(number) + ": source_path " + source_path)
         while not file['downloaded']:
             try:
                 source.is_remote_available.wait()
@@ -36,32 +36,32 @@ def downloader(number, args):
                     # тк объект file = dq.get() был передан по ссылке
                     db.dump_json()
                     dq.task_done()
-                    logging.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
+                    logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
                     uq.put(file)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                logging.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
+                logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 time.sleep(2)
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
 
 
 def finder(number, args):
-    db, source, search_interval, record, key, dq, logging = args
-    logging.debug("Finder-" + str(number) + " was created.")
+    db, source, search_interval, record, key, dq, logger = args
+    logger.debug("Finder-" + str(number) + " was created.")
     """
     Function for searching files on remote device
     """
     while True:
         source.is_remote_available.wait()
         try:
-            logging.debug("Finder-" + str(number) + ": Searching a new files in source...")
+            logger.debug("Finder-" + str(number) + ": Searching a new files in source...")
             my_list = source.get_list_of_files()
             if my_list != None:
-                logging.debug("Finder-" + str(number) + ": List of source: " + str(my_list))
+                logger.debug("Finder-" + str(number) + ": List of source: " + str(my_list))
                 for item in my_list:
                     if not db.in_records(key, item):
-                        logging.info("Finder-" + str(number) + ": Found a new file: " + str(item))
+                        logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
                         # prepare the new object
                         record[key] = item
                         # save the new object
@@ -69,18 +69,18 @@ def finder(number, args):
                         db.dump_json()
                         # add the new object to the upload queue
                         dq.put(db.files_records[len(db.files_records) - 1])
-            else: logging.debug("Finder-" + str(number) + ": List of source is None")
+            else: logger.debug("Finder-" + str(number) + ": List of source is None")
 
         except Exception as ex:
-            logging.error("Finder-" + str(number) + ": " + str(ex))
+            logger.error("Finder-" + str(number) + ": " + str(ex))
 
         time.sleep(search_interval)
 
 
 def uploader(number, args):
-    db, target, uq, logging = args
+    db, target, uq, logger = args
     verbose = True
-    logging.debug("Uploader-" + str(number) + " was created.")
+    logger.debug("Uploader-" + str(number) + " was created.")
     while True:
 
         file = uq.get()
@@ -95,9 +95,9 @@ def uploader(number, args):
                     file['target_path'] = target_path
                     db.dump_json()
                     uq.task_done()
-                    logging.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
+                    logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
-                logging.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path)
+                logger.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path)
                 time.sleep(2)
 
 
@@ -121,7 +121,7 @@ def main():
     # add handler to logger object
     logger.addHandler(fh)
 
-    db = FilesRecords("/home/pi/flir/db.json", logging)
+    db = FilesRecords("/home/pi/flir/db.json", logger)
 
     dq = Queue()
     uq = Queue()
@@ -129,15 +129,15 @@ def main():
         if not _record['downloaded']: dq.put(_record)
         elif not _record['uploaded']: uq.put(_record)
 
-    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logging)
-    target = FTP("192.168.0.10", "test-1", "passwd", logging)
+    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
+    target = FTP("192.168.0.10", "test-1", "passwd", logger)
 
     record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     key = "source_path"
 
-    create_threads(1, finder, db, source, 10, record, key, dq, logging)
-    create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq, logging)
-    create_threads(3, uploader, db, target, uq, logging)
+    create_threads(1, finder, db, source, 10, record, key, dq, logger)
+    create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq, logger)
+    create_threads(3, uploader, db, target, uq, logger)
 
     while True:
         time.sleep(10)
