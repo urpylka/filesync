@@ -48,7 +48,7 @@ class FilesRecords:
 
         except ValueError as ex:
             self._logging.critical("load_json: Некорректный json: " + str(ex))
-            exit 1
+            exit(1)
 
         return records
 
