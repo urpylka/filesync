@@ -78,7 +78,7 @@ class FlirDuoCamera(Source):
         if self.verbose: print(self._mount_point, str(self._files_extentions))
         for rootdir, dirs, files in os.walk(self._mount_point):
             for file in files:
-                if files_extentions.count(file.split('.')[-1]) == 1:
+                if self._files_extentions.count(file.split('.')[-1]) == 1:
                     my_list.append(os.path.join(rootdir, file))
         return my_list
 
