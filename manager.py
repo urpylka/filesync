@@ -24,8 +24,7 @@ def downloader(number, args):
         file = dq.get()
         source_path = file['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
-        logger.debug("Downloader-" + str(number) + ": local_path " + local_path + \
-        "\nDownloader-" + str(number) + ": source_path " + source_path)
+        logger.debug("Downloader-" + str(number) + ": local_path " + local_path + " source_path " + source_path)
         while not file['downloaded']:
             try:
                 source.is_remote_available.wait()
@@ -58,7 +57,7 @@ def finder(number, args):
             logger.debug("Finder-" + str(number) + ": Searching a new files in source...")
             my_list = source.get_list_of_files()
             if my_list != None:
-                logger.debug("Finder-" + str(number) + ": List of source: " + str(my_list))
+                logger.debug("Finder-" + str(number) + ": List of source:\n" + str(my_list))
                 for item in my_list:
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
