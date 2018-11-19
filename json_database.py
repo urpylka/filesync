@@ -10,10 +10,11 @@ class FilesRecords:
     _file_lock = Lock()
     files_records = []
 
-    def __init__(self, json_path):
+    def __init__(self, json_path, logging):
         self._json_path = json_path
+        self._logging = logging
         self.files_records = self.load_json()
-        print("БД инициализирована")
+        logging.debug("init_db: БД инициализирована")
 
 
     def in_records(self, key, value):
@@ -43,10 +44,10 @@ class FilesRecords:
 
         except IOError as ex:
             if ex.errno == 2:
-                print("Файл базы данных еще не создан")
+                logging.debug("load_json: Файл базы данных еще не создан")
 
         except ValueError as ex:
-            print("Ошибка: некорректный json: " + str(ex))
+            logging.critical("load_json: Некорректный json: " + str(ex))
             exit
 
         return records
@@ -56,8 +57,6 @@ class FilesRecords:
         """
         Функция для сохранения словаря в json-файл.
         """
-        verbose = True
-        data = self.files_records
         path = self._json_path
 
         with self._file_lock:
@@ -70,5 +69,5 @@ class FilesRecords:
                         raise
 
             with open(path, 'w') as outfile:
-                json.dump(data, outfile)
-                if verbose: print("File of the DB was updated successful!")
+                json.dump(self.files_records, outfile)
+                logging.debug("dump_json: File of the DB was updated successful!")

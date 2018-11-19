@@ -40,7 +40,7 @@ def downloader(number, args):
                     uq.put(file)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                logging.error("Downloader-" + str(number) + ": Error: " + str(ex) + " with file " + source_path)
+                logging.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 time.sleep(2)
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
@@ -72,7 +72,7 @@ def finder(number, args):
             else: logging.debug("Finder-" + str(number) + ": List of source is None")
 
         except Exception as ex:
-            logging.error("Finder-" + str(number) + ": Error: " + str(ex))
+            logging.error("Finder-" + str(number) + ": " + str(ex))
 
         time.sleep(search_interval)
 
@@ -97,7 +97,7 @@ def uploader(number, args):
                     uq.task_done()
                     logging.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
-                logging.error("Uploader-" + str(number) + ": Error: " + str(ex) + " with file " + local_path)
+                logging.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path)
                 time.sleep(2)
 
 
@@ -120,7 +120,7 @@ def main():
     # add handler to logger object
     logger.addHandler(fh)
 
-    db = FilesRecords("/home/pi/flir/db.json")
+    db = FilesRecords("/home/pi/flir/db.json", logging)
 
     dq = Queue()
     uq = Queue()
