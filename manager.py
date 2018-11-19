@@ -60,7 +60,7 @@ def finder(number, args):
                 if verbose: print("List of source: " + str(my_list))
                 for item in my_list:
                     if not db.in_records(key, item):
-                        if verbose: print("Found " + str(item))
+                        if verbose: print("Found a new file: " + str(item))
                         # prepare the new object
                         record[key] = item
                         # save the new object
