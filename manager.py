@@ -69,7 +69,7 @@ def finder(number, args):
                         db.dump_json()
                         # add the new object to the upload queue
                         dq.put(db.files_records[len(db.files_records) - 1])
-            else logging.debug("Finder-" + str(number) + ": List of source is None")
+            else: logging.debug("Finder-" + str(number) + ": List of source is None")
 
         except Exception as ex:
             logging.error("Finder-" + str(number) + ": Error: " + str(ex))
