@@ -84,7 +84,7 @@ class FlirDuoCamera(Source):
 
 
     def download(self, remote_path, local_path, verbose = True):
-        return copy(remote_path, local_path, self.verbose)
+        return copy(remote_path, local_path, verbose)
 
 
     def _mount(self):
