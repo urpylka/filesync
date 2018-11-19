@@ -74,7 +74,7 @@ class FlirDuoCamera(Source):
         Get list of files
         """
         my_list = []
-        self._logger.debug(self._mount_point, str(self._files_extentions))
+        self._logger.debug("Mount point: " + self._mount_point + " Files extentions: " + str(self._files_extentions))
         for rootdir, dirs, files in os.walk(self._mount_point):
             for file in files:
                 if self._files_extentions.count(file.split('.')[-1]) == 1:
