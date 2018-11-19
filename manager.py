@@ -38,7 +38,7 @@ def downloader(number, args):
                     dq.task_done()
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                print("Downloader-" + str(number) + "error: " + str(ex))
+                print("Downloader-" + str(number) + " error: " + str(ex))
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 time.sleep(2)
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
@@ -88,7 +88,7 @@ def uploader(number, args):
                 if target.upload(local_path, target_path):
                     db.on_upload(file, target_path)
             except Exception as ex:
-                print("Uploader-" + str(number) + "error: " + str(ex))
+                print("Uploader-" + str(number) + " error: " + str(ex))
                 time.sleep(2)
 
 
