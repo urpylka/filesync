@@ -30,7 +30,7 @@ def copy(remote_path, local_path, verbose = True):
     if verbose: print("Downloading from " + str(remote_path) + " to " + str(local_path))
     while True:
         try:
-            code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path), self.verbose)
+            code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path), verbose)
             if code == 0:
                 #if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
                 if True:
