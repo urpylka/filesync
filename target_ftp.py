@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
+# https://github.com/stilliard/docker-pure-ftpd
+
 from target_abstract import Target
 import time, ftplib
 from threading import Thread, Event
