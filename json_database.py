@@ -14,7 +14,7 @@ class FilesRecords:
         self._json_path = json_path
         self._logging = logging
         self.files_records = self.load_json()
-        logging.debug("init_db: БД инициализирована")
+        self._logging.debug("init_db: БД инициализирована")
 
 
     def in_records(self, key, value):
@@ -44,10 +44,10 @@ class FilesRecords:
 
         except IOError as ex:
             if ex.errno == 2:
-                logging.debug("load_json: Файл базы данных еще не создан")
+                self._logging.debug("load_json: Файл базы данных еще не создан")
 
         except ValueError as ex:
-            logging.critical("load_json: Некорректный json: " + str(ex))
+            self._logging.critical("load_json: Некорректный json: " + str(ex))
             exit
 
         return records
@@ -70,4 +70,4 @@ class FilesRecords:
 
             with open(path, 'w') as outfile:
                 json.dump(self.files_records, outfile)
-                logging.debug("dump_json: File of the DB was updated successful!")
+                self._logging.debug("dump_json: File of the DB was updated successful!")
