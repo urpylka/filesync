@@ -128,8 +128,8 @@ def main():
         if not _record['downloaded']: dq.put(_record)
         elif not _record['uploaded']: uq.put(_record)
 
-    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt")
-    target = FTP("192.168.0.10", "smirart", "passwd")
+    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logging)
+    target = FTP("192.168.0.10", "smirart", "passwd", logging)
 
     record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     key = "source_path"
