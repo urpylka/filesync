@@ -54,17 +54,20 @@ def finder(number, args):
     while True:
         source.is_remote_available.wait()
         try:
-            print("Searching a new source...")
+            print("Searching a new files in source...")
             my_list = source.get_list_of_files()
             if my_list != None:
                 if verbose: print("List of source: " + str(my_list))
                 for item in my_list:
                     if not db.in_records(key, item):
+                        if verbose: print("Found " + str(item))
+                        # prepare the new object
                         record[key] = item
+                        # save the new object
                         db.files_records.append(record)
                         db.dump_json()
+                        # add the new object to the upload queue
                         dq.put(db.files_records[len(db.files_records) - 1])
-                        print("Found " + str(item))
             elif verbose: print("List of source is None")
 
         except Exception as ex:
