@@ -68,7 +68,7 @@ def finder(number, args):
             elif verbose: print("List of source is None")
 
         except Exception as ex:
-            print("Finder-" + str(number) + "error: " + str(ex))
+            print("Finder-" + str(number) + " error: " + str(ex))
 
         time.sleep(search_interval)
 
