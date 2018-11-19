@@ -10,11 +10,10 @@ from threading import Thread, Event
 
 class FTP(Target):
 
-    verbose = False
     is_remote_available = Event()
 
     def __init__(self, *args):
-        self.host, self.user, self.passwd = args
+        self.host, self.user, self.passwd, self._logging = args
 
         t = Thread(target = self._connect, args = ())
         t.daemon = True
@@ -27,7 +26,7 @@ class FTP(Target):
 
     def _connect(self):
         self.is_remote_available.clear()
-        print("TARGET: FTP недоступен, все операции заблокированы")
+        self._logging.debug("TARGET: FTP недоступен, все операции заблокированы")
 
         while True:
             time.sleep(1)
@@ -36,12 +35,12 @@ class FTP(Target):
                 self.ftp.login()
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
-                    print("TARGET: FTP доступен, все операции разблокированы")
+                    self._logging.debug("TARGET: FTP доступен, все операции разблокированы")
             except Exception as ex:
-                if self.verbose: print str(ex)
+                self._logging.error(str(ex))
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    print("TARGET: FTP недоступен, все операции заблокированы")
+                    self._logging.debug("TARGET: FTP недоступен, все операции заблокированы")
 
 
     def upload(self, local_path, remote_path):
@@ -51,6 +50,6 @@ class FTP(Target):
             # with open(path) as fobj:
             #     ftp.storlines('STOR ' + path, fobj)
         except Exception as ex:
-            print "TARGET: Error on upload to FTP server: " + str(ex)
+            self._logging.error("TARGET: Error on upload to FTP server: " + str(ex) + " on file " + local_path)
             return False
         return True
