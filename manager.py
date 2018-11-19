@@ -111,10 +111,10 @@ def create_threads(count, function, *args):
 def main():
 
     # Logger
-    logger = logging.getLogger("FileSync")
+    logger = logging.getLogger("filesync")
     logger.setLevel(logging.INFO)
     # create the logging file handler
-    fh = logging.FileHandler("/home/pi/flir/transport.log"")
+    fh = logging.FileHandler("/home/pi/flir/filesync.log"")
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     # add handler to logger object
