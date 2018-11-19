@@ -19,6 +19,8 @@ def downloader(number, args):
     Function for downloading files from remote device
     """
     while True:
+        # объект из очереди передается по ссылке,
+        # поэтому изменение file приведет к изменению record в db
         file = dq.get()
         source_path = file['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
@@ -33,9 +35,9 @@ def downloader(number, args):
                     # объект _files_records уже изменен,
                     # тк объект file = dq.get() был передан по ссылке
                     db.dump_json()
-                    uq.put(file)
-                    print("Downloaded " + file["source_path"] + " to " + local_path)
                     dq.task_done()
+                    print("File " + source_path + " was downloaded to " + local_path)
+                    uq.put(file)
             except Exception as ex:
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 print("Downloader-" + str(number) + " error: " + str(ex))
