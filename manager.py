@@ -64,7 +64,7 @@ def finder(number, args):
                         db.files_records.append(record)
                         db.dump_json()
                         dq.put(db.files_records[len(db.files_records) - 1])
-                        print("Found " + str(source_path))
+                        print("Found " + str(item))
             elif verbose: print("List of source is None")
 
         except Exception as ex:
