@@ -3,6 +3,7 @@
 # vim:set ts=4 sw=4 et:
 
 # https://github.com/stilliard/docker-pure-ftpd
+# https://github.com/stilliard/docker-pure-ftpd/wiki/Basic-example-walk-through
 
 from target_abstract import Target
 import time, ftplib
