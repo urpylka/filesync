@@ -24,7 +24,7 @@ def downloader(number, args):
         file = dq.get()
         source_path = file['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
-        logger.debug("Downloader-" + str(number) + ": local_path " + local_path + " source_path " + source_path)
+        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + "local_path " + local_path)
         while not file['downloaded']:
             try:
                 source.is_remote_available.wait()
