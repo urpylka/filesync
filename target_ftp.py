@@ -37,7 +37,7 @@ class FTP(Target):
                     self.is_remote_available.set()
                     self._logging.debug("TARGET: FTP доступен, все операции разблокированы")
             except Exception as ex:
-                self._logging.error(str(ex))
+                self._logging.error("TARGET: " + str(ex))
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     self._logging.debug("TARGET: FTP недоступен, все операции заблокированы")
