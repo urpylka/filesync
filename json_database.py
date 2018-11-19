@@ -8,6 +8,7 @@ from threading import Lock
 class FilesRecords:
 
     _file_lock = Lock()
+    files_records = []
 
     def __init__(self, json_path):
         self._json_path = json_path
@@ -55,6 +56,7 @@ class FilesRecords:
         """
         Функция для сохранения словаря в json-файл.
         """
+        verbose = True
         data = self.files_records
         path = self._json_path
 
@@ -69,3 +71,4 @@ class FilesRecords:
 
             with open(path, 'w') as outfile:
                 json.dump(data, outfile)
+                if verbose: print("File of the DB was updated successful!")
