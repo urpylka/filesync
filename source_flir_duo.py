@@ -95,7 +95,7 @@ class FlirDuoCamera(Source):
             output = None
             code, output, error = bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._uuid + "\"", self._logger)
             if code == 0:
-                if output.find(self._mount_point) > -1:
+                if output.find(str(self._mount_point)) > -1:
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
                         self._logger.debug("SOURCE: Раздел доступен, все операции разблокированы")
