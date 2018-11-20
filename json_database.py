@@ -68,5 +68,5 @@ class FilesRecords:
 
             with open(self._json_path, 'w') as outfile:
                 json.dump(self.files_records, outfile)
-                time.sleep(1)
+                time.sleep(0.1)
                 self._logger.debug("dump_json: File of the DB was updated successful!")
