@@ -22,7 +22,8 @@ class FTP(Target):
 
 
     def __del__(self):
-        self.ftp.quit()
+        self.ftp.abort()
+        self.ftp.close()
 
 
     def _connect(self):
@@ -32,8 +33,8 @@ class FTP(Target):
         while True:
             time.sleep(1)
             try:
-                self.ftp = ftplib.FTP(self.host, self.user, self.passwd)
-                self.ftp.login()
+                self.ftp = ftplib.FTP(self.host)
+                self.ftp.login(self.user, self.passwd)
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
                     self._logger.debug("TARGET: FTP доступен, все операции разблокированы")
@@ -41,7 +42,7 @@ class FTP(Target):
                 self._logger.error("TARGET: " + str(ex))
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    self._logger.debug("TARGET: FTP недоступен, все операции заблокированы")
+                    self._logger
 
 
     def upload(self, local_path, remote_path):
