@@ -37,7 +37,7 @@ class JsonArray:
         t.daemon = True
         t.start()
 
-        self._logger.debug("init_db: БД инициализирована")
+        self._logger.debug("Initializated DB successful")
 
 
     def _autosaver(self, delay):
@@ -110,10 +110,10 @@ class JsonArray:
 
         except IOError as ex:
             if ex.errno == 2:
-                self._logger.debug("load_json: Файл базы данных еще не создан")
+                self._logger.debug("load_json: File of DB was created")
 
         except ValueError as ex:
-            self._logger.critical("load_json: Некорректный json: " + str(ex))
+            self._logger.critical("load_json: Incorrect Json in file of DB: " + str(ex))
             exit(1)
 
         return records
