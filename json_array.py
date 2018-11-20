@@ -3,7 +3,7 @@
 # vim:set ts=4 sw=4 et:
 
 import os, json, time
-from threading import Lock
+from threading import Thread, Lock
 
 class JsonArray:
     """
