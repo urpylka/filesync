@@ -53,7 +53,7 @@ class FTP(Target):
             #     res = self._ftp.storbinary('STOR ' + remote_path, fobj, 1024)
 
             self._ftp.cwd('/')
-            res = self._ftp.storbinary('STOR ' + remote_path, open(local_path, 'rb'))
+            res = self._ftp.storbinary('STOR ' + '/' + remote_path, open(local_path, 'rb'))
             if not res.startswith('226 Transfer complete'):
                 return False
         except Exception as ex:

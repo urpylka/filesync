@@ -91,7 +91,7 @@ def uploader(number, args):
                     uq.task_done()
                     logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
-                logger.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path)
+                logger.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path + " and target path " + target_path)
                 time.sleep(2)
 
 
