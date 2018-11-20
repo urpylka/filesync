@@ -18,10 +18,10 @@ class JsonArray:
     _record2 = { "source_path": "BBBB", "downloaded": True, "local_path": "", "uploaded": False, "target_path": "" }
     ja.append(_record2)
 
-    print(ja.in_records("source_path","BBBA"))
-    print(ja.in_records("source_path","BBBB"))
     print(ja.in_records("source_path","AAA"))
     print(ja.in_records("source_path","AAAA"))
+    print(ja.in_records("source_path","ABBB"))
+    print(ja.in_records("source_path","BBBB"))
     """
 
     _file_lock = Lock()
@@ -32,17 +32,20 @@ class JsonArray:
         self._json_path = json_path
         self._logger = logger
         self._records = self._load_json()
-        self._logger.debug("init_db: БД инициализирована")
 
         t = Thread(target = self._autosaver, args = (autosaver_delay,))
         t.daemon = True
         t.start()
+
+        self._logger.debug("init_db: БД инициализирована")
+
 
     def _autosaver(self, delay):
         while(True):
             with self._internal_lock:
                 self._dump_json()
             time.sleep(delay)
+
 
     def __len__(self):
         with self._internal_lock:
@@ -99,11 +102,11 @@ class JsonArray:
         Функция для загрузки словаря из json-файла.
         """
 
-        _records = []
+        records = []
         try:
             with self._file_lock:
                 with open(self._json_path, 'r') as infile:
-                    _records = json.load(infile)
+                    records = json.load(infile)
 
         except IOError as ex:
             if ex.errno == 2:
@@ -113,7 +116,7 @@ class JsonArray:
             self._logger.critical("load_json: Некорректный json: " + str(ex))
             exit(1)
 
-        return _records
+        return records
 
 
     def _dump_json(self):
@@ -134,6 +137,7 @@ class JsonArray:
                 with open(self._json_path, 'w') as outfile:
                     json.dump(self._records, outfile)
                     self._logger.debug("dump_json: File of the DB was updated successful!")
+
 
     def __del__(self):
             self._dump_json()
