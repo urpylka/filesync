@@ -67,14 +67,6 @@ class FilesRecords:
                         raise
 
             with open(self._json_path, 'w') as outfile:
-                if self.files_records == "":
-                    print("urpylka error")
-                    exit(1)
-                print("===========")
-                print(str(self.files_records))
-                print("===========")
-                try:
-                    json.dump(self.files_records, outfile)
-                except Exception as ex:
-                    print(str(ex))
+                json.dump(self.files_records, outfile)
+                time.sleep(1)
                 self._logger.debug("dump_json: File of the DB was updated successful!")
