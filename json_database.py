@@ -67,5 +67,8 @@ class FilesRecords:
                         raise
 
             with open(self._json_path, 'w') as outfile:
+                print("===========")
+                print(str(self.files_records))
+                print("===========")
                 json.dump(self.files_records, outfile)
                 self._logger.debug("dump_json: File of the DB was updated successful!")
