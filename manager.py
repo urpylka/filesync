@@ -13,7 +13,7 @@ import logging
 
 
 def finder(number, args):
-    db, source, search_interval, default_record, key, dq, logger = args
+    db, source, search_interval, record, key, dq, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
     """
     Function for searching files on remote device
@@ -29,9 +29,9 @@ def finder(number, args):
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
                         # prepare the new object
-                        default_record[key] = item
+                        record[key] = item
                         # save the new object
-                        db.append(*default_record)
+                        db.append(defaultdict(record.copy))
                         # add the new object to the upload queue
                         # индекс не сместится, потому что только finder добавляет в бд записи
                         # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
