@@ -23,7 +23,7 @@ def main():
     # authorizer.add_user(environ['FTP_USER'],
     #                     environ['FTP_PASS'],
     #                     environ['FTP_ROOT'], perm='elradfmwM')
-    authoorizer.add_user("test-1", "passwd", "ftpdir", perm='elradfmwM')
+    authorizer.add_user("test-1", "passwd", "ftpdir", perm='elradfmwM')
 
     # Instantiate FTP handler class
     handler = FTPHandler
