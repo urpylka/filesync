@@ -29,11 +29,10 @@ def finder(number, args):
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
                         # prepare the new object
-                        record = {}
                         record = default_record
                         record[key] = item
                         # save the new object
-                        db.append(record)
+                        db.append(&record)
                         # add the new object to the upload queue
                         # индекс не сместится, потому что только finder добавляет в бд записи
                         # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
