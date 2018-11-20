@@ -35,7 +35,7 @@ def finder(number, args):
                         # add the new object to the upload queue
                         # индекс не сместится, потому что только finder добавляет в бд записи
                         # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
-                        dq.put(db[len(db.files_records) - 1])
+                        dq.put(db[len(db) - 1])
             else: logger.debug("Finder-" + str(number) + ": List of source is None")
 
         except Exception as ex:
