@@ -33,7 +33,7 @@ def downloader(number, args):
                     file["local_path"] = local_path
                     # объект _files_records уже изменен,
                     # тк объект file = dq.get() был передан по ссылке
-                    db.dump_json()
+                    #db.dump_json()
                     dq.task_done()
                     logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
                     uq.put(file)
@@ -92,7 +92,7 @@ def uploader(number, args):
                 if target.upload(local_path, target_path):
                     file['uploaded'] = True
                     file['target_path'] = target_path
-                    db.dump_json()
+                    #db.dump_json()
                     uq.task_done()
                     logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
