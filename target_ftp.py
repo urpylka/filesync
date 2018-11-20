@@ -19,7 +19,7 @@ class CustomFTP(ftplib.FTP):
         else:
             host, port = ftplib.parse229(self.sendcmd('EPSV'), self.sock.getpeername())
 
-        if '192.168.0.11' == host:
+        if '192.168.0.10' == host:
             """ this ip will be unroutable, we copy Filezilla and return the host instead """
             host = self.host
         return host, port
