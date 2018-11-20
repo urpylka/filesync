@@ -42,7 +42,10 @@ class JsonArray:
 
     def _autosaver(self, delay):
         while(True):
+            print("urpylka 10")
+
             with self._internal_lock:
+                print("urpylka 100")
                 self._dump_json()
             time.sleep(delay)
 
@@ -53,6 +56,7 @@ class JsonArray:
 
 
     def __getitem__(self, key):
+        # хотя одновременно читать элемент в принципе можно, только если при этом не пишем
         # если значение или тип ключа некорректны, list выбросит исключение
         with self._internal_lock:
             return self._records[key]
