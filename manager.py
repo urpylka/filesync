@@ -135,7 +135,10 @@ def main():
     _record2 = { "source_path": "BBBB", "downloaded": True, "local_path": "", "uploaded": False, "target_path": "" }
     ja.append(_record2)
 
+    print(ja.in_records("source_path","BBBA"))
     print(ja.in_records("source_path","BBBB"))
+    print(ja.in_records("source_path","AAA"))
+    print(ja.in_records("source_path","AAAA"))
 
     # source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
     # target = FTP("192.168.0.10", "test-1", "passwd", logger)
