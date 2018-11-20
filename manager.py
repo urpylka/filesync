@@ -137,8 +137,11 @@ def main():
     #create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
     #create_threads(3, uploader, target, uq, logger)
 
-    while True:
-        time.sleep(10)
+    try:
+        while True:
+            time.sleep(10)
+    except KeyboardInterrupt:
+        return 0
 
 if __name__ == '__main__':
     main()
