@@ -31,7 +31,7 @@ def finder(number, args):
                         # prepare the new object
                         default_record[key] = item
                         # save the new object
-                        db.append(**default_record)
+                        db.append(*default_record)
                         # add the new object to the upload queue
                         # индекс не сместится, потому что только finder добавляет в бд записи
                         # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
