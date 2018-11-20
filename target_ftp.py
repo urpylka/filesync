@@ -28,7 +28,7 @@ class FTP(Target):
 
     def _connect(self):
         self.is_remote_available.clear()
-        self._logger.debug("TARGET: FTP недоступен, все операции заблокированы")
+        self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
 
         while True:
             time.sleep(1)
@@ -38,10 +38,11 @@ class FTP(Target):
                 self._ftp.connect()
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
-                    self._logger.debug("TARGET: FTP доступен, все операции разблокированы")
+                    self._logger.info("TARGET: FTP доступен, все операции разблокированы")
                     break
             except Exception as ex:
-                self._logger.error("TARGET: " + str(ex))
+                # ошибка 111 - если хост недоступен
+                self._logger.debug("TARGET: " + str(ex))
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
                     self._logger
