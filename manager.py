@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-from json_database import FilesRecords
+from json_array import JsonArray
 from source_flir_duo import FlirDuoCamera
 from target_ftp import FTP
 
@@ -120,26 +120,35 @@ def main():
     # add handler to logger object
     logger.addHandler(fh)
 
-    db = FilesRecords("/home/pi/flir/db.json", logger)
+    #db = FilesRecords("/home/pi/flir/db.json", logger)
+    ja = JsonArray("/home/pi/flir/db.json", logger)
 
     dq = Queue()
     uq = Queue()
-    for _record in db.files_records:
-        if not _record['downloaded']: dq.put(_record)
-        elif not _record['uploaded']: uq.put(_record)
+    for record in ja:
+        if not record['downloaded']: dq.put(record)
+        elif not record['uploaded']: uq.put(record)
 
-    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
-    target = FTP("192.168.0.10", "test-1", "passwd", logger)
+    _record = { "source_path": "AAAA", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    ja.append(_record)
 
-    record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
-    key = "source_path"
+    _record2 = { "source_path": "BBBB", "downloaded": True, "local_path": "", "uploaded": False, "target_path": "" }
+    ja.append(_record2)
 
-    create_threads(1, finder, db, source, 10, record, key, dq, logger)
-    create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq, logger)
-    create_threads(3, uploader, db, target, uq, logger)
+    print(ja.in_records("source_path","BBBB"))
 
-    while True:
-        time.sleep(10)
+    # source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
+    # target = FTP("192.168.0.10", "test-1", "passwd", logger)
+
+    # _record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    # _key = "source_path"
+
+    # create_threads(1, finder, db, source, 10, _record, _key, dq, logger)
+    # create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq, logger)
+    # create_threads(3, uploader, db, target, uq, logger)
+
+    # while True:
+    #     time.sleep(10)
 
 if __name__ == '__main__':
     main()
