@@ -7,23 +7,34 @@ from threading import Lock
 
 class JsonArray:
     """
+    More info about sequence there:
     https://m.habr.com/post/186608/
-    У меня получается последовательность из словарей, содержащих словари,
-    а я хочу получить последовательность словарей
-    ИЛИ НЕТ?
+
+    Examples:
+
+    _record = { "source_path": "AAAA", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    ja.append(_record)
+
+    _record2 = { "source_path": "BBBB", "downloaded": True, "local_path": "", "uploaded": False, "target_path": "" }
+    ja.append(_record2)
+
+    print(ja.in_records("source_path","BBBA"))
+    print(ja.in_records("source_path","BBBB"))
+    print(ja.in_records("source_path","AAA"))
+    print(ja.in_records("source_path","AAAA"))
     """
 
     _file_lock = Lock()
     _internal_lock = Lock()
     _records = []
 
-    def __init__(self, json_path, logger):
+    def __init__(self, json_path, autosaver_delay, logger):
         self._json_path = json_path
         self._logger = logger
         self._records = self._load_json()
         self._logger.debug("init_db: БД инициализирована")
 
-        t = Thread(target = self._autosaver, args = (5,))
+        t = Thread(target = self._autosaver, args = (autosaver_delay,))
         t.daemon = True
         t.start()
 
