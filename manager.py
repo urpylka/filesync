@@ -134,7 +134,7 @@ def main():
 
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
     create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
-    create_threads(1, uploader, target, uq, logger)
+    create_threads(3, uploader, target, uq, logger)
 
     try:
         while True:
