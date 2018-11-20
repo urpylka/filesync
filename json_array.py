@@ -111,7 +111,7 @@ class JsonArray:
                         raise
 
             with self._internal_lock:
-                with open(self._json_path, 'w', encoding='utf-8') as outfile:
+                with open(self._json_path, 'w') as outfile:
                     json.dump(self._records, outfile)
                     self._logger.debug("dump_json: File of the DB was updated successful!")
 
