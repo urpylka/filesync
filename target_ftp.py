@@ -37,8 +37,8 @@ class FTP(Target):
 
 
     def __del__(self):
-        self.ftp.abort()
-        self.ftp.close()
+        self._ftp.abort()
+        self._ftp.close()
 
 
     def _connect(self):
@@ -48,8 +48,9 @@ class FTP(Target):
         while True:
             time.sleep(1)
             try:
-                self.ftp = CustomFTP(self.host)
-                self.ftp.login(self.user, self.passwd)
+                self._ftp = ftplib.FTP(self.host)
+                #self._ftp = CustomFTP(self.host)
+                self._ftp.login(self.user, self.passwd)
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
                     self._logger.debug("TARGET: FTP доступен, все операции разблокированы")
@@ -64,7 +65,7 @@ class FTP(Target):
     def upload(self, local_path, remote_path):
         try:
             with open(local_path, 'rb') as fobj:
-                res = self.ftp.storbinary('STOR ' + remote_path, fobj, 1024)
+                res = self._ftp.storbinary('STOR ' + remote_path, fobj, 1024)
                 if not res.startswith('226 Transfer complete'):
                     return False
         except Exception as ex:
