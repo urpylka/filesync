@@ -125,8 +125,7 @@ def main():
         elif not record['uploaded']: uq.put(record)
 
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
-    # target = FTP("192.168.0.11", "test-1", "passwd", logger)
-    target = FTP("192.168.0.10", "test-1", "passwd", logger)
+    target = FTP("192.168.0.41", "test-1", "passwd", logger)
     # target.is_remote_available.wait()
     # target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
 
