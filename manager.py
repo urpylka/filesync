@@ -56,7 +56,7 @@ def downloader(number, args):
         record = dq.get()
         source_path = record['source_path']
         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
-        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + "local_path " + local_path)
+        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
                 source.is_remote_available.wait()
@@ -133,7 +133,7 @@ def main():
 
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
     create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
-    create_threads(3, uploader, target, uq, logger)
+    #create_threads(3, uploader, target, uq, logger)
 
     while True:
         time.sleep(10)
