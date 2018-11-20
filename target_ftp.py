@@ -49,7 +49,9 @@ class FTP(Target):
     def upload(self, local_path, remote_path):
         try:
             with open(local_path, 'rb') as fobj:
-                self.ftp.storbinary('STOR ' + remote_path, fobj, 1024)
+                res = self.ftp.storbinary('STOR ' + remote_path, fobj, 1024)
+                if not res.startswith('226 Transfer complete'):
+                    return False
             # with open(path) as fobj:
             #     ftp.storlines('STOR ' + path, fobj)
         except Exception as ex:
