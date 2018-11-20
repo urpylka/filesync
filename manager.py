@@ -6,8 +6,9 @@ from json_array import JsonArray
 from source_flir_duo import FlirDuoCamera
 from target_ftp import FTP
 
-import os.path, time, queue, logging
+import os.path, time, logging
 from threading import Thread, Event
+from queue import Queue
 
 def finder(number, args):
     db, source, search_interval, record, key, dq, logger = args
