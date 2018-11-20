@@ -57,6 +57,5 @@ class FTP(Target):
             if not res.startswith('226 Transfer complete'):
                 return False
         except Exception as ex:
-            print("urpylka exception")
             raise ex
         return True
