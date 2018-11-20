@@ -13,7 +13,7 @@ import logging
 
 
 def finder(number, args):
-    db, source, search_interval, record, key, dq, logger = args
+    db, source, search_interval, default_record, key, dq, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
     """
     Function for searching files on remote device
@@ -29,6 +29,8 @@ def finder(number, args):
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
                         # prepare the new object
+                        record = {}
+                        record = default_record
                         record[key] = item
                         # save the new object
                         db.append(record)
