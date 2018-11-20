@@ -12,39 +12,6 @@ from Queue import Queue
 import logging
 
 
-def downloader(number, args):
-    db, source, local_directory, dq, uq, logger = args
-    logger.debug("Downloader-" + str(number) + " was created.")
-    """
-    Function for downloading files from remote device
-    """
-    while True:
-        # объект из очереди передается по ссылке,
-        # поэтому изменение file приведет к изменению record в db
-        file = dq.get()
-        source_path = file['source_path']
-        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
-        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + "local_path " + local_path)
-        while not file['downloaded']:
-            try:
-                source.is_remote_available.wait()
-                if source.download(source_path, local_path):
-                    file["downloaded"] = True
-                    file["local_path"] = local_path
-                    # объект _files_records уже изменен,
-                    # тк объект file = dq.get() был передан по ссылке
-                    #db.dump_json()
-                    dq.task_done()
-                    logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
-                    uq.put(file)
-            except Exception as ex:
-                # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
-                # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
-                time.sleep(2)
-                # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
-
-
 def finder(number, args):
     db, source, search_interval, record, key, dq, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
@@ -64,10 +31,11 @@ def finder(number, args):
                         # prepare the new object
                         record[key] = item
                         # save the new object
-                        db.files_records.append(record)
-                        db.dump_json()
+                        db.append(record)
                         # add the new object to the upload queue
-                        dq.put(db.files_records[len(db.files_records) - 1])
+                        # индекс не сместится, потому что только finder добавляет в бд записи
+                        # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
+                        dq.put(db[len(db.files_records) - 1])
             else: logger.debug("Finder-" + str(number) + ": List of source is None")
 
         except Exception as ex:
@@ -76,23 +44,52 @@ def finder(number, args):
         time.sleep(search_interval)
 
 
+def downloader(number, args):
+    source, local_directory, dq, uq, logger = args
+    logger.debug("Downloader-" + str(number) + " was created.")
+    """
+    Function for downloading files from remote device
+    """
+    while True:
+        # объект из очереди передается по ссылке,
+        # поэтому изменение record приведет к изменению record в JsonArray
+        record = dq.get()
+        source_path = record['source_path']
+        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
+        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + "local_path " + local_path)
+        while not record['downloaded']:
+            try:
+                source.is_remote_available.wait()
+                if source.download(source_path, local_path):
+                    record["downloaded"] = True
+                    record["local_path"] = local_path
+                    dq.task_done()
+                    logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
+                    uq.put(record)
+            except Exception as ex:
+                # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
+                logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
+                # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
+                time.sleep(2)
+                # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
+
+
 def uploader(number, args):
-    db, target, uq, logger = args
+    target, uq, logger = args
     verbose = True
     logger.debug("Uploader-" + str(number) + " was created.")
     while True:
 
-        file = uq.get()
-        local_path = file['local_path']
+        record = uq.get()
+        local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
 
-        while not file['uploaded']:
+        while not record['uploaded']:
             target.is_remote_available.wait()
             try:
                 if target.upload(local_path, target_path):
-                    file['uploaded'] = True
-                    file['target_path'] = target_path
-                    #db.dump_json()
+                    record['uploaded'] = True
+                    record['target_path'] = target_path
                     uq.task_done()
                     logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
@@ -120,38 +117,26 @@ def main():
     # add handler to logger object
     logger.addHandler(fh)
 
-    #db = FilesRecords("/home/pi/flir/db.json", logger)
-    ja = JsonArray("/home/pi/flir/db.json", logger)
+    db = JsonArray("/home/pi/flir/db.json", 5, logger)
 
     dq = Queue()
     uq = Queue()
-    for record in ja:
+    for record in db:
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    _record = { "source_path": "AAAA", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
-    ja.append(_record)
+    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
+    target = FTP("192.168.0.10", "test-1", "passwd", logger)
 
-    _record2 = { "source_path": "BBBB", "downloaded": True, "local_path": "", "uploaded": False, "target_path": "" }
-    ja.append(_record2)
+    default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    name_of_key = "source_path"
 
-    print(ja.in_records("source_path","BBBA"))
-    print(ja.in_records("source_path","BBBB"))
-    print(ja.in_records("source_path","AAA"))
-    print(ja.in_records("source_path","AAAA"))
+    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
+    create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
+    create_threads(3, uploader, target, uq, logger)
 
-    # source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
-    # target = FTP("192.168.0.10", "test-1", "passwd", logger)
-
-    # _record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
-    # _key = "source_path"
-
-    # create_threads(1, finder, db, source, 10, _record, _key, dq, logger)
-    # create_threads(5, downloader, db, source, "/home/pi/flir", dq, uq, logger)
-    # create_threads(3, uploader, db, target, uq, logger)
-
-    # while True:
-    #     time.sleep(10)
+    while True:
+        time.sleep(10)
 
 if __name__ == '__main__':
     main()
