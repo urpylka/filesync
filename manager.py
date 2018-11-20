@@ -107,7 +107,8 @@ def main():
     # Logger
     # https://python-scripts.com/logging-python
     logger = logging.getLogger("filesync")
-    logger.setLevel(logging.DEBUG)
+    #logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
     # create the logging file handler
     fh = logging.FileHandler("/home/pi/flir/filesync.log", "w", "UTF-8")
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
