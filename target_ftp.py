@@ -9,21 +9,6 @@ from target_abstract import Target
 import time, ftplib, socket
 from threading import Thread, Event
 
-class CustomFTP(ftplib.FTP):
-    """
-    https://stackoverflow.com/questions/50060037/ftplib-connectionrefusederror-errno-111-connection-refused-python-3-5
-    """
-    def makepasv(self):
-        if self.af == socket.AF_INET:
-            host, port = ftplib.parse227(self.sendcmd('PASV'))
-        else:
-            host, port = ftplib.parse229(self.sendcmd('EPSV'), self.sock.getpeername())
-
-        if '192.168.0.10' == host:
-            """ this ip will be unroutable, we copy Filezilla and return the host instead """
-            host = self.host
-        return host, port
-
 class FTP(Target):
 
     is_remote_available = Event()
