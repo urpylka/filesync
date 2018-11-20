@@ -70,5 +70,9 @@ class FilesRecords:
                 print("===========")
                 print(str(self.files_records))
                 print("===========")
-                json.dump(self.files_records, outfile)
+                try:
+                    json.dump(self.files_records, outfile)
+                except Exception as ex:
+                    print(str(ex))
+                exit(1)
                 self._logger.debug("dump_json: File of the DB was updated successful!")
