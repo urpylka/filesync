@@ -116,5 +116,6 @@ class JsonArray:
                     self._logger.debug("dump_json: File of the DB was updated successful!")
 
     def __del__(self):
-        with self._file_lock:
-            os.unlink(self._json_path)
+            self._dump_json()
+            with self._file_lock:
+                os.unlink(self._json_path)
