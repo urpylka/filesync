@@ -47,6 +47,7 @@ class JsonArray:
             with self._internal_lock:
                 print("urpylka 100")
                 self._dump_json()
+                print("urpylka 1000")
             time.sleep(delay)
 
 

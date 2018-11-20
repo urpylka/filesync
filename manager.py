@@ -132,10 +132,12 @@ def main():
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     name_of_key = "source_path"
+
     print("urpylka 3")
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
     create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
     create_threads(3, uploader, target, uq, logger)
+
     print("urpylka 4")
     while True:
         time.sleep(10)
