@@ -42,12 +42,7 @@ class JsonArray:
 
     def _autosaver(self, delay):
         while(True):
-            print("urpylka 10")
-
-            with self._internal_lock:
-                print("urpylka 100")
-                self._dump_json()
-                print("urpylka 1000")
+            self._dump_json()
             time.sleep(delay)
 
 
