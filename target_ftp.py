@@ -6,7 +6,7 @@
 # https://github.com/stilliard/docker-pure-ftpd/wiki/Basic-example-walk-through
 
 from target_abstract import Target
-import time, ftplib
+import time, ftplib, socket
 from threading import Thread, Event
 
 class CustomFTP(ftplib.FTP):
