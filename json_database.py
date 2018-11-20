@@ -67,7 +67,7 @@ class FilesRecords:
                         raise
 
             with open(self._json_path, 'w') as outfile:
-                if self.files_records == None:
+                if self.files_records == "":
                     print("urpylka error")
                     exit(1)
                 print("===========")
