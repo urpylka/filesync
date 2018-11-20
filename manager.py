@@ -109,7 +109,7 @@ def main():
     logger = logging.getLogger("filesync")
     logger.setLevel(logging.DEBUG)
     # create the logging file handler
-    fh = logging.FileHandler("/home/pi/flir/filesync.log", 'w', 'utf-8')
+    fh = logging.FileHandler("/home/pi/flir/filesync.log", "w", "UTF-8")
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     # add handler to logger object
