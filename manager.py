@@ -119,26 +119,22 @@ def main():
 
     db = JsonArray("/home/pi/flir/db.json", 5, logger)
 
-    print("urpylka 1")
     dq = Queue()
     uq = Queue()
     for record in db:
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    print("urpylka 2")
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
     target = FTP("192.168.0.10", "test-1", "passwd", logger)
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     name_of_key = "source_path"
 
-    print("urpylka 3")
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
     create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
     create_threads(3, uploader, target, uq, logger)
 
-    print("urpylka 4")
     while True:
         time.sleep(10)
 
