@@ -35,7 +35,6 @@ class FTP(Target):
             try:
                 self._ftp = ftplib.FTP(self.host)
                 self._ftp.login(self.user, self.passwd)
-                self._ftp.connect()
                 if not self.is_remote_available.is_set():
                     self.is_remote_available.set()
                     self._logger.info("TARGET: FTP доступен, все операции разблокированы")
