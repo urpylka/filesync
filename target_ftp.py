@@ -67,9 +67,6 @@ class FTP(Target):
                 res = self.ftp.storbinary('STOR ' + remote_path, fobj, 1024)
                 if not res.startswith('226 Transfer complete'):
                     return False
-            # with open(path) as fobj:
-            #     ftp.storlines('STOR ' + path, fobj)
         except Exception as ex:
-            self._logger.error("TARGET: Error on upload to FTP server: " + str(ex) + " on file " + local_path)
-            return False
+            raise ex
         return True
