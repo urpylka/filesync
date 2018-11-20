@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-import os, json
+import os, json, time
 from threading import Lock
 
 class JsonArray:
@@ -23,6 +23,15 @@ class JsonArray:
         self._records = self._load_json()
         self._logger.debug("init_db: БД инициализирована")
 
+        t = Thread(target = self._autosaver, args = (5,))
+        t.daemon = True
+        t.start()
+
+    def _autosaver(self, delay):
+        while(True):
+            with self._internal_lock:
+                self._dump_json()
+            time.sleep(delay)
 
     def __len__(self):
         with self._internal_lock:
@@ -117,5 +126,6 @@ class JsonArray:
 
     def __del__(self):
             self._dump_json()
+            # для удаления файла при удалении объекта
             # with self._file_lock:
             #     os.unlink(self._json_path)
