@@ -42,7 +42,6 @@ class JsonArray:
 
     def _autosaver(self, delay):
         while(True):
-            print(str(self._records))
             self._dump_json()
             time.sleep(delay)
 
