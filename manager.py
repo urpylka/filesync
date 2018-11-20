@@ -127,8 +127,6 @@ def main():
     #target = FTP("192.168.0.10", "test-1", "passwd", logger)
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
-    default_record = { "source_path": "" }
-
     name_of_key = "source_path"
 
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
