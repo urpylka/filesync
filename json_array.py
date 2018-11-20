@@ -117,5 +117,5 @@ class JsonArray:
 
     def __del__(self):
             self._dump_json()
-            with self._file_lock:
-                os.unlink(self._json_path)
+            # with self._file_lock:
+            #     os.unlink(self._json_path)
