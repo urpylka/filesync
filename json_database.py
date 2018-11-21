@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-
 import os, json
 from threading import Lock
 from Queue import Queue
@@ -17,13 +16,13 @@ class JSONDatabase:
 
     def _init_work(self):
         self.dq = Queue()
-        self.uq = Queue()
+        #self.uq = Queue()
         for _log in self._logs_records:
             if not _log['downloaded']: self.dq.put(_log)
-            elif not _log['uploaded'] and _log['size_on_px4'] > 0: self.uq.put(_log)
+            #elif not _log['uploaded'] and _log['size_on_flash'] > 0: self.uq.put(_log)
 
 
-    def on_download(self, _log, path_on_rpi, size_on_px4):
+    def on_download(self, file, local_path):
         """
         Функция успешного завершения загрузки лога на RPI.
 
@@ -34,13 +33,10 @@ class JSONDatabase:
         dump_json исполняется после uq.put тк это более долгая операция,
         теоретически способная заблокировать следующую операцию uploader
         """
-        _log["downloaded"] = True
-        _log["path_on_rpi"] = path_on_rpi
-        _log["size_on_px4"] = size_on_px4
-        if size_on_px4 > 0: self.uq.put(_log)
-        else: print("File size = 0! " + path_on_rpi)
+        file["downloaded"] = True
+        file["local_path"] = local_path
         self._dump_json(self._logs_records, self._json_path)
-        print("Downloaded " + _log["path_on_px4"] + " to " + path_on_rpi)
+        print("Downloaded " + file["remote_path"] + " to " + local_path)
         self.dq.task_done()
 
 
@@ -52,7 +48,7 @@ class JSONDatabase:
         self.uq.task_done()
 
 
-    def is_log_in_records(self, log_path):
+    def is_file_in_records(self, log_path):
         """
         Функция поиска лога лога в словаре.
     
@@ -61,19 +57,19 @@ class JSONDatabase:
         AttributeError: 'dict' object has no attribute 'name'
         """
         for _log in self._logs_records:
-            if _log['path_on_px4'] == log_path: return True
+            if _log['path_on_flash'] == log_path: return True
         return False
 
 
-    def on_find(self, path_on_px4):
+    def on_find(self, path_on_flash):
         """
         Функция добавления в массив найденного нового лога.
 
         dump_json исполняется после dq.put тк это более долгая операция,
         теоретически способная заблокировать следующую операцию downloader
         """
-        print("Find " + path_on_px4)
-        self._logs_records.append({"path_on_px4":path_on_px4, "size_on_px4":"", "path_on_rpi":"", "downloaded":False, "uploaded":False, "url_px4io":""})
+        print("Find " + path_on_flash)
+        self._logs_records.append({"path_on_flash":path_on_flash, "size_on_flash":"", "checksum_on_flash":"", path_on_rpi":"", "downloaded":False, "uploaded":False, "url_px4io":""})
         self.dq.put(self._logs_records[len(self._logs_records) - 1])
         self._dump_json(self._logs_records, self._json_path)
 
