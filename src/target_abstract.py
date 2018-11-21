@@ -19,18 +19,25 @@
 from threading import Event
 
 class Target(object):
+    """
+    Может лучше сделать Grabber or Deleter?
+    """
 
     is_remote_available = Event()
 
     def __init__(self, *args):
         raise NotImplementedError()
 
+
     def upload(self, local_path, remote_path):
         """
-        Must return bool
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
+        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        4. Перед тем как запустить функцию нужно проверить событие is_remote_available
         """
         raise NotImplementedError()
 
-    # Может лучше сделать Grabber or Deleter
-    # def del_source_file(self, remote_path, local_path, verbose = True):
-    #     pass
+
+    def delete(self, remote_path, local_path):
+        raise NotImplementedError()

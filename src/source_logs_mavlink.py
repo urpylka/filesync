@@ -18,26 +18,120 @@
 
 from source_abstract import Source
 
-class PX4LOGS(Source):
+import rospy, time
+from threading import Thread, Lock
 
+class PX4LOGS(Source):
+    """
+    source = PX4LOGS("/fs/microsd/log")
+    """
     def __init__(self, *args):
-        raise NotImplementedError()
+        self.logdir = args
+        self.mavftp_lock = Lock()
+
+        rospy.loginfo('Inited px4logs_manager')
+        rospy.init_node("mavftp", anonymous=True)
+        # mavros.set_namespace("/mavros")
+
+        t = Thread(target = self._px4_available, args = ())
+        t.daemon = True
+        t.start()
+
+    def _px4_available(self):
+        rospy.spin()
+
 
     def get_list_of_files(self):
         raise NotImplementedError()
     
     def download(self, remote_path, local_path):
-        raise NotImplementedError()
+    """
+    
+    optimized transfer size for FTP message payload
+    XXX: bug in ftp.cpp cause a doubling request of last package.
+    -1 fixes that.
+    Размер чанка особо не влияет на скорость порядка 36Kb
+
+    может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
+    закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
+
+    AttributeError: __exit__
+    mavftp.do_download_local("/fs/microsd/log/2017-10-20/10_53_02.ulg","logs/10_53_02.ulg",True,True,True)
+
+    ftp_download_ulog.do_download_local(_log['path_on_px4'],_log['path_on_rpi'],True,True,True)
+
+    Posible errors:
+
+    донладим (по хорошему нужна проверка что лог уже не скачен и имя не повторяется)
+    rosrun mavros mavftp download /fs/microsd/log/2017-10-20/13_29_53.ulg 13_29_53.ulg
+    
+    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/open /fs/microsd/log/2017-10-20/10_53_02.ulg 0
+    size: 1676016
+    success: True
+    r_errno: 0
+    
+    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 1676015
+    data: []
+    success: False
+    r_errno: 5
+    
+    ошибка 9 возникает когда файл не открыт
+    
+    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 100
+    data: [85, 76, 111, 103, 1, 18, 53, 1, 58, 201, 155, 24, 0, 0, 0, 0, 40, 0, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 73, 15, 99, 104, 97, 114, 91, 52, 48, 93, 32, 118, 101, 114, 95, 115, 119, 53, 56, 50, 48, 98, 102, 98, 55, 57, 52, 48, 101, 99, 54, 57, 53, 55, 51, 99, 97, 101, 51]
+    success: True
+    r_errno: 0
+    
+    кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете), но туповато это самому реализовывать поэтому возьму это из mavftp
+
+    """
+
+    
+    file_path
+    file_name
+    accept_operation
+    verbose = True
+    no_progressbar = False
+    no_verify = False
+
+    # size_on_px4 = download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
+
+    with mavftp_lock:
+        local_crc = 0
+        
+        file_path = _resolve_path(file_path)
+        file = open(file_name, 'wb')
+
+        print_if(verbose, "Downloading from", file_path, "to", file_name, file=sys.stderr)
+        # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
+
+        to_fd = file
+        from_fd = mavros.ftp.open(file_path, 'r')
+        bar = ProgressBar(no_progressbar, "Downloading: ", from_fd.size)
+        
+        while True:
+            buf = from_fd.read(FTP_PAGE_SIZE)
+            if len(buf) == 0:
+                break
+
+            local_crc = nuttx_crc32(buf, local_crc)
+            to_fd.write(buf)
+            bar.update(from_fd.tell())
+
+        if not no_verify:
+            print_if(verbose, "Verifying...", file=sys.stderr)
+            remote_crc = mavros.ftp.checksum(file_path)
+            if local_crc != remote_crc:
+                fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
+                
+        from_fd.close()
+                 
 
     def del_source_file(self, remote_path, local_path):
         raise NotImplementedError()
 
 
-from json_database import JSONDatabase
-
-import rospy, time, requests, os
-from threading import Thread, Lock, Event
-from __future__ import print_function
+import requests, os
 
 import mavros # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
 from mavros_msgs.msg import State
@@ -92,87 +186,6 @@ class ProgressBar:
         if self.pbar:
             self.pbar.finish()
 
-
-def download(file_path, file_name, accept_operation, verbose=True, no_progressbar=False, no_verify=False):
-    """
-    optimized transfer size for FTP message payload
-    XXX: bug in ftp.cpp cause a doubling request of last package.
-    -1 fixes that.
-    Размер чанка особо не влияет на скорость порядка 36Kb
-
-    Нужна общая блокировка при работе с mavftp
-     with mavftp_lock:
-        time.sleep(1)
-        size_on_px4 = download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
-
-    может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-    закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
-
-    AttributeError: __exit__
-    mavftp.do_download_local("/fs/microsd/log/2017-10-20/10_53_02.ulg","logs/10_53_02.ulg",True,True,True)
-
-    ftp_download_ulog.do_download_local(_log['path_on_px4'],_log['path_on_rpi'],True,True,True)
-
-    Posible errors:
-
-    донладим (по хорошему нужна проверка что лог уже не скачен и имя не повторяется)
-    rosrun mavros mavftp download /fs/microsd/log/2017-10-20/13_29_53.ulg 13_29_53.ulg
-    
-    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/open /fs/microsd/log/2017-10-20/10_53_02.ulg 0
-    size: 1676016
-    success: True
-    r_errno: 0
-    
-    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 1676015
-    data: []
-    success: False
-    r_errno: 5
-    
-    ошибка 9 возникает когда файл не открыт
-    
-    pi@raspberrypi:~/urpylka_px4logs $ rosservice call /mavros/ftp/read /fs/microsd/log/2017-10-20/10_53_02.ulg 0 100
-    data: [85, 76, 111, 103, 1, 18, 53, 1, 58, 201, 155, 24, 0, 0, 0, 0, 40, 0, 66, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 56, 0, 73, 15, 99, 104, 97, 114, 91, 52, 48, 93, 32, 118, 101, 114, 95, 115, 119, 53, 56, 50, 48, 98, 102, 98, 55, 57, 52, 48, 101, 99, 54, 57, 53, 55, 51, 99, 97, 101, 51]
-    success: True
-    r_errno: 0
-    
-    кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете), но туповато это самому реализовывать поэтому возьму это из mavftp
-
-    """
-
-    rospy.init_node("mavftp", anonymous=True)
-    mavros.set_namespace("/mavros")
-    
-    local_crc = 0
-    
-    file_path = _resolve_path(file_path)
-    file = open(file_name, 'wb')
-
-    print_if(verbose, "Downloading from", file_path, "to", file_name, file=sys.stderr)
-    # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
-    to_fd = file
-    from_fd = mavros.ftp.open(file_path, 'r')
-    bar = ProgressBar(no_progressbar, "Downloading: ", from_fd.size)
-    
-    while True:
-        buf = from_fd.read(FTP_PAGE_SIZE)
-        if len(buf) == 0:
-            break
-
-        local_crc = nuttx_crc32(buf, local_crc)
-        to_fd.write(buf)
-        bar.update(from_fd.tell())
-
-    if not no_verify:
-        print_if(verbose, "Verifying...", file=sys.stderr)
-        remote_crc = mavros.ftp.checksum(file_path)
-        if local_crc != remote_crc:
-            fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
-            
-    from_fd.close()
-
-
-
-    rospy.loginfo('Inited px4logs_manager')
 
     ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
 
@@ -359,35 +372,6 @@ def main():
     # Наверное можно это и не использовать
     #####################################################################################
     FTP_PWD_FILE = '/tmp/.mavftp_pwd'
-
-
-    rospy.loginfo('Inited px4logs_manager')
-
-    ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
-
-    accept_operation = Event()
-    accept_operation.set()
-
-    def arming_protect(data):
-        if data.armed and ARMING_PROTECT:
-            if accept_operation.is_set():
-                accept_operation.clear()
-                print("ARMING все операции кроме upload заблокированы")
-        else:
-            if not accept_operation.is_set():
-                accept_operation.set()
-                print("DISARMING все операции разблокированы")
-
-
-    rospy.Subscriber('/mavros/state', State, arming_protect)
-    mavftp_lock = Lock()
-
-    db = JSONDatabase(DB_JSON_PATH)
-    create_downloaders(db, DOWNLOADERS_COUNT, LOGS_DIRECTORY, CHECK_FILE_CHECKSUM, mavftp_lock, accept_operation)
-    create_uploaders(db, UPLOADERS_COUNT, USER_EMAIL, USER_FEEDBACK, UPLOADER_URL, accept_operation)
-    create_finder(db, FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call)
-
-    rospy.spin()
 
 if __name__ == '__main__':
     main()

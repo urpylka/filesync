@@ -25,11 +25,31 @@ class Source(object):
     def __init__(self, *args):
         raise NotImplementedError()
 
-    def get_list_of_files(self):
-        raise NotImplementedError()
-    
-    def download(self, remote_path, local_path):
+
+    def get_list(self):
+        """
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать список файлов или, если что-то пошло не так, выбрасывать исключение
+        3. Перед тем как запустить функцию нужно проверить событие is_remote_available
+        """
         raise NotImplementedError()
 
-    def del_source_file(self, remote_path, local_path):
+
+    def download(self, remote_path, local_path):
+        """
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
+        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        4. Перед тем как запустить функцию нужно проверить событие is_remote_available
+        """
+        raise NotImplementedError()
+
+
+    def delete(self, remote_path, local_path):
+        """
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
+        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        4. Перед тем как запустить функцию нужно проверить событие is_remote_available
+        """
         raise NotImplementedError()
