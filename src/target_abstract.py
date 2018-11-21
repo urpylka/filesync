@@ -37,7 +37,3 @@ class Target(object):
         4. Перед тем как запустить функцию нужно проверить событие is_remote_available
         """
         raise NotImplementedError()
-
-
-    def delete(self, remote_path, local_path):
-        raise NotImplementedError()

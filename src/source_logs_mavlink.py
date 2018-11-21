@@ -148,15 +148,9 @@ class PX4LOGS(Source):
     кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете), но туповато это самому реализовывать поэтому возьму это из mavftp
 
     """
-    
-    file_path
-    file_name
-    accept_operation
-    verbose = True
-    no_progressbar = False
-    verify = True
 
-    # size_on_px4 = download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
+    verbose = True
+    verify = True
 
     with mavftp_lock:
 
@@ -206,11 +200,7 @@ class PX4LOGS(Source):
             mavros.ftp.reset_server()
 
 
-    def del_source_file(self, remote_path, local_path):
-        raise NotImplementedError()
-
-
-def create_list():
+def get_list():
     """
     Функция поиска новых логов на PX4.
     Тк пикс не создает супервложенных директорий,
@@ -308,18 +298,11 @@ def main():
     # /mavros/ftp/truncate
     # /mavros/ftp/write
 
-    # pi@raspberrypi:~ $ rosservice  
-    # args  call  find  info  list  type  uri
-
-    # флешки, нет в px
+    # Так происходит когда в px нет флешки
     # pi@raspberrypi:~ $ rosservice call /mavros/ftp/list /fs/microsd/log
     # list: []
     # success: True
     # r_errno: 0
-
-    # rosservice call /mavros/ftp/list /fs/microsd/log
-
-
 
 
 if __name__ == '__main__':
