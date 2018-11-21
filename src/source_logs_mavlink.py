@@ -16,15 +16,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rospy, time, requests, mavros, os
+from source_abstract import Source
+
+class PX4LOGS(Source):
+
+    def __init__(self, *args):
+        raise NotImplementedError()
+
+    def get_list_of_files(self):
+        raise NotImplementedError()
+    
+    def download(self, remote_path, local_path):
+        raise NotImplementedError()
+
+    def del_source_file(self, remote_path, local_path):
+        raise NotImplementedError()
+
+
 from json_database import JSONDatabase
+
+import rospy, time, requests, os
+from threading import Thread, Lock, Event
+from __future__ import print_function
+
+import mavros # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
 from mavros_msgs.msg import State
 from mavros_msgs.srv import FileList
-from threading import Thread, Lock, Event
 from mavros.utils import *
 from mavros.nuttx_crc32 import *
-from mavros import ftp # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
-from __future__ import print_function
 
 def _resolve_path(path = None):
     """
@@ -131,7 +150,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
     print_if(verbose, "Downloading from", file_path, "to", file_name, file=sys.stderr)
     # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
     to_fd = file
-    from_fd = ftp.open(file_path, 'r')
+    from_fd = mavros.ftp.open(file_path, 'r')
     bar = ProgressBar(no_progressbar, "Downloading: ", from_fd.size)
     
     while True:
@@ -145,7 +164,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
 
     if not no_verify:
         print_if(verbose, "Verifying...", file=sys.stderr)
-        remote_crc = ftp.checksum(file_path)
+        remote_crc = mavros.ftp.checksum(file_path)
         if local_crc != remote_crc:
             fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
             
@@ -173,8 +192,8 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
     # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
 
     try:
-        #remote_file = ftp.open(file_path, 'r')
-        with ftp.open(file_path, 'r') as remote_file:
+        #remote_file = mavros.ftp.open(file_path, 'r')
+        with mavros.ftp.open(file_path, 'r') as remote_file:
             if remote_file.size == 0: return 0 #raise Exception("File size = 0!")
             while True:
 
@@ -189,7 +208,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
 
                 if not no_verify:
                     print_if(verbose, "Verifying...")
-                    remote_crc = ftp.checksum(file_path)
+                    remote_crc = mavros.ftp.checksum(file_path)
                     if local_crc != remote_crc:
                         fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
 
@@ -197,7 +216,7 @@ def download(file_path, file_name, accept_operation, verbose=True, no_progressba
 
     except Exception as ex:
         raise Exception("Download error: " + str(ex))
-        ftp.reset_server()
+        mavros.ftp.reset_server()
 
 
 def create_list():
@@ -369,8 +388,6 @@ def main():
     create_finder(db, FINDER_INTERVAL, mavftp_lock, accept_operation, ftp_list_call)
 
     rospy.spin()
-    #db.dq.join()
-    #db.uq.join()
 
 if __name__ == '__main__':
     main()

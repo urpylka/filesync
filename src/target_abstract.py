@@ -21,8 +21,6 @@ from threading import Event
 class Target(object):
 
     is_remote_available = Event()
-    db_fileds = []
-    verbose = False
 
     def __init__(self, *args):
         raise NotImplementedError()
