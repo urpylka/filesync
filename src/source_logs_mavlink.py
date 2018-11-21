@@ -217,7 +217,7 @@ def get_list():
                 logs_folder = ftp_list_call("/fs/microsd/log")
                 if logs_folder.success and logs_folder.r_errno == 0:
 
-                    # проход по папкам с файлами логов
+                    # проход по корневой папке /fs/microsd/log
                     for logs_folder_list in logs_folder.list:
 
                         # если type равен 0, значит это файл, если 1, то это папка
@@ -225,6 +225,7 @@ def get_list():
 
                             path_session_logs_folder = "/fs/microsd/log/" + logs_folder_list.name
 
+                            # проход по папкам с файлами логов
                             session_logs_folder = ftp_list_call(path_session_logs_folder)
                             if session_logs_folder.success and session_logs_folder.r_errno == 0:
 
@@ -232,55 +233,16 @@ def get_list():
                                     if (log.type == 0):
                                         # если найден файл лога
                                         log_path = path_session_logs_folder + "/" + log.name
-                                        if not db.is_log_in_records(log_path): db.on_find(log_path)
 
-                            else: print("Import log folder error in " + path_session_logs_folder)
-                else: print("Import log folder error in /fs/microsd/log")
+                                        if not db.is_log_in_records(log_path):
+                                            db.on_find(log_path)
+
+                            else:
+                                raise Exception("Import log folder error in " + path_session_logs_folder)
+                    else:
+                        raise Exception("Import log folder error in /fs/microsd/log")
         except Exception as ex:
-            print("Finder error: " + str(ex))
-    logs_dict=load_json(JSON_PATH)
-    
-    # если type равен 0 значит это файл, если 1 то это папка
-    # тк пикс не создает супервложенных директорий, можно обойтись без рекурсивного перехода между папками
-    main_logs_folder=ftp_list_call('/fs/microsd/log')
-    if(main_logs_folder.success and main_logs_folder.r_errno == 0):
-        for main_logs_folder_list in main_logs_folder.list:
-            if (main_logs_folder_list.type == 1):
-                path_current_folder_of_logs="/fs/microsd/log/" + main_logs_folder_list.name
-                # проход по папкам с файлами логов
-                current_folder_of_logs=ftp_list_call(path_current_folder_of_logs)
-                if(current_folder_of_logs.success and current_folder_of_logs.r_errno == 0):
-                    for log in current_folder_of_logs.list:
-                        if (log.type == 0): # если найден файл лога
-                            _log_path = path_current_folder_of_logs + "/" + log.name
-                            if not is_log_in_dict(_log_path,logs_dict):
-                                logs_dict.append({"path_on_px4":_log_path,"path_on_rpi":"","downloaded":False,"uploaded":False,"url_px4io":""})
-                else: print("Import log folder error in " + path_current_folder_of_logs)
-    else: print("Import log folder error in /fs/microsd/log")
-    dump_json(logs_dict,JSON_PATH)
-
-    logs_folder = ftp_list_call("/fs/microsd/log")
-                if logs_folder.success and logs_folder.r_errno == 0:
-
-                    # проход по папкам с файлами логов
-                    for logs_folder_list in logs_folder.list:
-
-                        # если type равен 0, значит это файл, если 1, то это папка
-                        if logs_folder_list.type == 1:
-
-                            path_session_logs_folder = "/fs/microsd/log/" + logs_folder_list.name
-
-                            session_logs_folder = ftp_list_call(path_session_logs_folder)
-                            if session_logs_folder.success and session_logs_folder.r_errno == 0:
-
-                                for log in session_logs_folder.list:
-                                    if (log.type == 0):
-                                        # если найден файл лога
-                                        log_path = path_session_logs_folder + "/" + log.name
-                                        if not db.is_log_in_records(log_path): db.on_find(log_path)
-
-                            else: print("Import log folder error in " + path_session_logs_folder)
-                else: print("Import log folder error in /fs/microsd/log")
+            raise Exception("Finder error: " + str(ex))
 
 
 def main():
