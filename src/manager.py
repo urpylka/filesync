@@ -5,8 +5,9 @@
 from json_array import JsonArray
 from source_flir_duo import FlirDuoCamera
 from target_ftp import FTP
+from logger import get_logger
 
-import os.path, time, logging
+import os.path, time
 from threading import Thread, Event
 from queue import Queue
 
@@ -104,17 +105,7 @@ def create_threads(count, function, *args):
 
 def main():
 
-    # Logger
-    # https://python-scripts.com/logging-python
-    logger = logging.getLogger("filesync")
-    #logger.setLevel(logging.DEBUG)
-    logger.setLevel(logging.INFO)
-    # create the logging file handler
-    fh = logging.FileHandler("/home/pi/flir/filesync.log", "w", "UTF-8")
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    # add handler to logger object
-    logger.addHandler(fh)
+    logger = logger.get_logger("/home/pi/flir/filesync.log")
 
     db = JsonArray("/home/pi/flir/db.json", 5, logger)
 
@@ -126,8 +117,6 @@ def main():
 
     source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
     target = FTP("192.168.0.41", "test-1", "passwd", logger)
-    # target.is_remote_available.wait()
-    # target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     name_of_key = "source_path"

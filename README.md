@@ -39,3 +39,7 @@ For use this script bundle your PixHawk must connect to Companation Computer wit
 
 Нужнен гибкий конфигурационный файл с правилами, откуда, куда и что делать.
 Library for continue a interrupting downloads
+
+Может сделать фукнции donwload и upload с использованием потоков,
+таким образом подставив file.open() можно будет писать в файл,
+а если их направить друг на друга они будут писать без сохранения в local

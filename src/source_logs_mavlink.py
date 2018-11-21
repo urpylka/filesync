@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 # vim:set ts=4 sw=4 et:
 
-import os.path, rospy, time, requests
+# Copyright 2017-2018 Smirnov Artem.
+
+import rospy, time, requests, mavros, os
 from json_database import JSONDatabase
 from mavros_msgs.msg import State
 from mavros_msgs.srv import FileList
@@ -10,42 +12,8 @@ from threading import Thread, Lock, Event
 from mavros.utils import *
 from mavros.nuttx_crc32 import *
 from mavros import ftp # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
-
-#! /usr/bin/env python
-# -*- coding: utf-8 -*-
-# vim:set ts=4 sw=4 et:
-#
-# Copyright 2017 Smirnov Artem.
-#
-
 from __future__ import print_function
 
-import os
-import rospy
-import mavros
-from mavros.utils import *
-from mavros.nuttx_crc32 import *
-
-# /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
-from mavros import ftp
-
-no_progressbar = False
-try:
-    import progressbar as pbar
-except ImportError:
-    print("Prigressbar disabled. install python-progressbar", file=sys.stderr)
-    no_progressbar = True
-
-# optimized transfer size for FTP message payload
-# XXX: bug in ftp.cpp cause a doubling request of last package.
-# -1 fixes that.
-FTP_PAGE_SIZE = 239 * 18 - 1
-
-
-#####################################################################################
-# Наверное можно это и не использовать
-#####################################################################################
-FTP_PWD_FILE = '/tmp/.mavftp_pwd'
 def _resolve_path(path = None):
     """
     Resolve FTP path using PWD file
@@ -63,12 +31,11 @@ def _resolve_path(path = None):
         return os.path.normpath(path)   # absolute path
     else:
         return os.path.normpath(os.path.join(pwd, path))
-#####################################################################################
 
 
 class ProgressBar:
     """
-    Wrapper class for hiding file transfer brogressbar construction
+    Wrapper class for hiding file transfer progressbar construction
     """
     def __init__(self, quiet, operation, maxval):
         if no_progressbar or quiet or maxval == 0:
@@ -350,16 +317,23 @@ def load_param(param, default=None):
 def main():
     rospy.init_node('px4logs_manager')
 
-    USER_EMAIL = load_param('~user_email')
-    USER_FEEDBACK = load_param('~user_feedback') #"Error: Please enter additional_feedback for your logs"
-    FINDER_INTERVAL = load_param('~finder_interval', 10)
-    ARMING_PROTECT = load_param('~arming_protect', False)
-    DOWNLOADERS_COUNT = load_param('~downloaders_count', 1) # [Errno 24] Too many open files
-    UPLOADERS_COUNT = load_param('~uploaders_count', 2)
-    CHECK_FILE_CHECKSUM = load_param('~check_file_checksum', False)
-    LOGS_DIRECTORY = load_param('~logs_directory')
-    DB_JSON_PATH = load_param('~db_json_path')
-    UPLOADER_URL = load_param('~uploader_url', "https://logs.px4.io/upload")
+    no_progressbar = False
+    try:
+        import progressbar as pbar
+    except ImportError:
+        print("Prigressbar disabled. install python-progressbar", file=sys.stderr)
+        no_progressbar = True
+
+    # optimized transfer size for FTP message payload
+    # XXX: bug in ftp.cpp cause a doubling request of last package.
+    # -1 fixes that.
+    FTP_PAGE_SIZE = 239 * 18 - 1
+
+
+    #####################################################################################
+    # Наверное можно это и не использовать
+    #####################################################################################
+    FTP_PWD_FILE = '/tmp/.mavftp_pwd'
 
 
     rospy.loginfo('Inited px4logs_manager')
