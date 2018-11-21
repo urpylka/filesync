@@ -16,6 +16,8 @@ This software allow to sync a group of files between devices w difficult access:
 All sources & targets must be inherited from `source_abstract.py` & `target_abstract.py`.
 The local storage placed on computer where executing this program.
 
+Source & Target consists public `is_remote_available` event.
+
 ### Model of program
 
 Program wrote by pubsub technology & consist three workers:
@@ -24,13 +26,16 @@ Program wrote by pubsub technology & consist three workers:
 2. **Downloader** – downloading files from **source** to **local** which contain in **DownloadQueue** and adding those to DB and **UploadQueue**.
 3. **Uploader** – uploading files from **local** to **target** which contain in **UploadQueue** and adding those to DB.
 
+### Also
+
+* The asynchronous DB based on JSON file `json_array.py`.
+* Internet/connection checker.
+
 ## Other
 
 For use this script bundle your PixHawk must connect to Companation Computer with USB (NOT UART!)
 
-### First structure
+### Ideas
 
-* **creator_list_of_logs.py** - for create db of your logs on PX4
-* **ftp_download_ulog.py** - for download log from PX4
-* **post_upload_ulog.py** - for upload log to https://logs.px4.io
-* **manager_ulog.py** - main script of pipelining processing to download & upload logs
+Нужнен гибкий конфигурационный файл с правилами, откуда, куда и что делать.
+Library for continue a interrupting downloads
