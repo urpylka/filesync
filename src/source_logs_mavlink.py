@@ -62,10 +62,11 @@ class ProgressBar:
             self.pbar.finish()
 
 
-# AttributeError: __exit__
-# mavftp.do_download_local("/fs/microsd/log/2017-10-20/10_53_02.ulg","logs/10_53_02.ulg",True,True,True)
 def do_download_local(file_path,file_name,verbose=True,no_progressbar=False,no_verify=False):
     """
+    AttributeError: __exit__
+    mavftp.do_download_local("/fs/microsd/log/2017-10-20/10_53_02.ulg","logs/10_53_02.ulg",True,True,True)
+
     ftp_download_ulog.do_download_local(_log['path_on_px4'],_log['path_on_rpi'],True,True,True)
 
     Posible errors:
