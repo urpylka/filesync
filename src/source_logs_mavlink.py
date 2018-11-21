@@ -18,13 +18,81 @@
 
 from source_abstract import Source
 
-import rospy, time
+import time, sys, os
 from threading import Thread, Lock
+
+import rospy, mavros
+from mavros.nuttx_crc32 import *
+# from mavros.utils import *
+from mavros_msgs.srv import FileList
+
+class ProgressBar:
+    """
+    Wrapper class for hiding file transfer progressbar construction
+    """
+
+    def __init__(self, quiet, operation, maxval):
+        no_progressbar = False
+        try:
+            import progressbar as pbar
+        except ImportError:
+            print("Prigressbar disabled. install python-progressbar", file=sys.stderr)
+            no_progressbar = True
+
+        if no_progressbar or quiet or maxval == 0:
+            print_if(maxval == 0, "Can't show progressbar for unknown file size", file=sys.stderr)
+            self.pbar = None
+            return
+
+        self.pbar = pbar.ProgressBar(
+            widgets=[operation, pbar.Percentage(), ' ', pbar.Bar(), ' ', pbar.ETA(), ' ', pbar.FileTransferSpeed()],
+            maxval=maxval).start()
+
+
+    def update(self, value):
+        if self.pbar:
+            self.pbar.update(value)
+
+
+    def __enter__(self):
+        if self.pbar:
+            self.pbar.start()
+
+        return self
+
+
+    def __exit__(self, type, value, traceback):
+        if self.pbar:
+            self.pbar.finish()
+
+
+# def _resolve_path(path = None):
+#     """
+#     Resolve FTP path using PWD file
+#     """
+#     FTP_PWD_FILE = '/tmp/.mavftp_pwd'
+#     if os.path.exists(FTP_PWD_FILE):
+#         with open(FTP_PWD_FILE, 'r') as fd:
+#             pwd = fd.readline()
+#     else:
+#         # default home location is root directory
+#         pwd = os.environ.get('MAVFTP_HOME', '/')
+
+#     if not path:
+#         return os.path.normpath(pwd)    # no path - PWD location
+#     elif path.startswith('/'):
+#         return os.path.normpath(path)   # absolute path
+#     else:
+#         return os.path.normpath(os.path.join(pwd, path))
+
 
 class PX4LOGS(Source):
     """
     source = PX4LOGS("/fs/microsd/log")
+
+    /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
     """
+
     def __init__(self, *args):
         self.logdir = args
         self.mavftp_lock = Lock()
@@ -37,30 +105,25 @@ class PX4LOGS(Source):
         t.daemon = True
         t.start()
 
+
     def _px4_available(self):
         rospy.spin()
 
 
     def get_list_of_files(self):
         raise NotImplementedError()
-    
+
+
     def download(self, remote_path, local_path):
     """
-    
-    optimized transfer size for FTP message payload
-    XXX: bug in ftp.cpp cause a doubling request of last package.
-    -1 fixes that.
-    Размер чанка особо не влияет на скорость порядка 36Kb
+
+    Posible errors:
 
     может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
     закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
 
     AttributeError: __exit__
     mavftp.do_download_local("/fs/microsd/log/2017-10-20/10_53_02.ulg","logs/10_53_02.ulg",True,True,True)
-
-    ftp_download_ulog.do_download_local(_log['path_on_px4'],_log['path_on_rpi'],True,True,True)
-
-    Posible errors:
 
     донладим (по хорошему нужна проверка что лог уже не скачен и имя не повторяется)
     rosrun mavros mavftp download /fs/microsd/log/2017-10-20/13_29_53.ulg 13_29_53.ulg
@@ -85,151 +148,66 @@ class PX4LOGS(Source):
     кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете), но туповато это самому реализовывать поэтому возьму это из mavftp
 
     """
-
     
     file_path
     file_name
     accept_operation
     verbose = True
     no_progressbar = False
-    no_verify = False
+    verify = True
 
     # size_on_px4 = download(log['path_on_px4'], path_on_rpi, accept_operation, True, True, not _CHECK_FILE_CHECKSUM)
 
     with mavftp_lock:
-        local_crc = 0
-        
-        file_path = _resolve_path(file_path)
-        file = open(file_name, 'wb')
 
-        print_if(verbose, "Downloading from", file_path, "to", file_name, file=sys.stderr)
+        # optimized transfer size for FTP message payload
+        # XXX: bug in ftp.cpp cause a doubling request of last package.
+        # -1 fixes that.
+        FTP_CHUNK = 239 * 18 - 1
+        # Change of chunk size doesn't most affect to download speed ~36Kb
+
+        mavros.set_namespace("/mavros")
+
+        local_crc = 0
+        local_file = open(file_name, 'wb')
+
+        print_if(verbose, "Downloading from", file_path, "to", file_name)
         # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
 
-        to_fd = file
-        from_fd = mavros.ftp.open(file_path, 'r')
-        bar = ProgressBar(no_progressbar, "Downloading: ", from_fd.size)
-        
-        while True:
-            buf = from_fd.read(FTP_PAGE_SIZE)
-            if len(buf) == 0:
-                break
+        try:
+            with mavros.ftp.open(file_path, 'r') as remote_file:
 
-            local_crc = nuttx_crc32(buf, local_crc)
-            to_fd.write(buf)
-            bar.update(from_fd.tell())
+                if remote_file.size == 0:
+                    raise Exception("File size = 0!")
 
-        if not no_verify:
-            print_if(verbose, "Verifying...", file=sys.stderr)
-            remote_crc = mavros.ftp.checksum(file_path)
-            if local_crc != remote_crc:
-                fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
+                bar = ProgressBar(no_progressbar, "Downloading: ", remote_file.size)
+
+                while True:
+
+                    buf = remote_file.read(FTP_CHUNK)
+                    if len(buf) == 0:
+                        break
+
+                    local_crc = nuttx_crc32(buf, local_crc)
+                    local_file.write(buf)
+                    bar.update(remote_file.tell())
+
+                    if verify:
+                        print_if(verbose, "Verifying...")
+                        remote_crc = mavros.ftp.checksum(file_path)
+                        if local_crc != remote_crc:
+                            # fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
+                            raise Exception("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
                 
-        from_fd.close()
-                 
+                return remote_file.size
+
+        except Exception as ex:
+            raise Exception("Download error: " + str(ex))
+            mavros.ftp.reset_server()
+
 
     def del_source_file(self, remote_path, local_path):
         raise NotImplementedError()
-
-
-import requests, os
-
-import mavros # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
-from mavros_msgs.msg import State
-from mavros_msgs.srv import FileList
-from mavros.utils import *
-from mavros.nuttx_crc32 import *
-
-def _resolve_path(path = None):
-    """
-    Resolve FTP path using PWD file
-    """
-    if os.path.exists(FTP_PWD_FILE):
-        with open(FTP_PWD_FILE, 'r') as fd:
-            pwd = fd.readline()
-    else:
-        # default home location is root directory
-        pwd = os.environ.get('MAVFTP_HOME', '/')
-
-    if not path:
-        return os.path.normpath(pwd)    # no path - PWD location
-    elif path.startswith('/'):
-        return os.path.normpath(path)   # absolute path
-    else:
-        return os.path.normpath(os.path.join(pwd, path))
-
-
-class ProgressBar:
-    """
-    Wrapper class for hiding file transfer progressbar construction
-    """
-    def __init__(self, quiet, operation, maxval):
-        if no_progressbar or quiet or maxval == 0:
-            print_if(maxval == 0, "Can't show progressbar for unknown file size", file=sys.stderr)
-            self.pbar = None
-            return
-
-        self.pbar = pbar.ProgressBar(
-            widgets=[operation, pbar.Percentage(), ' ', pbar.Bar(), ' ', pbar.ETA(), ' ', pbar.FileTransferSpeed()],
-            maxval=maxval).start()
-
-    def update(self, value):
-        if self.pbar:
-            self.pbar.update(value)
-
-    def __enter__(self):
-        if self.pbar:
-            self.pbar.start()
-
-        return self
-
-    def __exit__(self, type, value, traceback):
-        if self.pbar:
-            self.pbar.finish()
-
-
-    ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
-
-
-    mavftp_lock = Lock()
-    rospy.spin()
-
-
-    FTP_CHUNK = 239 * 18 - 1
-
-    mavros.set_namespace("/mavros")
-
-    local_crc = 0
-    local_file = open(file_name, 'wb')
-
-    print_if(verbose, "Downloading from", file_path, "to", file_name)
-    # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
-
-    try:
-        #remote_file = mavros.ftp.open(file_path, 'r')
-        with mavros.ftp.open(file_path, 'r') as remote_file:
-            if remote_file.size == 0: return 0 #raise Exception("File size = 0!")
-            while True:
-
-                accept_operation.wait()
-
-                buf = remote_file.read(FTP_CHUNK)
-                if len(buf) == 0:
-                    break
-
-                local_crc = nuttx_crc32(buf, local_crc)
-                local_file.write(buf)
-
-                if not no_verify:
-                    print_if(verbose, "Verifying...")
-                    remote_crc = mavros.ftp.checksum(file_path)
-                    if local_crc != remote_crc:
-                        fault("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
-
-            return remote_file.size
-
-    except Exception as ex:
-        raise Exception("Download error: " + str(ex))
-        mavros.ftp.reset_server()
 
 
 def create_list():
@@ -237,21 +215,12 @@ def create_list():
     Функция поиска новых логов на PX4.
     Тк пикс не создает супервложенных директорий,
     можно обойтись без рекурсивного перехода между папками
-
-    при использовании нужна блокировка, тк ресурс не может работать параллельно
-    with mavftp_lock:
     """
 
-    """
-    Функция поиска новых логов на PX4.
-    Тк пикс не создает супервложенных директорий,
-    можно обойтись без рекурсивного перехода между папками
-    """
+    ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
     while True:
         try:
             with mavftp_lock:
-
-                accept_operation.wait()
 
                 time.sleep(1) # чтобы поток успел умереть
                 print("Ищу новые логи...")
@@ -325,10 +294,6 @@ def create_list():
 
 
 def main():
-    rospy.init_node('px4logs_manager')
-    # rospy.init_node('creator_list_px4_ulog')
-
-    JSON_PATH='logs/px4logs.json'
 
     # /mavros/ftp/checksum
     # /mavros/ftp/close
@@ -352,26 +317,10 @@ def main():
     # success: True
     # r_errno: 0
 
-    ftp_list_call = rospy.ServiceProxy('/mavros/ftp/list', FileList)
     # rosservice call /mavros/ftp/list /fs/microsd/log
 
-    no_progressbar = False
-    try:
-        import progressbar as pbar
-    except ImportError:
-        print("Prigressbar disabled. install python-progressbar", file=sys.stderr)
-        no_progressbar = True
-
-    # optimized transfer size for FTP message payload
-    # XXX: bug in ftp.cpp cause a doubling request of last package.
-    # -1 fixes that.
-    FTP_PAGE_SIZE = 239 * 18 - 1
 
 
-    #####################################################################################
-    # Наверное можно это и не использовать
-    #####################################################################################
-    FTP_PWD_FILE = '/tmp/.mavftp_pwd'
 
 if __name__ == '__main__':
     main()
