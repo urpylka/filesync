@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from source_abstract import Source
+from device_abstract import Device
 
 import time, sys, os
 from threading import Thread, Lock
@@ -86,7 +86,7 @@ class ProgressBar:
 #         return os.path.normpath(os.path.join(pwd, path))
 
 
-class PX4LOGS(Source):
+class PX4LOGS(Device):
     """
     source = PX4LOGS("/fs/microsd/log")
     """

@@ -17,9 +17,8 @@
 # limitations under the License.
 
 from json_array import JsonArray
-from source_flir_duo import FlirDuoCamera
-from target_ftp import FTP
-from logger import get_logger
+from device_disk import FlirDuoCamera
+from device_ftp import FTP
 
 import os.path, time
 from threading import Thread, Event

@@ -19,11 +19,12 @@
 # https://github.com/stilliard/docker-pure-ftpd
 # https://github.com/stilliard/docker-pure-ftpd/wiki/Basic-example-walk-through
 
-from target_abstract import Target
+from device_abstract import Device
+
 import time, ftplib, socket
 from threading import Thread, Event
 
-class FTP(Target):
+class FTP(Device):
 
     is_remote_available = Event()
 

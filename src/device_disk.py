@@ -16,7 +16,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from source_abstract import Source
+from device_abstract import Device
+
 import subprocess, os, time
 from threading import Thread, Event
 
@@ -64,7 +65,7 @@ def delete(file_path):
     return True
 
 
-class FlirDuoCamera(Source):
+class FlirDuoCamera(Device):
     """
     It can work w USB flash drive
 
