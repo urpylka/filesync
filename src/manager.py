@@ -34,22 +34,16 @@ def finder(number, args):
     while True:
         source.is_remote_available.wait()
         try:
-            logger.debug("Finder-" + str(number) + ": Searching a new files in source...")
-            my_list = source.get_list()
-            if my_list == None:
-                logger.debug("Finder-" + str(number) + ": List of source is None")
-            else:
-                logger.debug("Finder-" + str(number) + ": List of source:\n" + str(my_list))
-                for item in my_list:
-                    if not db.in_records(key, item):
-                        logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
+            for item in source.get_list():
+                if not db.in_records(key, item):
+                    logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
 
-                        # prepare the new object
-                        record = default_record.copy()
-                        record[key] = item
-                        # save the new object
-                        db.append(record)
-                        dq.put(record)
+                    # prepare the new object
+                    record = default_record.copy()
+                    record[key] = item
+                    # save the new object
+                    db.append(record)
+                    dq.put(record)
 
         except Exception as ex:
             logger.error("Finder-" + str(number) + ": " + str(ex))
