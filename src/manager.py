@@ -30,7 +30,7 @@ def finder(number, args):
     """
 
     logger.debug("Finder-" + str(number) + " was created.")
-    db, source, search_interval, default_record, key, dq, files_extentions, logger = args
+    db, source, search_interval, default_record, key, dq, files_extensions, logger = args
 
     while True:
         try:
@@ -39,8 +39,8 @@ def finder(number, args):
         for rootdir, dirs, files in os.walk(self._mount_point):
             for file in files:
 
-                # Check extention
-                if files_extentions.count(file.split('.')[-1]) == 1:
+                # Check extension
+                if files_extensions.count(file.split('.')[-1]) == 1:
 
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
