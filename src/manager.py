@@ -26,7 +26,7 @@ from threading import Thread, Event
 from queue import Queue
 
 def finder(number, args):
-    db, source, search_interval, record, key, dq, logger = args
+    db, source, search_interval, default_record, key, dq, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
     """
     Function for searching files on remote device
@@ -43,15 +43,13 @@ def finder(number, args):
                 for item in my_list:
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
+
                         # prepare the new object
+                        record = default_record.copy()
                         record[key] = item
                         # save the new object
-                        db.append(record.copy())
-                        # add the new object to the upload queue
-                        # индекс не сместится, потому что только finder добавляет в бд записи
-                        # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
-                        dq.put(db[len(db) - 1])
-            
+                        db.append(record)
+                        dq.put(record)
 
         except Exception as ex:
             logger.error("Finder-" + str(number) + ": " + str(ex))
