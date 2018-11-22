@@ -108,8 +108,16 @@ def create_threads(count, function, *args):
 
 
 def main():
-
-    logger = logger.get_logger("/home/pi/flir/filesync.log")
+    # https://python-scripts.com/logging-python
+    logger = logging.getLogger("filesync")
+    #logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
+    # create the logging file handler
+    fh = logging.FileHandler("/home/pi/flir/filesync.log", "w", "UTF-8")
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    # add handler to logger object
+    logger.addHandler(fh)
 
     db = JsonArray("/home/pi/flir/db.json", 5, logger)
 
