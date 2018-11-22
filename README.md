@@ -33,7 +33,21 @@ Program wrote by pubsub technology & consist three workers:
 
 ## Other
 
-For use this script bundle your PixHawk must connect to Companation Computer with USB (NOT UART!)
+### MAVFTP
+
+* For use this script bundle your PixHawk must connect to Companation Computer with USB (NOT UART!)
+* Нельзя запрашивать несколько mavftp-команд параллельно, будет ошибка: "FTP: Busy". По этой причине нельзя создавать несколько downloader'ов, а также по этой причине введена mavftp_lock между downloader'ом и finder'ом. Аналогичным образом работает QGC.
+
+### TODO
+
+* Найти ошибку в crc32 для проверки файлов по контрольной сумме
+* Понять нужны ли join() для thread'ов
+* Загрузка чанками requests https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
+* Добавление сервисов для работы с внутренней базой данных
+* Поэксперементировать с относительнымы путями для директории логов
+* Ускорить загрузку логов https://github.com/mavlink/mavros/issues/874
+* Замена json_database на http://tinydb.readthedocs.io/en/latest/ (НЕ НУЖНО тк TinyDB не асинхронная)
+* Брать описание для логов с /etc/coex.conf
 
 ### Ideas
 

@@ -89,8 +89,6 @@ class ProgressBar:
 class PX4LOGS(Source):
     """
     source = PX4LOGS("/fs/microsd/log")
-
-    /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
     """
 
     def __init__(self, *args):
@@ -108,10 +106,6 @@ class PX4LOGS(Source):
 
     def _px4_available(self):
         rospy.spin()
-
-
-    def get_list_of_files(self):
-        raise NotImplementedError()
 
 
     def download(self, remote_path, local_path):
@@ -169,6 +163,7 @@ class PX4LOGS(Source):
         # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
 
         try:
+            # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
             with mavros.ftp.open(file_path, 'r') as remote_file:
 
                 if remote_file.size == 0:
@@ -200,7 +195,7 @@ class PX4LOGS(Source):
             mavros.ftp.reset_server()
 
 
-def get_list():
+def get_list(self):
     """
     Функция поиска новых логов на PX4.
     Тк пикс не создает супервложенных директорий,
@@ -212,11 +207,10 @@ def get_list():
         try:
             with mavftp_lock:
 
-                time.sleep(1) # чтобы поток успел умереть
-                print("Ищу новые логи...")
                 logs_folder = ftp_list_call("/fs/microsd/log")
-                if logs_folder.success and logs_folder.r_errno == 0:
-
+                if not logs_folder.success or logs_folder.r_errno != 0:
+                    raise Exception("Import log folder error in /fs/microsd/log")
+                else:
                     # проход по корневой папке /fs/microsd/log
                     for logs_folder_list in logs_folder.list:
 
@@ -227,8 +221,10 @@ def get_list():
 
                             # проход по папкам с файлами логов
                             session_logs_folder = ftp_list_call(path_session_logs_folder)
-                            if session_logs_folder.success and session_logs_folder.r_errno == 0:
 
+                            if not session_logs_folder.success or session_logs_folder.r_errno != 0:
+                                raise Exception("Import log folder error in " + path_session_logs_folder)
+                            else:
                                 for log in session_logs_folder.list:
                                     if (log.type == 0):
                                         # если найден файл лога
@@ -237,10 +233,6 @@ def get_list():
                                         if not db.is_log_in_records(log_path):
                                             db.on_find(log_path)
 
-                            else:
-                                raise Exception("Import log folder error in " + path_session_logs_folder)
-                    else:
-                        raise Exception("Import log folder error in /fs/microsd/log")
         except Exception as ex:
             raise Exception("Finder error: " + str(ex))
 
