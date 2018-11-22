@@ -71,7 +71,7 @@ class FTP(Device):
             self._ftp.cwd('/')
             res = self._ftp.storbinary('STOR ' + '/' + remote_path, open(local_path, 'rb'))
             if not res.startswith('226 Transfer complete'):
-                return False
+                raise Exception("File was not uploaded successful: " + res)
         except Exception as ex:
             raise ex
         return True
