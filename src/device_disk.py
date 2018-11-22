@@ -65,7 +65,7 @@ def delete(file_path):
     return True
 
 
-class Disk(Device):
+class DISK(Device):
     is_remote_available = Event()
 
     def __init__(self, *args):
