@@ -33,9 +33,6 @@ def finder(number, args):
         try:
             for item in source.get_list():
 
-        for rootdir, dirs, files in os.walk(self._mount_point):
-            for file in files:
-
                 # Check extension
                 if files_extensions.count(file.split('.')[-1]) == 1:
 
