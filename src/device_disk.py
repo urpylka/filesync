@@ -65,15 +65,7 @@ def delete(file_path):
     return True
 
 
-class FlirDuoCamera(Device):
-    """
-    It can work w USB flash drive
-
-    FlirDuoCamera class consist:
-    - get_list_of_files()
-    - download(remote_path, local_path)
-    - del_file(remote_path)
-    """
+class Disk(Device):
     is_remote_available = Event()
 
     def __init__(self, *args):

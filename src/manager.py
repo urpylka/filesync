@@ -126,7 +126,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    source = FlirDuoCamera("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
+    source = Disk("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
     target = FTP("192.168.0.41", "test-1", "passwd", logger)
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
