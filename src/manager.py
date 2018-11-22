@@ -29,8 +29,8 @@ def finder(number, args):
     Function for searching files on remote device
     """
 
-    logger.debug("Finder-" + str(number) + " was created.")
     db, source, search_interval, default_record, key, dq, files_extensions, logger = args
+    logger.debug("Finder-" + str(number) + " was created.")
 
     while True:
         try:
@@ -63,8 +63,8 @@ def downloader(number, args):
     Function for downloading files from remote device
     """
 
-    logger.debug("Downloader-" + str(number) + " was created.")
     source, local_directory, dq, uq, logger = args
+    logger.debug("Downloader-" + str(number) + " was created.")
 
     while True:
         # объект из очереди передается по ссылке,
@@ -91,8 +91,8 @@ def downloader(number, args):
 
 def uploader(number, args):
 
-    logger.debug("Uploader-" + str(number) + " was created.")
     target, uq, logger = args
+    logger.debug("Uploader-" + str(number) + " was created.")
 
     while True:
 
