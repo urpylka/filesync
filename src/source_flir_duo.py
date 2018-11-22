@@ -87,6 +87,7 @@ class FlirDuoCamera(Source):
         """
         Get list of files
         """
+        self.is_remote_available.wait()
         my_list = []
         self._logger.debug("SOURCE: Mount point: " + self._mount_point + " Files extentions: " + str(self._files_extentions))
         for rootdir, dirs, files in os.walk(self._mount_point):
@@ -97,6 +98,7 @@ class FlirDuoCamera(Source):
 
 
     def download(self, remote_path, local_path):
+        self.is_remote_available.wait()
         return copy(remote_path, local_path, self._logger)
 
 

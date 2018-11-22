@@ -32,7 +32,6 @@ def finder(number, args):
     Function for searching files on remote device
     """
     while True:
-        source.is_remote_available.wait()
         try:
             for item in source.get_list():
                 if not db.in_records(key, item):
@@ -66,7 +65,6 @@ def downloader(number, args):
         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
-                source.is_remote_available.wait()
                 if source.download(source_path, local_path):
                     record["downloaded"] = True
                     record["local_path"] = local_path
@@ -83,7 +81,6 @@ def downloader(number, args):
 
 def uploader(number, args):
     target, uq, logger = args
-    verbose = True
     logger.debug("Uploader-" + str(number) + " was created.")
     while True:
 
@@ -92,7 +89,6 @@ def uploader(number, args):
         target_path = '/' + os.path.basename(local_path)
 
         while not record['uploaded']:
-            target.is_remote_available.wait()
             try:
                 if target.upload(local_path, target_path):
                     record['uploaded'] = True
