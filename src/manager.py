@@ -30,20 +30,27 @@ def finder(number, args):
     """
 
     logger.debug("Finder-" + str(number) + " was created.")
-    db, source, search_interval, default_record, key, dq, logger = args
+    db, source, search_interval, default_record, key, dq, files_extentions, logger = args
 
     while True:
         try:
             for item in source.get_list():
-                if not db.in_records(key, item):
-                    logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
 
-                    # prepare the new object
-                    record = default_record.copy()
-                    record[key] = item
-                    # save the new object
-                    db.append(record)
-                    dq.put(record)
+        for rootdir, dirs, files in os.walk(self._mount_point):
+            for file in files:
+
+                # Check extention
+                if files_extentions.count(file.split('.')[-1]) == 1:
+
+                    if not db.in_records(key, item):
+                        logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
+
+                        # prepare the new object
+                        record = default_record.copy()
+                        record[key] = item
+                        # save the new object
+                        db.append(record)
+                        dq.put(record)
 
         except Exception as ex:
             logger.error("Finder-" + str(number) + ": " + str(ex))
@@ -132,13 +139,13 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    source = Disk("66F8-E5D9", ['JPG', 'png'], "/mnt", logger)
+    source = Disk("66F8-E5D9", "/mnt", logger)
     target = FTP("192.168.0.41", "test-1", "passwd", logger)
 
     default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
     name_of_key = "source_path"
 
-    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, logger)
+    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
     create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
     create_threads(3, uploader, target, uq, logger)
 

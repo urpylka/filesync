@@ -82,11 +82,9 @@ class Disk(Device):
         """
         self.is_remote_available.wait()
         my_list = []
-        self._logger.debug("SOURCE: Mount point: " + self._mount_point + " Files extentions: " + str(self._files_extentions))
-        for rootdir, dirs, files in os.walk(self._mount_point):
+        for rootdir, dirs, my_list in os.walk(self._mount_point):
             for file in files:
-                if self._files_extentions.count(file.split('.')[-1]) == 1:
-                    my_list.append(os.path.join(rootdir, file))
+                my_list.append(os.path.join(rootdir, file))
         return my_list
 
 
