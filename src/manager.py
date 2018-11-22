@@ -72,11 +72,11 @@ def downloader(number, args):
                     logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
                     uq.put(record)
             except Exception as ex:
-                # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
+                # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
-                time.sleep(2)
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
+                time.sleep(2)
 
 
 def uploader(number, args):
