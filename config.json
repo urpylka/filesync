@@ -1,25 +1,65 @@
 {
+    "_comment": "worker - это downloader соединенный с uploader через pipe",
+    "workers": [
+        {
+            "source": {
+                "device_class": "DISK",
+                "login": "test-1",
+                "passwd": "passwd"
+            },
+            "rules": {},
+            "target": {
+                "device_class": "FTP",
+                "disk_uuid": "66F8-E5D9",
+                "mount_dir": "/mnt"
+            },
+            "count": 5
+        },
+        {
+            "source": {
+                "device_class": "DISK",
+                "login": "test-1",
+                "passwd": "passwd"
+            },
+            "rules": {},
+            "target": {
+                "device_class": "LOCAL",
+                "dir": "/home/pi/worker1"
+            },
+            "count": 5
+        },
+        {
+            "source": {
+                "device_class": "LOCAL",
+                "dir": "/home/pi/worker1"
+            },
+            "rules": {},
+            "target": {
+                "device_class": "POST",
+                "uploader_url": "https://logs.px4.io/upload",
+                "values": {
+                    "description": "",
+                    "additional_feedback": "",
+                    "email": "i@smirart.ru",
+                    "allow_for_analysis": false,
+                    "obfuscated": false
+                }
+            },
+            "count": 5
+        }
+    ],
     "task-1-FlirDuo": {
         "source": {
             "device_class": "DISK",
             "login": "test-1",
             "passwd": "passwd"
         },
-        "extensions": ["JPG", "MP4"],
-        "default_record": {
-            "source_path": "",
-            "downloaded": false,
-            "local_path": "",
-            "uploaded": false,
-            "target_path": ""
-        },
-        "key": "source_path",
         "downloader": {
             "count": 5,
-            "download_dir": "/home/pi/flir"
+            "download_dir": "/home/pi/flir",
+            "target_device": "LOCAL"
         },
         "local": {
-            "use_local": false,
             "localdir": "/home/pi/flir"
         },
         "uploader": {
@@ -27,7 +67,8 @@
         },
         "finder": {
             "count": 1,
-            "interval": 10
+            "interval": 10,
+            "extensions": ["JPG", "MP4"]
         },
         "target": {
             "device_class": "FTP",
@@ -42,7 +83,15 @@
         },
         "db": {
             "path": "/home/pi/flir/db.json",
-            "interval": 5
+            "interval": 5,
+            "default_record": {
+                "source_path": "",
+                "downloaded": false,
+                "local_path": "",
+                "uploaded": false,
+                "target_path": ""
+            },
+            "key": "source_path"
         }
     },
     "task-2-PX4-logs": {
