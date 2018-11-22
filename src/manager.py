@@ -25,11 +25,13 @@ from threading import Thread, Event
 from queue import Queue
 
 def finder(number, args):
-    db, source, search_interval, default_record, key, dq, logger = args
-    logger.debug("Finder-" + str(number) + " was created.")
     """
     Function for searching files on remote device
     """
+
+    logger.debug("Finder-" + str(number) + " was created.")
+    db, source, search_interval, default_record, key, dq, logger = args
+
     while True:
         try:
             for item in source.get_list():
@@ -50,11 +52,13 @@ def finder(number, args):
 
 
 def downloader(number, args):
-    source, local_directory, dq, uq, logger = args
-    logger.debug("Downloader-" + str(number) + " was created.")
     """
     Function for downloading files from remote device
     """
+
+    logger.debug("Downloader-" + str(number) + " was created.")
+    source, local_directory, dq, uq, logger = args
+
     while True:
         # объект из очереди передается по ссылке,
         # поэтому изменение record приведет к изменению record в JsonArray
@@ -79,8 +83,10 @@ def downloader(number, args):
 
 
 def uploader(number, args):
-    target, uq, logger = args
+
     logger.debug("Uploader-" + str(number) + " was created.")
+    target, uq, logger = args
+
     while True:
 
         record = uq.get()
