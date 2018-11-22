@@ -57,11 +57,11 @@ def copy(remote_path, local_path, logger):
             raise Exception("copy: " + str(ex))
 
 
-def del_file(file_path):
+def delete(file_path):
     code, output, error = bash_command("/bin/rm " + file_path)
     if code != 0:
-        print(output)
-    return code
+        raise Exception("Не получилось удалить файл ошибка: " + output)
+    return True
 
 
 class FlirDuoCamera(Source):
@@ -83,7 +83,7 @@ class FlirDuoCamera(Source):
         t.start()
 
 
-    def get_list_of_files(self):
+    def get_list(self):
         """
         Get list of files
         """

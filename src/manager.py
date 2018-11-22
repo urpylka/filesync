@@ -35,8 +35,10 @@ def finder(number, args):
         source.is_remote_available.wait()
         try:
             logger.debug("Finder-" + str(number) + ": Searching a new files in source...")
-            my_list = source.get_list_of_files()
-            if my_list != None:
+            my_list = source.get_list()
+            if my_list == None:
+                logger.debug("Finder-" + str(number) + ": List of source is None")
+            else:
                 logger.debug("Finder-" + str(number) + ": List of source:\n" + str(my_list))
                 for item in my_list:
                     if not db.in_records(key, item):
@@ -49,7 +51,7 @@ def finder(number, args):
                         # индекс не сместится, потому что только finder добавляет в бд записи
                         # ТОЛЬКО ЕСЛИ COUNT OF FINDERs = 1
                         dq.put(db[len(db) - 1])
-            else: logger.debug("Finder-" + str(number) + ": List of source is None")
+            
 
         except Exception as ex:
             logger.error("Finder-" + str(number) + ": " + str(ex))
