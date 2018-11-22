@@ -78,7 +78,6 @@ class FTP(Device):
 
 def main():
     target = FTP("192.168.0.41", "test-1", "passwd", logger.main())
-    target.is_remote_available.wait()
     target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
 
 if __name__ == '__main__':
