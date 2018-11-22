@@ -25,9 +25,6 @@ from threading import Thread, Event
 from queue import Queue
 
 def finder(number, args):
-    """
-    Function for searching files on remote device
-    """
 
     db, source, search_interval, default_record, key, dq, files_extensions, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
@@ -59,9 +56,6 @@ def finder(number, args):
 
 
 def downloader(number, args):
-    """
-    Function for downloading files from remote device
-    """
 
     source, local_directory, dq, uq, logger = args
     logger.debug("Downloader-" + str(number) + " was created.")
