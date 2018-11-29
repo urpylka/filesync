@@ -141,6 +141,7 @@ class DISK(Device):
 
         with open(self._mount_point + device_path, 'rb') as stream:
             while True:
+                print(stream.tell())
                 chunk = stream.read(chunk_size)
                 if not chunk:
                     break
@@ -158,9 +159,8 @@ class DISK(Device):
         self._logger.debug("Upload to " + str(device_path))
 
         with open(self._mount_point + device_path, 'wb') as stream:
-            stream.write(source_stream.getvalue())
-            # while True:
-            #     chunk = source_stream.read(chunk_size)
-            #     if not chunk:
-            #         break
-            #     stream.write(chunk)
+            while True:
+                chunk = source_stream.read(chunk_size)
+                if not chunk:
+                    break
+                stream.write(chunk)
