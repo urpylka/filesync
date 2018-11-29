@@ -121,28 +121,20 @@ class DISK(Device):
 
 
     def stream_download(self, device_path, target_stream):
+        """
+        DISK.stream_download("device_path", open("file_name", 'wb'))
+        """
         self.is_remote_available.wait()
-        self._logger.debug("copy: Downloading from " + str(device_path))
-        # while True:
-        #     try:
-        #         code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path),  logger)
-        #         if code == 0:
-        #             #if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
-        #             if True:
-        #                 return True
-        #         else:
-        #             logger.error("copy: cp returned code: " + str(code) + " and message: " + str(output))
-        #             time.sleep(1)
-        #     except Exception as ex:
-        #         raise Exception("copy: " + str(ex))
-        #     return copy(remote_path, local_path, self._logger)
+        self._logger.debug("Downloading from " + str(device_path))
+
+        with open(device_path, 'r') as buf:
+            target_stream.write(buf)
 
 
     def stream_upload(self, source_stream, device_path):
         """
-        Пока не знаю
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        DISK.stream_upload(open("file_name", 'r'), "device_path")
         """
-        raise NotImplementedError()
+        self.is_remote_available.wait()
+        self._logger.debug("Upload to " + str(device_path))
+        das

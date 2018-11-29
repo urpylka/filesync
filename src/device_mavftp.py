@@ -88,16 +88,16 @@ class ProgressBar:
 class MAVFTP(Device):
 
     ftp_list = rospy.ServiceProxy('/mavros/ftp/list', FileList)
+    mavftp_lock = Lock()
 
     def __init__(self, *args):
         self.logdir = args
-        self.mavftp_lock = Lock()
 
         rospy.loginfo('Inited px4logs_manager')
         rospy.init_node("mavftp", anonymous=True)
         # mavros.set_namespace("/mavros")
 
-        t = Thread(target = self._px4_available, args = ())
+        t = Thread(target=self._px4_available, args=())
         t.daemon = True
         t.start()
 
@@ -147,7 +147,9 @@ class MAVFTP(Device):
                             break
 
                         local_crc = mavros.nuttx_crc32(buf, local_crc)
+
                         local_file.write(buf)
+
                         bar.update(remote_file.tell())
 
                         if verify:

@@ -21,12 +21,14 @@
 
 from device_abstract import Device
 
-import time, ftplib, socket
-from threading import Thread, Event
+import time, ftplib, socket, logging
+from threading import Thread
 
 class FTP(Device):
-
-    is_remote_available = Event()
+    """
+    target = FTP("192.168.0.10", "test-1", "passwd", logging)
+    target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
+    """
 
     def __init__(self, *args):
         self.host, self.user, self.passwd, self._logger = args
@@ -75,10 +77,3 @@ class FTP(Device):
         except Exception as ex:
             raise ex
         return True
-
-def main():
-    target = FTP("192.168.0.41", "test-1", "passwd", logger.main())
-    target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
-
-if __name__ == '__main__':
-    main()
