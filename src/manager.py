@@ -16,13 +16,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from json_array import JsonArray
-from device_disk import FlirDuoCamera
-from device_ftp import FTP
-
-import os.path, time
-from threading import Thread, Event
+import os.path
+import time
+import logging
+from threading import Thread
 from queue import Queue
+
+from json_array import JsonArray
+from device_disk import DISK
+from device_ftp import FTP
 
 def finder(number, args):
 
@@ -34,7 +36,7 @@ def finder(number, args):
             for item in source.get_list():
 
                 # Check extension
-                if files_extensions.count(file.split('.')[-1]) == 1:
+                if files_extensions.count(item.split('.')[-1]) == 1:
 
                     if not db.in_records(key, item):
                         logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
@@ -62,7 +64,7 @@ def downloader(number, args):
         # поэтому изменение record приведет к изменению record в JsonArray
         record = dq.get()
         source_path = record['source_path']
-        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-','') + '_' + os.path.basename(source_path).replace('_','')
+        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
@@ -105,7 +107,7 @@ def uploader(number, args):
 
 def create_threads(count, function, *args):
     for i in range(count):
-        t = Thread(target = function, args = (i+1, args,))
+        t = Thread(target=function, args=(i+1, args,))
         t.daemon = True
         t.start()
 
@@ -130,10 +132,10 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    source = Disk("66F8-E5D9", "/mnt", logger)
+    source = DISK("66F8-E5D9", "/mnt", logger)
     target = FTP("192.168.0.41", "test-1", "passwd", logger)
 
-    default_record = { "source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": "" }
+    default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
     name_of_key = "source_path"
 
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)

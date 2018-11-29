@@ -21,7 +21,7 @@ from device_abstract import Device
 import subprocess, os, time
 from threading import Thread, Event
 
-def bash_command(command, logger):
+def bash_command(command, logger = loggin):
     try:
         do_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:
@@ -82,7 +82,7 @@ class DISK(Device):
         """
         self.is_remote_available.wait()
         my_list = []
-        for rootdir, dirs, my_list in os.walk(self._mount_point):
+        for rootdir, dirs, files in os.walk(self._mount_point):
             for file in files:
                 my_list.append(os.path.join(rootdir, file))
         return my_list
@@ -118,3 +118,31 @@ class DISK(Device):
 
                     if code == 32: self._logger.debug("SOURCE: The partition was ejected")
                     else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
+
+
+    def stream_download(self, device_path, target_stream):
+        self.is_remote_available.wait()
+        self._logger.debug("copy: Downloading from " + str(device_path))
+        # while True:
+        #     try:
+        #         code, output, error = bash_command("/bin/cp " + str(remote_path) + " " + str(local_path),  logger)
+        #         if code == 0:
+        #             #if _get_checksum_flash(remote_path) == _get_checksum_local(local_path):
+        #             if True:
+        #                 return True
+        #         else:
+        #             logger.error("copy: cp returned code: " + str(code) + " and message: " + str(output))
+        #             time.sleep(1)
+        #     except Exception as ex:
+        #         raise Exception("copy: " + str(ex))
+        #     return copy(remote_path, local_path, self._logger)
+
+
+    def stream_upload(self, source_stream, device_path):
+        """
+        Пока не знаю
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
+        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        """
+        raise NotImplementedError()

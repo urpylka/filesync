@@ -16,32 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from threading import Event
+from device_abstract import Device
 
-class Device(object):
-    """
-    1. Как описать общий механизм работы функции,
-    если разные ее исполенения возвращают разный результат?
-    Может возвращать ключ-значение? И это ключ-значение писать в DB?
-    Или функция должна возвращать True/False?
-
-    2. А еще наверное нужно передавать какие-то блокировки в downloader/uploader
-    Если передавать большой файл может случится так, что нужно будет притормозить передачу
-    Например, Arming коптера
-
-    3. Может сделать фукнции donwload и upload с использованием потоков,
-    таким образом подставив file.open() можно будет писать в файл,
-    а если их направить друг на друга они будут писать без сохранения в local
-
-    4. Library for continue a interrupting downloads
-
-    5. Загрузка чанками requests
-    https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
-    """
-
-    is_remote_available = Event()
+class LOCAL(Device):
 
     def __init__(self, *args):
+        self.root_dir = args
         raise NotImplementedError()
 
 
