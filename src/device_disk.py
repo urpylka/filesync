@@ -137,7 +137,7 @@ class DISK(Device):
         self.is_remote_available.wait()
         self._logger.debug("Downloading from " + str(device_path))
 
-        with open(device_path, 'rb') as stream:
+        with open(self._mount_point + device_path, 'rb') as stream:
             while True:
                 chunk = stream.read(chunk_size)
                 if not chunk:
@@ -158,7 +158,7 @@ class DISK(Device):
         self.is_remote_available.wait()
         self._logger.debug("Upload to " + str(device_path))
 
-        with open(device_path, 'wb') as stream:
+        with open(self._mount_point + device_path, 'wb') as stream:
             while True:
                 chunk = source_stream.read(chunk_size)
                 if not chunk:
