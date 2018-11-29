@@ -116,25 +116,51 @@ class DISK(Device):
                     self.is_remote_available.clear()
                     self._logger.info("SOURCE: Раздел недоступен, все операции заблокированы")
 
-                    if code == 32: self._logger.debug("SOURCE: The partition was ejected")
+                    if code == 32:
+                        self._logger.debug("SOURCE: The partition was ejected")
                     else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
 
 
-    def stream_download(self, device_path, target_stream):
+    def stream_download(self, device_path, target_stream, chunk_size=1024):
         """
-        DISK.stream_download("device_path", open("file_name", 'wb'))
+
+        target_stream = io.BytesIO()
+        DISK.stream_download("device_path", target_stream)
+
+        with open("file_name", 'wb') as target_stream:
+            DISK.stream_download("device_path", target_stream)
+
+        https://docs.python.org/3/library/io.html
+        https://docs.python.org/3/library/asyncio-stream.html
+        https://python-scripts.com/threading
         """
         self.is_remote_available.wait()
         self._logger.debug("Downloading from " + str(device_path))
 
-        with open(device_path, 'r') as buf:
-            target_stream.write(buf)
+        with open(device_path, 'rb') as stream:
+            while True:
+                chunk = stream.read(chunk_size)
+                if not chunk:
+                    break
+                target_stream.write(chunk)
 
 
-    def stream_upload(self, source_stream, device_path):
+    def stream_upload(self, source_stream, device_path, chunk_size=1024):
         """
-        DISK.stream_upload(open("file_name", 'r'), "device_path")
+
+        source_stream = io.BytesIO()
+        DISK.stream_upload(source_stream, "device_path")
+
+        with open("file_name", 'rb') as source_stream:
+            DISK.stream_upload(source_stream, "device_path")
+
         """
         self.is_remote_available.wait()
         self._logger.debug("Upload to " + str(device_path))
-        das
+
+        with open(device_path, 'wb') as stream:
+            while True:
+                chunk = source_stream.read(chunk_size)
+                if not chunk:
+                    break
+            stream.write(chunk)

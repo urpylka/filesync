@@ -72,7 +72,7 @@ class Device(object):
         raise NotImplementedError()
 
 
-    def stream_download(self, device_path, target_stream):
+    def stream_download(self, device_path, target_stream, chunk_size=1024):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке
@@ -82,7 +82,7 @@ class Device(object):
         raise NotImplementedError()
 
 
-    def stream_upload(self, source_stream, device_path):
+    def stream_upload(self, source_stream, device_path, chunk_size=1024):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке
