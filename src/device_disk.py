@@ -159,7 +159,8 @@ class DISK(Device):
 
         with open(self._mount_point + device_path, 'wb') as stream:
             while True:
-                chunk = source_stream.getvalue(chunk_size)
+                chunk = source_stream.getvalue()
+                #chunk = source_stream.read(chunk_size)
                 if not chunk:
                     break
                 stream.write(chunk)
