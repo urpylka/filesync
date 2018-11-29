@@ -121,7 +121,7 @@ class DISK(Device):
                     else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
 
 
-    def stream_download(self, device_path, target_stream, chunk_size=1024):
+    def stream_download(self, device_path, *target_stream, chunk_size=1024):
         """
 
         target_stream = io.BytesIO()
@@ -150,7 +150,7 @@ class DISK(Device):
                 target_stream.write(chunk)
 
 
-    def stream_upload(self, source_stream, device_path, chunk_size=1024):
+    def stream_upload(self, *source_stream, device_path, chunk_size=1024):
         """
 
         source_stream = io.BytesIO()
