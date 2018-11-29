@@ -18,10 +18,10 @@
 
 from device_abstract import Device
 
-import subprocess, os, time
+import subprocess, os, time, logging
 from threading import Thread, Event
 
-def bash_command(command, logger = loggin):
+def bash_command(command, logger=logging):
     try:
         do_command = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except subprocess.CalledProcessError as grepexc:
@@ -71,7 +71,7 @@ class DISK(Device):
     def __init__(self, *args):
         self._uuid, self._files_extensions, self._mount_point, self._logger = args
 
-        t = Thread(target = self._mount, args = ())
+        t = Thread(target=self._mount, args=())
         t.daemon = True
         t.start()
 
