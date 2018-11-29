@@ -127,8 +127,13 @@ class DISK(Device):
         target_stream = io.BytesIO()
         DISK.stream_download("device_path", target_stream)
 
-        with open("file_name", 'wb') as target_stream:
-            DISK.stream_download("device_path", target_stream)
+        from device_disk import DISK
+        from logger import get_logger
+        logger = get_logger("filesync", "/home/pi/flir/filesync.log")
+        source = DISK("66F8-E5D9", "/mnt", logger)
+        with open("20181106_163024_949.JPG", 'wb') as target_stream:
+            source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
+        print("OK")
 
         https://docs.python.org/3/library/io.html
         https://docs.python.org/3/library/asyncio-stream.html

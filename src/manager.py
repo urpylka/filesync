@@ -16,15 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import os.path
 import time
-import logging
 from threading import Thread
 from queue import Queue
 
 from json_array import JsonArray
 from device_disk import DISK
 from device_ftp import FTP
+from logger import get_logger
 
 def finder(number, args):
 
@@ -113,25 +114,14 @@ def create_threads(count, function, *args):
 
 
 def main():
-    # https://python-scripts.com/logging-python
-    logger = logging.getLogger("filesync")
-    #logger.setLevel(logging.DEBUG)
-    logger.setLevel(logging.INFO)
-    # create the logging file handler
-    fh = logging.FileHandler("/home/pi/flir/filesync.log", "w", "UTF-8")
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    # add handler to logger object
-    logger.addHandler(fh)
-
+    logger = get_logger("filesync", "/home/pi/flir/filesync.log")
     source = DISK("66F8-E5D9", "/mnt", logger)
 
-    with open("20181106_163024_949.JPG", 'wb') as target_stream:
-        source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
+    target_stream = io.BytesIO()
+    source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
+    source.stream_upload(target_stream, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
     print("OK")
-
     # target = FTP("192.168.0.41", "test-1", "passwd", logger)
-
     # db = JsonArray("/home/pi/flir/db.json", 5, logger)
 
     # dq = Queue()
@@ -147,11 +137,11 @@ def main():
     # create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
     # create_threads(3, uploader, target, uq, logger)
 
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        return 0
+    # try:
+    #     while True:
+    #         time.sleep(10)
+    # except KeyboardInterrupt:
+    #     return 0
 
 if __name__ == '__main__':
     main()
