@@ -124,23 +124,28 @@ def main():
     # add handler to logger object
     logger.addHandler(fh)
 
-    db = JsonArray("/home/pi/flir/db.json", 5, logger)
-
-    dq = Queue()
-    uq = Queue()
-    for record in db:
-        if not record['downloaded']: dq.put(record)
-        elif not record['uploaded']: uq.put(record)
-
     source = DISK("66F8-E5D9", "/mnt", logger)
-    target = FTP("192.168.0.41", "test-1", "passwd", logger)
 
-    default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
-    name_of_key = "source_path"
+    with open("notused_mixin.py", 'wb') as target_stream:
+        source.stream_download("notused_mixin.py", target_stream)
+    print("OK")
 
-    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
-    create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
-    create_threads(3, uploader, target, uq, logger)
+    # target = FTP("192.168.0.41", "test-1", "passwd", logger)
+
+    # db = JsonArray("/home/pi/flir/db.json", 5, logger)
+
+    # dq = Queue()
+    # uq = Queue()
+    # for record in db:
+    #     if not record['downloaded']: dq.put(record)
+    #     elif not record['uploaded']: uq.put(record)
+
+    # default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
+    # name_of_key = "source_path"
+
+    # create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
+    # create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
+    # create_threads(3, uploader, target, uq, logger)
 
     try:
         while True:
