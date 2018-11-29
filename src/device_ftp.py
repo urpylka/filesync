@@ -19,10 +19,11 @@
 # https://github.com/stilliard/docker-pure-ftpd
 # https://github.com/stilliard/docker-pure-ftpd/wiki/Basic-example-walk-through
 
-from device_abstract import Device
-
-import time, ftplib, socket, logging
+import time
+import ftplib
 from threading import Thread
+
+from device_abstract import Device
 
 class FTP(Device):
     """
@@ -33,7 +34,7 @@ class FTP(Device):
     def __init__(self, *args):
         self.host, self.user, self.passwd, self._logger = args
 
-        t = Thread(target = self._connect, args = ())
+        t = Thread(target=self._connect, args=())
         t.daemon = True
         t.start()
 
@@ -61,7 +62,7 @@ class FTP(Device):
                 self._logger.debug("TARGET: " + str(ex))
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    self._logger
+                    self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
 
 
     def upload(self, local_path, remote_path):
