@@ -118,7 +118,7 @@ def main():
     source = DISK("66F8-E5D9", "/mnt", logger)
 
     target_stream = io.BytesIO()
-    source.stream_download("/20181106_163024/20181106_163024_949.JPG", &target_stream)
+    source.stream_download("/20181106_163024/20181106_163024_949.JPG", *target_stream)
     print(target_stream.read(1000))
     source.stream_upload(target_stream, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
     print("OK")
