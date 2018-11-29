@@ -126,8 +126,8 @@ def main():
 
     source = DISK("66F8-E5D9", "/mnt", logger)
 
-    with open("notused_mixin.py", 'wb') as target_stream:
-        source.stream_download("notused_mixin.py", target_stream)
+    with open("20181106_163024_949.JPG", 'wb') as target_stream:
+        source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
     print("OK")
 
     # target = FTP("192.168.0.41", "test-1", "passwd", logger)
