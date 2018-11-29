@@ -168,4 +168,4 @@ class DISK(Device):
                 chunk = source_stream.read(chunk_size)
                 if not chunk:
                     break
-            stream.write(chunk)
+                stream.write(chunk)
