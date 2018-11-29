@@ -69,7 +69,7 @@ class DISK(Device):
     is_remote_available = Event()
 
     def __init__(self, *args):
-        self._uuid, self._files_extensions, self._mount_point, self._logger = args
+        self._uuid, self._mount_point, self._logger = args
 
         t = Thread(target=self._mount, args=())
         t.daemon = True
