@@ -117,10 +117,9 @@ def main():
     logger = get_logger("filesync", "/home/pi/flir/filesync.log")
     source = DISK("66F8-E5D9", "/mnt", logger)
 
-    target_stream = io.BytesIO()
-    source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
-    print(target_stream.read(1000))
-    source.stream_upload(target_stream, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
+    buffer = io.BytesIO()
+    source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
+    source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
     print("OK")
     # target = FTP("192.168.0.41", "test-1", "passwd", logger)
     # db = JsonArray("/home/pi/flir/db.json", 5, logger)

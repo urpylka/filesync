@@ -121,11 +121,8 @@ class DISK(Device):
                     else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
 
 
-    def stream_download(self, device_path, *target_stream, chunk_size=1024):
+    def stream_download(self, device_path, target_stream, chunk_size=1024):
         """
-
-        target_stream = io.BytesIO()
-        DISK.stream_download("device_path", target_stream)
 
         from device_disk import DISK
         from logger import get_logger
@@ -150,14 +147,11 @@ class DISK(Device):
                 target_stream.write(chunk)
 
 
-    def stream_upload(self, *source_stream, device_path, chunk_size=1024):
+    def stream_upload(self, source_stream, device_path, chunk_size=1024):
         """
 
-        source_stream = io.BytesIO()
-        DISK.stream_upload(source_stream, "device_path")
-
         with open("file_name", 'rb') as source_stream:
-            DISK.stream_upload(source_stream, "device_path")
+            target.stream_upload(source_stream, "device_path")
 
         """
         self.is_remote_available.wait()
@@ -165,8 +159,7 @@ class DISK(Device):
 
         with open(self._mount_point + device_path, 'wb') as stream:
             while True:
-                chunk = source_stream.read(chunk_size)
-                print(chunk)
+                chunk = source_stream.getvalue(chunk_size)
                 if not chunk:
                     break
                 stream.write(chunk)
