@@ -52,6 +52,9 @@ class SmartBuffer(object):
     
     def read(self, chunk_size):
         """
+        В аналогичных функциях read chunk_size
+        может равняться -1 тогда будет весь буффер
+
         Функция не гарантирует возвращения всего чанка,
         даже если не достигнут конец файла
 
@@ -93,43 +96,12 @@ class SmartBuffer(object):
                     return b''
 
 
-    def read2(self, chunk_size):
-        with self.threads_lock:
-
-            diff = self.pos_w - self.pos_r
-
-            if diff > 0:
-                #available = chunk_size if diff >= chunk_size else diff
-                available = min(chunk_size, diff)
-
-                self.buffer.seek(self.pos_r)
-                self.pos_r += available
-                return self.buffer.read(available)
-            elif diff < 0:
-                # здесь скорее всего ошибка получается,
-                # тк если даунлодер убежал вперед
-                # это не значит что осталось меньше чанка до конца
-
-                # читаем, что осталось
-                available = self.size - self.pos_r
-
-                self.buffer.seek(self.pos_r)
-                self.pos_r = 0
-                return self.buffer.read(available)
-            else:
-                # diff == 0
-                # блокировать, если передача не закончилась
-                return b''
-
-
     def write(self, chunk):
         """
         """
         with self.threads_lock:
-            pass
+            diff = self.pos_w - self.pos_r
+
 
     def __del__(self):
-        """
-        """
-
         self.buffer.close()
