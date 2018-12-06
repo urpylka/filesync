@@ -84,7 +84,7 @@ class DISK(Device):
         my_list = []
         for rootdir, dirs, files in os.walk(self._mount_point):
             for file in files:
-                my_list.append(os.path.join(dirs, file))
+                my_list.append(os.path.join(rootdir.replace(self._mount_point, '', 1), file))
         return my_list
 
 
