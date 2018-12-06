@@ -69,12 +69,15 @@ def downloader(number, args):
         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
-                if source.download(source_path, local_path):
-                    record["downloaded"] = True
-                    record["local_path"] = local_path
-                    dq.task_done()
-                    logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
-                    uq.put(record)
+                #if source.download(source_path, local_path):
+                with open(local_path, 'wb') as target_stream:
+                    source.stream_download(source_path, target_stream)
+
+                record["downloaded"] = True
+                record["local_path"] = local_path
+                dq.task_done()
+                logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
+                uq.put(record)
             except Exception as ex:
                 logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
@@ -96,11 +99,14 @@ def uploader(number, args):
 
         while not record['uploaded']:
             try:
-                if target.upload(local_path, target_path):
-                    record['uploaded'] = True
-                    record['target_path'] = target_path
-                    uq.task_done()
-                    logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
+                #if target.upload(local_path, target_path):
+                with open(local_path, 'rb') as source_stream:
+                    target.stream_upload(source_stream, target_path)
+
+                record['uploaded'] = True
+                record['target_path'] = target_path
+                uq.task_done()
+                logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
                 logger.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path + " and target path " + target_path)
                 time.sleep(2)
@@ -117,32 +123,32 @@ def main():
     logger = get_logger("filesync", "/home/pi/flir/filesync.log")
     source = DISK("66F8-E5D9", "/mnt", logger)
 
-    buffer = io.BytesIO()
-    source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
-    print(buffer.seek(0))
-    #source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
-    print("OK")
-    # target = FTP("192.168.0.41", "test-1", "passwd", logger)
-    # db = JsonArray("/home/pi/flir/db.json", 5, logger)
+    # buffer = io.BytesIO()
+    # source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
+    # print(buffer.seek())
+    # source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
+    # print("OK")
+    target = FTP("192.168.0.41", "test-1", "passwd", logger)
+    db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger)
 
-    # dq = Queue()
-    # uq = Queue()
-    # for record in db:
-    #     if not record['downloaded']: dq.put(record)
-    #     elif not record['uploaded']: uq.put(record)
+    dq = Queue()
+    uq = Queue()
+    for record in db:
+        if not record['downloaded']: dq.put(record)
+        elif not record['uploaded']: uq.put(record)
 
-    # default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
-    # name_of_key = "source_path"
+    default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
+    name_of_key = "source_path"
 
-    # create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
-    # create_threads(5, downloader, source, "/home/pi/flir", dq, uq, logger)
-    # create_threads(3, uploader, target, uq, logger)
+    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
+    create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
+    create_threads(3, uploader, target, uq, logger)
 
-    # try:
-    #     while True:
-    #         time.sleep(10)
-    # except KeyboardInterrupt:
-    #     return 0
+    try:
+        while True:
+            time.sleep(10)
+    except KeyboardInterrupt:
+        return 0
 
 if __name__ == '__main__':
     main()
