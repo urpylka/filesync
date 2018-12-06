@@ -78,3 +78,17 @@ class FTP(Device):
         except Exception as ex:
             raise ex
         return True
+
+    def stream_upload(self, source_stream, remote_path):
+        try:
+            # with open(local_path, 'rb') as fobj:
+            #     res = self._ftp.storbinary('STOR ' + remote_path, fobj, 1024)
+
+            self.is_remote_available.wait()
+            self._ftp.cwd('/')
+            res = self._ftp.storbinary('STOR ' + '/' + remote_path, source_stream)
+            if not res.startswith('226 Transfer complete'):
+                raise Exception("File was not uploaded successful: " + res)
+        except Exception as ex:
+            raise ex
+        return True
