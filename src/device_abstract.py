@@ -37,12 +37,15 @@ class Device(object):
 
     5. Загрузка чанками requests
     https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
+
+    6. Надо добавить в вывод "Такого метода нет в вашей реализации"
+    наименование класса в котором это все вызывается
     """
 
     is_remote_available = Event()
 
     def __init__(self, *args):
-        raise NotImplementedError()
+        raise NotImplementedError("Такого метода нет в вашей реализации")
 
 
     def get_list(self):
@@ -51,7 +54,7 @@ class Device(object):
         2. Функция должна возвращать список файлов (пустой список, если файлов нет)
         или, если что-то пошло не так, выбрасывать исключение
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Такого метода нет в вашей реализации")
 
 
     def download(self, device_path, target_stream, chunk_size=1024):
@@ -61,7 +64,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Такого метода нет в вашей реализации")
 
 
     def upload(self, source_stream, device_path, chunk_size=1024):
@@ -71,7 +74,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Такого метода нет в вашей реализации")
 
 
     def delete(self, remote_path):
@@ -80,4 +83,4 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        raise NotImplementedError("Такого метода нет в вашей реализации")

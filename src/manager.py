@@ -118,7 +118,10 @@ def downloader(number, args):
 
 
 def uploader(number, args):
-
+    """
+    Очень интересная ошибка будет, если в target не будет метода upload
+    (пустая, тк берется из абстрактного класса)
+    """
     target, uq, logger = args
     logger.debug("Uploader-" + str(number) + " was created.")
     while True:
