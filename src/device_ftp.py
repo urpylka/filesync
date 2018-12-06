@@ -92,5 +92,4 @@ class FTP(Device):
                 if not res.startswith('226 Transfer complete'):
                     raise Exception("File was not uploaded successful: " + res)
             except Exception as ex:
-                print("pizda")
                 raise ex
