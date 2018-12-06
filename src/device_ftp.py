@@ -19,6 +19,7 @@
 # https://github.com/stilliard/docker-pure-ftpd
 # https://github.com/stilliard/docker-pure-ftpd/wiki/Basic-example-walk-through
 
+import os
 import time
 import ftplib
 from threading import Thread, Lock
@@ -87,8 +88,8 @@ class FTP(Device):
         self.is_remote_available.wait()
 
         with self._internal_lock:
-            self._ftp.cwd('/')
-            res = self._ftp.storbinary('STOR ' + '/' + device_path, source_stream)
+            self._ftp.cwd(os.path.dirname(device_path))
+            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
