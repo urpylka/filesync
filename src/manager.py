@@ -140,7 +140,7 @@ def main():
     default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
     name_of_key = "source_path"
 
-    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ['JPG', 'png'], logger)
+    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff"], logger)
     create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     create_threads(1, uploader, target, uq, logger)
 
