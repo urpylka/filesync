@@ -33,6 +33,7 @@ class FTP(Device):
     """
 
     _internal_lock = Lock()
+    _ftp = ftplib.FTP()
 
     def __init__(self, *args):
         self.host, self.user, self.passwd, self._logger = args
@@ -53,19 +54,33 @@ class FTP(Device):
 
         while True:
             time.sleep(1)
+
+            starttime = time.time()
+            retry = False
             try:
-                self._ftp = ftplib.FTP(self.host)
-                self._ftp.login(self.user, self.passwd)
-                if not self.is_remote_available.is_set():
-                    self.is_remote_available.set()
-                    self._logger.info("TARGET: FTP доступен, все операции разблокированы")
-                    break
-            except Exception as ex:
-                # ошибка 111 - если хост недоступен
-                self._logger.debug("TARGET: " + str(ex))
-                if self.is_remote_available.is_set():
-                    self.is_remote_available.clear()
-                    self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
+                self._ftp.voidcmd("NOOP")
+            except:
+                retry = True
+
+            while retry:
+                try:
+                    self._ftp.connect(self.host)
+                    self._ftp.login(self.user, self.passwd)
+                    retry = False
+
+                    if not self.is_remote_available.is_set():
+                        self.is_remote_available.set()
+                        self._logger.info("TARGET: FTP доступен, все операции разблокированы")
+
+                except IOError as ex:
+                    retry = True
+                    self._logger.info("TARGET: Time disconnected - " + str(time.time() - starttime))
+
+                    # ошибка 111 - если хост недоступен
+                    self._logger.debug("TARGET: " + str(ex))
+                    if self.is_remote_available.is_set():
+                        self.is_remote_available.clear()
+                        self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
 
 
     def stream_upload(self, source_stream, device_path, chunk_size=1024):
