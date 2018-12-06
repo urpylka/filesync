@@ -121,25 +121,30 @@ def uploader(number, args):
 
     target, uq, logger = args
     logger.debug("Uploader-" + str(number) + " was created.")
-
+    time.sleep(10)
     while True:
-
+        print("1")
         record = uq.get()
         local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
 
+        print("2")
+
         while not record['uploaded']:
             try:
+                print("3")
                 #if target.upload(local_path, target_path):
                 with open(local_path, 'rb') as source_stream:
                     target.upload(source_stream, target_path)
+                print("4")
 
                 record['uploaded'] = True
                 record['target_path'] = target_path
                 uq.task_done()
+                print("5")
                 logger.info("Uploader-" + str(number) + ": File " + local_path + " was uploaded to " + target_path)
             except Exception as ex:
-                logger.error("Uploader-" + str(number) + ": " + str(ex) + " with file " + local_path + " and target path " + target_path)
+                logger.error("Uploader-{0}: {1}: with file {2} and target path {3}".format(str(number), str(ex), local_path, target_path))
                 time.sleep(2)
 
 
