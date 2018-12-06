@@ -55,7 +55,7 @@ class FTP(Device):
         while True:
             time.sleep(1)
 
-            starttime = time.time()
+            # starttime = time.time()
             retry = False
             try:
                 self._ftp.voidcmd("NOOP")
@@ -74,7 +74,7 @@ class FTP(Device):
 
                 except IOError as ex:
                     retry = True
-                    self._logger.info("TARGET: Time disconnected - " + str(time.time() - starttime))
+                    # self._logger.info("TARGET: Time disconnected - " + str(time.time() - starttime))
 
                     # ошибка 111 - если хост недоступен
                     self._logger.debug("TARGET: " + str(ex))
