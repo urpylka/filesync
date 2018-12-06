@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import io
 import os.path
 import time
 from threading import Thread
@@ -155,6 +154,7 @@ def main():
     logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "INFO")
     source = DISK("66F8-E5D9", "/mnt", logger)
 
+    # import io
     # buffer = io.BytesIO()
     # source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
     # print(buffer.seek())

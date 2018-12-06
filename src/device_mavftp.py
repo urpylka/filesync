@@ -93,16 +93,15 @@ class MAVFTP(Device):
     def __init__(self, *args):
         self.logdir = args
 
-        rospy.loginfo('Inited px4logs_manager')
-        rospy.init_node("mavftp", anonymous=True)
-        # mavros.set_namespace("/mavros")
-
         t = Thread(target=self._px4_available, args=())
         t.daemon = True
         t.start()
 
 
     def _px4_available(self):
+        rospy.loginfo('Inited px4logs_manager')
+        rospy.init_node("mavftp", anonymous=True)
+        # mavros.set_namespace("/mavros")
         rospy.spin()
 
 
