@@ -120,7 +120,7 @@ def create_threads(count, function, *args):
 
 
 def main():
-    logger = get_logger("filesync", "/home/pi/flir/filesync.log")
+    logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log")
     source = DISK("66F8-E5D9", "/mnt", logger)
 
     # buffer = io.BytesIO()
