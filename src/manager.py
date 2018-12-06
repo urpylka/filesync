@@ -128,7 +128,7 @@ def main():
     # print(buffer.seek())
     # source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
     # print("OK")
-    target = FTP("192.168.0.41", "test-1", "passwd", logger)
+    target = FTP("192.168.0.11", "test-1", "passwd", logger)
     db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger)
 
     dq = Queue()
