@@ -121,7 +121,6 @@ def uploader(number, args):
 
     target, uq, logger = args
     logger.debug("Uploader-" + str(number) + " was created.")
-    time.sleep(10)
     while True:
         record = uq.get()
         local_path = record['local_path']
