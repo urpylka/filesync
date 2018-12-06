@@ -84,6 +84,8 @@ class FTP(Device):
 
 
     def stream_upload(self, source_stream, device_path, chunk_size=1024):
+
+        self._logger.info("<0")
         self.is_remote_available.wait()
 
         with self._internal_lock:
@@ -97,6 +99,5 @@ class FTP(Device):
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
-            
-        
+
         self._logger.info("3")
