@@ -68,12 +68,9 @@ class FTP(Device):
 
 
     def upload(self, local_path, remote_path):
+        self.is_remote_available.wait()
         with self._internal_lock:
             try:
-                # with open(local_path, 'rb') as fobj:
-                #     res = self._ftp.storbinary('STOR ' + remote_path, fobj, 1024)
-
-                self.is_remote_available.wait()
                 self._ftp.cwd('/')
                 res = self._ftp.storbinary('STOR ' + '/' + remote_path, open(local_path, 'rb'))
                 if not res.startswith('226 Transfer complete'):
@@ -84,12 +81,9 @@ class FTP(Device):
 
 
     def stream_upload(self, source_stream, device_path, chunk_size=1024):
+        self.is_remote_available.wait()
         with self._internal_lock:
             try:
-                # with open(local_path, 'rb') as fobj:
-                #     res = self._ftp.storbinary('STOR ' + device_path, fobj, 1024)
-
-                self.is_remote_available.wait()
                 self._ftp.cwd('/')
                 res = self._ftp.storbinary('STOR ' + '/' + device_path, source_stream)
                 if not res.startswith('226 Transfer complete'):
