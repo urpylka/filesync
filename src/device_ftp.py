@@ -28,7 +28,8 @@ from device_abstract import Device
 class FTP(Device):
     """
     target = FTP("192.168.0.10", "test-1", "passwd", logging)
-    target.upload("/home/pi/flir/20181113_205519_20181113212352517.JPG", "20181113_205519_20181113212352517.JPG")
+    with open("/home/pi/flir/20181113_205519_20181113212352517.JPG", 'rb') as source_stream:
+        target.upload(source_stream, "20181113_205519_20181113212352517.JPG")
     """
 
     _internal_lock = Lock()
