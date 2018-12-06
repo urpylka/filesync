@@ -135,6 +135,8 @@ def uploader(number, args):
                 print("3")
                 #if target.upload(local_path, target_path):
                 with open(local_path, 'rb') as source_stream:
+                    print("3.5")
+
                     target.upload(source_stream, target_path)
                 print("4")
 
@@ -178,7 +180,7 @@ def main():
 
     create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff"], logger)
     create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
-    create_threads(3, uploader, target, uq, logger)
+    create_threads(1, uploader, target, uq, logger)
 
     try:
         while True:
