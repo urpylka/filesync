@@ -71,7 +71,7 @@ def downloader(number, args):
             try:
                 #if source.download(source_path, local_path):
                 with open(local_path, 'wb') as target_stream:
-                    source.stream_download(source_path, target_stream)
+                    source.download(source_path, target_stream)
 
                 record["downloaded"] = True
                 record["local_path"] = local_path
@@ -101,7 +101,7 @@ def uploader(number, args):
             try:
                 #if target.upload(local_path, target_path):
                 with open(local_path, 'rb') as source_stream:
-                    target.stream_upload(source_stream, target_path)
+                    target.upload(source_stream, target_path)
 
                 record['uploaded'] = True
                 record['target_path'] = target_path

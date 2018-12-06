@@ -67,19 +67,6 @@ class FTP(Device):
                     self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
 
 
-    def upload(self, local_path, remote_path):
-        self.is_remote_available.wait()
-        with self._internal_lock:
-            try:
-                self._ftp.cwd('/')
-                res = self._ftp.storbinary('STOR ' + '/' + remote_path, open(local_path, 'rb'))
-                if not res.startswith('226 Transfer complete'):
-                    raise Exception("File was not uploaded successful: " + res)
-            except Exception as ex:
-                raise ex
-            return True
-
-
     def stream_upload(self, source_stream, device_path, chunk_size=1024):
         self.is_remote_available.wait()
         with self._internal_lock:

@@ -54,25 +54,7 @@ class Device(object):
         raise NotImplementedError()
 
 
-    def download(self, remote_path, local_path):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        raise NotImplementedError()
-
-
-    def upload(self, local_path, remote_path):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        raise NotImplementedError()
-
-
-    def stream_download(self, device_path, target_stream, chunk_size=1024):
+    def download(self, device_path, target_stream, chunk_size=1024):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке
@@ -82,7 +64,7 @@ class Device(object):
         raise NotImplementedError()
 
 
-    def stream_upload(self, source_stream, device_path, chunk_size=1024):
+    def upload(self, source_stream, device_path, chunk_size=1024):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке

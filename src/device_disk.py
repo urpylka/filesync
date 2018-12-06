@@ -88,7 +88,7 @@ class DISK(Device):
         return my_list
 
 
-    def download(self, remote_path, local_path):
+    def download2(self, remote_path, local_path):
         self.is_remote_available.wait()
         return copy(remote_path, local_path, self._logger)
 
@@ -121,7 +121,7 @@ class DISK(Device):
                     else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
 
 
-    def stream_download(self, device_path, target_stream, chunk_size=1024):
+    def download(self, device_path, target_stream, chunk_size=1024):
         """
 
         from device_disk import DISK
@@ -129,7 +129,7 @@ class DISK(Device):
         logger = get_logger("filesync", "/home/pi/flir/filesync.log")
         source = DISK("66F8-E5D9", "/mnt", logger)
         with open("20181106_163024_949.JPG", 'wb') as target_stream:
-            source.stream_download("/20181106_163024/20181106_163024_949.JPG", target_stream)
+            source.download("/20181106_163024/20181106_163024_949.JPG", target_stream)
         print("OK")
 
         https://docs.python.org/3/library/io.html
@@ -148,11 +148,11 @@ class DISK(Device):
                 target_stream.write(chunk)
 
 
-    def stream_upload(self, source_stream, device_path, chunk_size=1024):
+    def upload(self, source_stream, device_path, chunk_size=1024):
         """
 
         with open("file_name", 'rb') as source_stream:
-            target.stream_upload(source_stream, "device_path")
+            target.upload(source_stream, "device_path")
 
         """
         self.is_remote_available.wait()
