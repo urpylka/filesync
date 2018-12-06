@@ -55,6 +55,37 @@ def finder(number, args):
         time.sleep(search_interval)
 
 
+# def worker(number, args):
+
+#     target, source, wq, logger = args
+#     logger.debug("Worker-" + str(number) + " was created.")
+
+#     while True:
+#         # объект из очереди передается по ссылке,
+#         # поэтому изменение record приведет к изменению record в JsonArray
+#         record = wq.get()
+#         source_path = record['source_path']
+#         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
+#         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
+#         while not record['downloaded']:
+#             try:
+#                 #if source.download(source_path, local_path):
+#                 with open(local_path, 'wb') as target_stream:
+#                     source.download(source_path, target_stream)
+
+#                 record["downloaded"] = True
+#                 record["local_path"] = local_path
+#                 wq.task_done()
+#                 logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
+#             except Exception as ex:
+#                 logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
+#                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
+#                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
+#                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
+#                 time.sleep(2)
+
+
+
 def downloader(number, args):
 
     source, local_directory, dq, uq, logger = args
