@@ -18,11 +18,17 @@
 
 import logging
 
-def get_logger(name, path):
+def get_logger(name, path, level):
     # https://python-scripts.com/logging-python
     logger = logging.getLogger(name)
-    #logger.setLevel(logging.DEBUG)
-    logger.setLevel(logging.INFO)
+
+    if level == "INFO":
+        logger.setLevel(logging.INFO)
+    elif level == "DEBUG":
+        logger.setLevel(logging.DEBUG)
+    elif level == "ERROR":
+        logger.setLevel(logging.ERROR)
+
     # create the logging file handler
     file_handle = logging.FileHandler(path, "w", "UTF-8")
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
