@@ -38,14 +38,6 @@ class FTP(Device):
     _internal_lock = Lock()
     _ftp = ftplib.FTP()
 
-    def __init__(self, *args):
-        self.host, self.user, self.passwd, self._logger = args
-
-        t = Thread(target=self._connect, args=())
-        t.daemon = True
-        t.start()
-
-
     def __del__(self):
         self._ftp.abort()
         self._ftp.close()
@@ -53,7 +45,7 @@ class FTP(Device):
 
     def _connect(self):
         self.is_remote_available.clear()
-        self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
+        self.kwargs["logger"].info("TARGET: FTP недоступен, все операции заблокированы")
 
         while True:
             time.sleep(1)
@@ -67,23 +59,23 @@ class FTP(Device):
 
             while retry:
                 try:
-                    self._ftp.connect(self.host)
-                    self._ftp.login(self.user, self.passwd)
+                    self._ftp.connect(self.kwargs["host"])
+                    self._ftp.login(self.kwargs["user"], self.kwargs["passwd"])
                     retry = False
 
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        self._logger.info("TARGET: FTP доступен, все операции разблокированы")
+                        self.kwargs["logger"].info("TARGET: FTP доступен, все операции разблокированы")
 
                 except IOError as ex:
                     retry = True
-                    # self._logger.info("TARGET: Time disconnected - " + str(time.time() - starttime))
+                    # self.kwargs["logger"].info("TARGET: Time disconnected - " + str(time.time() - starttime))
 
                     # ошибка 111 - если хост недоступен
-                    self._logger.debug("TARGET: " + str(ex))
+                    self.kwargs["logger"].debug("TARGET: " + str(ex))
                     if self.is_remote_available.is_set():
                         self.is_remote_available.clear()
-                        self._logger.info("TARGET: FTP недоступен, все операции заблокированы")
+                        self.kwargs["logger"].info("TARGET: FTP недоступен, все операции заблокированы")
 
 
     def upload(self, source_stream, device_path, chunk_size=1024):

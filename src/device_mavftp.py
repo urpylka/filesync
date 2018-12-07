@@ -19,7 +19,7 @@
 from device_abstract import Device
 
 import time, sys, os
-from threading import Thread, Lock
+from threading import Lock
 
 import rospy, mavros
 # from mavros.utils import *
@@ -98,7 +98,7 @@ class MAVFTP(Device):
         t.start()
 
 
-    def _px4_available(self):
+    def _connect(self):
         rospy.loginfo('Inited px4logs_manager')
         rospy.init_node("mavftp", anonymous=True)
         # mavros.set_namespace("/mavros")

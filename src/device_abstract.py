@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from threading import Thread
 from threading import Event
 
 class Device(object):
@@ -44,9 +45,15 @@ class Device(object):
 
     is_remote_available = Event()
 
-    def __init__(self, *args):
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
 
+        t = Thread(target=self._connect, args=())
+        t.daemon = True
+        t.start()
+
+    def _connect(self):
+        raise NotImplementedError("Такого метода нет в вашей реализации")
 
     def get_list(self):
         """

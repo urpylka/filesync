@@ -66,14 +66,32 @@ def delete(file_path):
 
 
 class DISK(Device):
-    is_remote_available = Event()
+    def _connect(self):
+        self.is_remote_available.clear()
+        self.kwargs["logger"].info("SOURCE: Раздел недоступен, все операции заблокированы")
+        while True:
+            time.sleep(1)
+            code = None
+            output = None
+            code, output, error = bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self.kwargs["uuid"] + "\"", self.kwargs["logger"])
+            if code == 0:
+                #if output.find((self.kwargs["mount_point"]) > -1:
+                if self.kwargs["mount_point"] in str(output):
+                    if not self.is_remote_available.is_set():
+                        self.is_remote_available.set()
+                        self.kwargs["logger"].info("SOURCE: Раздел доступен, все операции разблокированы")
+                else:
+                    self.kwargs["logger"].debug("SOURCE: Try to mount partition")
+                    a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self.kwargs["uuid"] + " " + self.kwargs["mount_point"], self.kwargs["logger"])
+                    continue
+            else:
+                if self.is_remote_available.is_set():
+                    self.is_remote_available.clear()
+                    self.kwargs["logger"].info("SOURCE: Раздел недоступен, все операции заблокированы")
 
-    def __init__(self, *args):
-        self._uuid, self._mount_point, self._logger = args
-
-        t = Thread(target=self._mount, args=())
-        t.daemon = True
-        t.start()
+                    if code == 32:
+                        self.kwargs["logger"].debug("SOURCE: The partition was ejected")
+                    else: self.kwargs["logger"].debug("SOURCE: lsblk returned code: " + str(code))
 
 
     def get_list(self):
@@ -82,43 +100,15 @@ class DISK(Device):
         """
         self.is_remote_available.wait()
         my_list = []
-        for rootdir, dirs, files in os.walk(self._mount_point):
+        for rootdir, dirs, files in os.walk(self.kwargs["mount_point"]):
             for file in files:
-                my_list.append(os.path.join(rootdir.replace(self._mount_point, '', 1), file))
+                my_list.append(os.path.join(rootdir.replace(self.kwargs["mount_point"], '', 1), file))
         return my_list
 
 
     def download2(self, remote_path, local_path):
         self.is_remote_available.wait()
-        return copy(remote_path, local_path, self._logger)
-
-
-    def _mount(self):
-        self.is_remote_available.clear()
-        self._logger.info("SOURCE: Раздел недоступен, все операции заблокированы")
-        while True:
-            time.sleep(1)
-            code = None
-            output = None
-            code, output, error = bash_command("/bin/lsblk -o MOUNTPOINT \"/dev/disk/by-uuid/" + self._uuid + "\"", self._logger)
-            if code == 0:
-                #if output.find((self._mount_point) > -1:
-                if self._mount_point in str(output):
-                    if not self.is_remote_available.is_set():
-                        self.is_remote_available.set()
-                        self._logger.info("SOURCE: Раздел доступен, все операции разблокированы")
-                else:
-                    self._logger.debug("SOURCE: Try to mount partition")
-                    a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self._uuid + " " + self._mount_point, self._logger)
-                    continue
-            else:
-                if self.is_remote_available.is_set():
-                    self.is_remote_available.clear()
-                    self._logger.info("SOURCE: Раздел недоступен, все операции заблокированы")
-
-                    if code == 32:
-                        self._logger.debug("SOURCE: The partition was ejected")
-                    else: self._logger.debug("SOURCE: lsblk returned code: " + str(code))
+        return copy(remote_path, local_path, self.kwargs["logger"])
 
 
     def download(self, device_path, target_stream, chunk_size=1024):
@@ -137,9 +127,9 @@ class DISK(Device):
         https://python-scripts.com/threading
         """
         self.is_remote_available.wait()
-        self._logger.debug("Downloading from " + str(device_path))
+        self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
-        with open(self._mount_point + device_path, 'rb') as stream:
+        with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
             while True:
                 # print(stream.tell())
                 chunk = stream.read(chunk_size)
@@ -156,9 +146,9 @@ class DISK(Device):
 
         """
         self.is_remote_available.wait()
-        self._logger.debug("Upload to " + str(device_path))
+        self.kwargs["logger"].debug("Upload to " + str(device_path))
 
-        with open(self._mount_point + device_path, 'wb') as stream:
+        with open(self.kwargs["mount_point"] + device_path, 'wb') as stream:
             while True:
                 chunk = source_stream.read(chunk_size)
                 if not chunk:

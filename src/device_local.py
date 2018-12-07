@@ -19,11 +19,9 @@
 from device_abstract import Device
 
 class LOCAL(Device):
-
-    def __init__(self, *args):
-        self.root_dir = args
-        raise NotImplementedError()
-
+    """
+    LOCAL(root_dir="/")
+    """
 
     def get_list(self):
         """
@@ -34,7 +32,7 @@ class LOCAL(Device):
         raise NotImplementedError()
 
 
-    def download(self, remote_path, local_path):
+    def download(self, device_path, target_stream):
         """
         1. Функция исполняется в вызывающем потоке
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
@@ -43,28 +41,8 @@ class LOCAL(Device):
         raise NotImplementedError()
 
 
-    def upload(self, local_path, remote_path):
+    def upload(self, source_stream, device_path):
         """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        raise NotImplementedError()
-
-
-    def stream_download(self, device_path, target_stream):
-        """
-        Пока не знаю
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        raise NotImplementedError()
-
-
-    def stream_upload(self, source_stream, device_path):
-        """
-        Пока не знаю
         1. Функция исполняется в вызывающем потоке
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент

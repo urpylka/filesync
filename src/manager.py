@@ -72,6 +72,13 @@ def finder(number, args):
 #                 with open(local_path, 'wb') as target_stream:
 #                     source.download(source_path, target_stream)
 
+#                 import io
+#                 buffer = io.BytesIO()
+#                 source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
+#                 print(buffer.seek())
+#                 source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
+#                 print("OK")
+
 #                 record["downloaded"] = True
 #                 record["local_path"] = local_path
 #                 wq.task_done()
@@ -152,15 +159,8 @@ def create_threads(count, function, *args):
 
 def main():
     logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "INFO")
-    source = DISK("66F8-E5D9", "/mnt", logger)
-
-    # import io
-    # buffer = io.BytesIO()
-    # source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
-    # print(buffer.seek())
-    # source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
-    # print("OK")
-    target = FTP("192.168.0.10", "test-1", "passwd", logger)
+    source = DISK(uuid="66F8-E5D9", mount_point="/mnt", logger=logger)
+    target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger)
     db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger)
 
     dq = Queue()
