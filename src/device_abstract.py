@@ -48,6 +48,8 @@ class Device(object):
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
+        self.is_remote_available.clear()
+
         t = Thread(target=self._connect, args=())
         t.daemon = True
         t.start()
