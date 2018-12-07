@@ -31,7 +31,8 @@ def get_logger(name, path, level):
 
     # create the logging file handler
     file_handle = logging.FileHandler(path, "w", "UTF-8")
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     file_handle.setFormatter(formatter)
     # add handler to logger object
     logger.addHandler(file_handle)
