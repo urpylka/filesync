@@ -43,12 +43,12 @@ class Device(object):
     наименование класса в котором это все вызывается
     """
 
-    is_remote_available = Event()
+    
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
-        self.is_remote_available.clear()
+        self.is_remote_available = Event()
 
         t = Thread(target=self._connect, args=())
         t.daemon = True
