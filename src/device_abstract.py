@@ -43,8 +43,6 @@ class Device(object):
     наименование класса в котором это все вызывается
     """
 
-    
-
     def __init__(self, **kwargs):
         self.kwargs = kwargs
 
@@ -54,8 +52,10 @@ class Device(object):
         t.daemon = True
         t.start()
 
+
     def _connect(self):
         raise NotImplementedError("Такого метода нет в вашей реализации")
+
 
     def get_list(self):
         """

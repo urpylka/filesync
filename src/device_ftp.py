@@ -23,7 +23,6 @@ import os
 import time
 import ftplib
 from threading import Lock
-from threading import Event
 
 from device_abstract import Device
 
@@ -38,7 +37,6 @@ class FTP(Device):
 
     _internal_lock = Lock()
     _ftp = ftplib.FTP()
-    # is_remote_available = Event()
 
     def __del__(self):
         self._ftp.abort()
