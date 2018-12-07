@@ -29,7 +29,7 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
-    def __init__(self, buffer_size, buffer_type=0):
+    def __init__(self, buffer_size, file_size, buffer_type=0):
         """
         Buffer can be placed in memory & flash
 
@@ -39,7 +39,8 @@ class SmartBuffer(object):
         то получится local
         """
 
-        self.size = buffer_size
+        self.buf_size = buffer_size
+        self.file_size = file_size
 
         if buffer_type == 0:
             self.buffer = io.BytesIO() #size
@@ -49,20 +50,30 @@ class SmartBuffer(object):
         self.pos_r = 0
         self.pos_w = 0
 
-    
+        self.already_read = 0
+        self.already_wrote = 0
+
+
+    def _read(self, chunk_size):
+        self.buffer.seek(self.pos_r)
+        buf = self.buffer.read(chunk_size)
+
+        self.pos_r += chunk_size
+
+        if self.pos_r == self.buf_size:
+            self.pos_r = 0
+
+        self.already_read += chunk_size
+        return buf
+
+
     def read(self, chunk_size):
-        """
-        В аналогичных функциях read chunk_size
-        может равняться -1 тогда будет весь буффер
+        if chunk_size < 0:
+            # В аналогичных функциях read chunk_size
+            # может равняться -1 тогда будет весь буффер
+            raise Exception("Размер чанка не может быть отрицательным")
 
-        Функция не гарантирует возвращения всего чанка,
-        даже если не достигнут конец файла
-
-        Можно сделать счетчик сколько мы читаем из файла,
-        заведя переменную available + self.already_read
-        """
         with self.threads_lock:
-
             diff = self.pos_w - self.pos_r
 
             # если pos_w >= pos_r
@@ -71,36 +82,58 @@ class SmartBuffer(object):
             # diff >= 0 не нужна
             if diff >= chunk_size:
                 # читаем целый чанк
-                self.buffer.seek(self.pos_r)
-                self.pos_r += chunk_size
-                return self.buffer.read(chunk_size)
+                return self._read(chunk_size)
             else:
-                # читаем сколько есть
                 # если доступно меньше чанка
+                needs = 0
+                buf = b''
+
                 if diff > 0:
                     # читаем до pos_w
-                    self.buffer.seek(self.pos_r)
-                    self.pos_r = self.pos_w
-                    #self.pos_r += diff
-                    return self.buffer.read(diff)
-                elif diff < 0:
-                    # читаем, что осталось
-                    available = self.size - self.pos_r
+                    buf = self._read(diff)
+                    needs = chunk_size - diff
 
-                    self.buffer.seek(self.pos_r)
-                    self.pos_r = 0
-                    return self.buffer.read(available)
+                elif diff < 0:
+                    # читаем, что осталось на этой стороне
+                    available = self.buf_size - self.pos_r
+                    needs = chunk_size - available
+                    buf = self._read(available)
+
                 else:
                     # diff == 0
-                    # блокировать, если передача не закончилась
-                    return b''
+                    needs = chunk_size
+
+                if self.already_read == self.file_size:
+                    return buf
+                else:
+                    return buf + self.read(needs)
+
+
+    def _write(self, chunk):
+        chunk_size = len(chunk)
+        self.buffer.seek(self.pos_w)
+        self.buffer.write(chunk)
+        self.pos_w += chunk_size
+        self.already_wrote += chunk_size
 
 
     def write(self, chunk):
-        """
-        """
+        chunk_size = len(chunk)
+
         with self.threads_lock:
-            diff = self.pos_w - self.pos_r
+
+            available = 0
+
+            if self.pos_w >= self.pos_r:
+                available = self.buf_size - self.pos_w
+            else:
+                available = self.pos_r - self.pos_w
+
+            if available >= chunk_size:
+                self._write(chunk)
+            else:
+                self._write(chunk[0, available-1])
+                self.write(chunk[available, chunk_size-1])
 
 
     def __del__(self):
