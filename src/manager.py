@@ -97,6 +97,10 @@ def worker(number, args):
                 in_thread(source.download, source_path, buffer_stream) # вставляет
                 in_thread(target.upload, buffer_stream, target_path)   # сосёт
 
+                # нужно чтобы в первый момент времени upload не упал,
+                # ну и вообще когда один догоняет другой,
+                # думаю по размеру файла проверять (блокировать или отдавать b'')
+
                 while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
                     time.sleep(0.5)
 
