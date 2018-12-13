@@ -28,7 +28,7 @@ from logger import get_logger
 
 def finder(number, args):
 
-    db, source, search_interval, default_record, key, dq, files_extensions, logger = args
+    db, source, search_interval, dq, files_extensions, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
 
     while True:
@@ -36,14 +36,23 @@ def finder(number, args):
             for item in source.get_list():
 
                 # Check extension
-                if files_extensions.count(item.split('.')[-1]) == 1:
+                if files_extensions.count(item["source_path"].split('.')[-1]) == 1:
 
-                    if not db.in_records(key, item):
-                        logger.info("Finder-" + str(number) + ": Found a new file: " + str(item))
+                    if not db.in_records("source_path", item["source_path"]):
+                        logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(item["source_path"])))
 
                         # prepare the new object
-                        record = default_record.copy()
-                        record[key] = item
+                        record = {}.copy()
+                        record["source_path"] = item["path"]
+                        record["source_size"] = item["size"]
+                        record["source_hash"] = item["hash"]
+                        record["downloaded"] = False
+                        record["dropped"] = False
+                        record["uploaded"] = False
+                        record["target_path"] = ""
+
+                        record["local_path"] = ""
+
                         # save the new object
                         db.append(record)
                         dq.put(record)
@@ -169,10 +178,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    default_record = {"source_path": "", "downloaded": False, "local_path": "", "uploaded": False, "target_path": ""}
-    name_of_key = "source_path"
-
-    create_threads(1, finder, db, source, 10, default_record, name_of_key, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff"], logger)
+    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff"], logger)
     create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     create_threads(1, uploader, target, uq, logger)
 
