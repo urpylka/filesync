@@ -16,20 +16,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from device_abstract import Device
+from bash_commands import *
 
 class LOCAL(Device):
     """
     LOCAL(root_dir="/")
     """
 
+    def _connect(self):
+        """
+        Не нужно выполнять никаких действий
+
+        Мб только создать папку, если ее не существует
+        """
+        pass
+
+
     def get_list(self):
         """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать список файлов (пустой список, если файлов нет)
-        или, если что-то пошло не так, выбрасывать исключение
+        Get list of files
         """
-        raise NotImplementedError()
+        self.is_remote_available.wait()
+        my_list = []
+        for rootdir, dirs, files in os.walk(self.kwargs["root_path"]):
+            for file in files:
+                my_list.append(os.path.join(rootdir.replace(self.kwargs["root_path"], '', 1), file))
+        return my_list
 
 
     def download(self, device_path, target_stream):
@@ -38,7 +52,8 @@ class LOCAL(Device):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        target_stream.ram_to_flash(device_path)
+        #???? типа надо как-то подтвердить что файл сохранен
 
 
     def upload(self, source_stream, device_path):
@@ -47,7 +62,8 @@ class LOCAL(Device):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        source_stream.ram_to_flash(device_path)
+        #???? типа надо как-то подтвердить что файл сохранен
 
 
     def delete(self, remote_path):
@@ -56,4 +72,4 @@ class LOCAL(Device):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError()
+        delete(remote_path)
