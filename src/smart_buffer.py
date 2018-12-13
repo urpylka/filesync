@@ -25,13 +25,24 @@ class SmartBuffer(object):
     (worked on cyclic quenue)
     async (w lock between read & write,
     w different cursor in read & write)
+
+    https://docs.python.org/3/library/io.html
+
+
+
+    Если долго не идет процесс read кешировать все в локал, если не файл не большой не более 1Гб
+    или какие-то лимиты
+
+
+    Можно сделать чтобы буффер сам подзатирался, скачивался,
+    а если не скачивался, то становился больше
     """
 
     threads_lock = Lock()
 
     def __init__(self, buffer_size, file_size, buffer_type=0):
         """
-        Buffer can be placed in memory & flash
+        Buffer can be placed in memory or flash
 
         если указать размер буффера равный размеру файла,
         тип буффера - файл
@@ -43,9 +54,9 @@ class SmartBuffer(object):
         self.file_size = file_size
 
         if buffer_type == 0:
-            self.buffer = io.BytesIO() #size
+            self.buffer = io.BytesIO()
         elif buffer_type == 1:
-            self.buffer = io.open()
+            self.buffer = io.open("file.temp", "wb")
 
         self.pos_r = 0
         self.pos_w = 0
@@ -138,3 +149,27 @@ class SmartBuffer(object):
 
     def __del__(self):
         self.buffer.close()
+
+
+    def ram_to_flash(self, local_path):
+        """
+        Должен использовать в случае исключений при прерывании
+        Или при переходе на хранения всего файла во Flash
+
+        Нужен метод для сохранения в файл local
+        Этот метод должен вызваться в самом начале исполнения uploader,
+        чтобы буффер не успел ничем затереться
+        """
+        pass
+
+
+    def maximize_buffer(self):
+        """
+        Может работать только, если считано строго меньше размера буффера
+        в обратном случае исключение
+        """
+        pass
+
+
+    def rename_file_buffer(self, local_path):
+        pass
