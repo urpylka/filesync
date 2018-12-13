@@ -40,7 +40,7 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
-    def __init__(self, buffer_size, file_size, buffer_type=0):
+    def __init__(self, file_size, buf_size=None, buf_type=0):
         """
         Buffer can be placed in memory or flash
 
@@ -50,12 +50,17 @@ class SmartBuffer(object):
         то получится local
         """
 
-        self.buf_size = buffer_size
         self.file_size = file_size
+        self.buf_type = buf_type
 
-        if buffer_type == 0:
+        if buf_size is None:
+            self.buf_size = self.get_optimize_buf_size()
+        else:
+            self.buf_size = buf_size
+
+        if buf_type == 0:
             self.buffer = io.BytesIO()
-        elif buffer_type == 1:
+        elif buf_type == 1:
             self.buffer = io.open("file.temp", "wb")
 
         self.pos_r = 0
@@ -173,3 +178,32 @@ class SmartBuffer(object):
 
     def rename_file_buffer(self, local_path):
         pass
+
+
+    def read_all(self):
+        if self.file_size == self.already_read:
+            return True
+        else:
+            return False
+
+
+    def wrote_all(self):
+        if self.file_size == self.already_wrote:
+            return True
+        else:
+            return False
+
+    def get_optimize_buf_size(self):
+        if self.buf_type == 0: # RAM
+            # < 10MB
+            if self.file_size < 10000000:
+                return self.file_size
+            else:
+                return 10000000
+
+        elif self.buf_type == 1: # FLASH
+            # < 100MB
+            if self.file_size < 100000000:
+                return self.file_size
+            else:
+                return 100000000

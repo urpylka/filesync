@@ -25,6 +25,7 @@ from json_array import JsonArray
 from device_disk import DISK
 from device_ftp import FTP
 from logger import get_logger
+from smart_buffer import SmartBuffer
 
 def finder(number, args):
 
@@ -63,42 +64,66 @@ def finder(number, args):
         time.sleep(search_interval)
 
 
-# def worker(number, args):
+def worker(number, args):
 
-#     target, source, wq, logger = args
-#     logger.debug("Worker-" + str(number) + " was created.")
+    target, source, wq, logger = args
+    logger.debug("Worker-" + str(number) + " was created.")
 
-#     while True:
-#         # объект из очереди передается по ссылке,
-#         # поэтому изменение record приведет к изменению record в JsonArray
-#         record = wq.get()
-#         source_path = record['source_path']
-#         local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
-#         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
-#         while not record['downloaded']:
-#             try:
-#                 #if source.download(source_path, local_path):
-#                 with open(local_path, 'wb') as target_stream:
-#                     source.download(source_path, target_stream)
+    local_directory = ""
 
-#                 import io
-#                 buffer = io.BytesIO()
-#                 source.stream_download("/20181106_163024/20181106_163024_949.JPG", buffer)
-#                 print(buffer.seek())
-#                 source.stream_upload(buffer, "/20181106_163024/lasdladlaldaldlladaskdlafkkbghjfnskgnabj")
-#                 print("OK")
+    while True:
+        # объект из очереди передается по ссылке,
+        # поэтому изменение record приведет к изменению record в JsonArray
+        record = wq.get()
 
-#                 record["downloaded"] = True
-#                 record["local_path"] = local_path
-#                 wq.task_done()
-#                 logger.info("Downloader-" + str(number) + ": File " + source_path + " was downloaded to " + local_path)
-#             except Exception as ex:
-#                 logger.error("Downloader-" + str(number) + ": " + str(ex) + " with file " + source_path)
-#                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-#                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
-#                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
-#                 time.sleep(2)
+        source_path = record['source_path']
+        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
 
+        # local_path = record['local_path']
+        target_path = '/' + os.path.basename(local_path)
+
+
+        logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
+
+        while True:
+
+            try:
+                buffer_stream = SmartBuffer(record['source_size'])
+
+                # чтобы при срыве чего-либо все продолжалось с того же места,
+                # нужно чтобы буффер не очищался,
+                # а source.download и target.upload не теряли указатели
+
+                in_thread(source.download, source_path, buffer_stream) # вставляет
+                in_thread(target.upload, buffer_stream, target_path)   # сосёт
+
+                while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
+                    time.sleep(0.5)
+
+                    if buffer_stream.already_wrote:
+                        record["downloaded"] = True
+                        # record["local_path"] = local_path
+                    if buffer_stream.already_read:
+                        record["uploaded"] = True
+                    
+                    if buffer_stream.already_wrote and buffer_stream.already_read:
+                        source.delete(record["source_path"])
+                        wq.task_done()
+                        logger.info("Worker-" + str(number) + ": File " + source_path + " was downloaded to " + target_path)
+                        break
+
+            except Exception as ex:
+                logger.error("Worker-" + str(number) + ": " + str(ex) + " with file " + source_path)
+                # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
+                # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
+                # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
+                time.sleep(2)
+
+
+def in_thread(function, *args):
+    t = Thread(target=function, args=(args,))
+    t.daemon = True
+    t.start()
 
 
 def downloader(number, args):
