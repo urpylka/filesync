@@ -82,10 +82,9 @@ def worker(number, args):
         # local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
 
-
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
-        while True:
+        while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
 
             try:
                 buffer_stream = SmartBuffer(record['source_size'])
@@ -101,7 +100,7 @@ def worker(number, args):
                 # ну и вообще когда один догоняет другой,
                 # думаю по размеру файла проверять (блокировать или отдавать b'')
 
-                while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
+                while True:
                     time.sleep(0.5)
 
                     if buffer_stream.already_wrote:
@@ -110,10 +109,9 @@ def worker(number, args):
                     if buffer_stream.already_read:
                         record["uploaded"] = True
                     
-                    if buffer_stream.already_wrote and buffer_stream.already_read:
+                    if record["downloaded"] and record["uploaded"]:
                         source.delete(record["source_path"])
-                        wq.task_done()
-                        logger.info("Worker-" + str(number) + ": File " + source_path + " was downloaded to " + target_path)
+                        record["dropped"] = True
                         break
 
             except Exception as ex:
@@ -122,6 +120,9 @@ def worker(number, args):
                 # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
                 time.sleep(2)
+
+        wq.task_done()
+        logger.info("Worker-" + str(number) + ": File " + source_path + " was downloaded to " + target_path)
 
 
 def in_thread(function, *args):

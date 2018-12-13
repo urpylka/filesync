@@ -28,11 +28,8 @@ class SmartBuffer(object):
 
     https://docs.python.org/3/library/io.html
 
-
-
     Если долго не идет процесс read кешировать все в локал, если не файл не большой не более 1Гб
     или какие-то лимиты
-
 
     Можно сделать чтобы буффер сам подзатирался, скачивался,
     а если не скачивался, то становился больше
@@ -69,8 +66,14 @@ class SmartBuffer(object):
         self.already_read = 0
         self.already_wrote = 0
 
+        self.last_read = b''
+        self.last_already_read = 0
+
 
     def _read(self, chunk_size):
+        """
+        Функция умеет читать только до границы буффера
+        """
         self.buffer.seek(self.pos_r)
         buf = self.buffer.read(chunk_size)
 
@@ -83,7 +86,7 @@ class SmartBuffer(object):
         return buf
 
 
-    def read(self, chunk_size):
+    def _read2(self, chunk_size):
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
             # может равняться -1 тогда будет весь буффер
@@ -123,6 +126,17 @@ class SmartBuffer(object):
                     return buf
                 else:
                     return buf + self.read(needs)
+
+
+    def read(self, chunk_size):
+        """
+        Функция записывает ответ _read2 в переменную last_read,
+        в случае ошибки при работе с данными полученными от фукнции,
+        есть возможность продолжить с того же места
+        """
+        self.last_already_read = self.already_read
+        self.last_read = self._read2(chunk_size)
+        return self.last_read
 
 
     def _write(self, chunk):
