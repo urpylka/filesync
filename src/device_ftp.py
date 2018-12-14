@@ -83,8 +83,9 @@ class FTP(Device):
     def upload(self, source_stream, device_path, chunk_size=1024):
         self.is_remote_available.wait()
 
-        def _callback1():
+        def _callback1(text):
             print("urpylka")
+            print(text)
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
