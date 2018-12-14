@@ -83,7 +83,10 @@ class FTP(Device):
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
+            res = self._ftp.storbinary('STOR ' + device_path, source_stream, callback=callback)
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
+
+def callback(text):
+    print("urpylka: " + text)
