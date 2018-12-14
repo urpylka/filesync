@@ -37,10 +37,10 @@ def finder(number, args):
             for item in source.get_list():
 
                 # Check extension
-                if files_extensions.count(item["source_path"].split('.')[-1]) == 1:
+                if files_extensions.count(item["path"].split('.')[-1]) == 1:
 
-                    if not db.in_records("source_path", item["source_path"]):
-                        logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(item["source_path"])))
+                    if not db.in_records("source_path", item["path"]):
+                        logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(item["path"])))
 
                         # prepare the new object
                         record = {}.copy()
