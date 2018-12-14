@@ -33,6 +33,8 @@ class FTP(Device):
         target.upload(source_stream, "20181113_205519_20181113212352517.JPG")
 
     Можно сделать ввод количества параллельных соединений и сделать вместо блокировки семафор
+
+    Два раза пишет что FTP недоступен
     """
 
     _internal_lock = Lock()
@@ -88,5 +90,5 @@ class FTP(Device):
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
 
-def callback1(text):
-    print("urpylka: " + text)
+def callback1():
+    print("urpylka")
