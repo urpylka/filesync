@@ -84,40 +84,37 @@ def worker(number, args):
 
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
+        buffer_stream = SmartBuffer(record['source_size'])
+
         while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
 
             try:
-                buffer_stream = SmartBuffer(record['source_size'])
 
                 # чтобы при срыве чего-либо все продолжалось с того же места,
                 # нужно чтобы буффер не очищался,
                 # а source.download и target.upload не теряли указатели
 
-                in_thread(source.download, source_path, buffer_stream) # вставляет
-                in_thread(target.upload, buffer_stream, target_path)   # сосёт
+                d = in_thread(source.download, source_path, buffer_stream) # вставляет
+                u = in_thread(target.upload, buffer_stream, target_path)   # сосёт
 
-                # нужно чтобы в первый момент времени upload не упал,
-                # ну и вообще когда один догоняет другой,
-                # думаю по размеру файла проверять (блокировать или отдавать b'')
+                d.join()
+                if buffer_stream.already_wrote:
+                    record["downloaded"] = True
+                    # record["local_path"] = local_path
 
-                while True:
-                    time.sleep(0.5)
+                u.join()
+                if buffer_stream.already_read:
+                    record["uploaded"] = True
 
-                    if buffer_stream.already_wrote:
-                        record["downloaded"] = True
-                        # record["local_path"] = local_path
-                    if buffer_stream.already_read:
-                        record["uploaded"] = True
-                    
-                    if record["downloaded"] and record["uploaded"]:
-                        source.delete(record["source_path"])
-                        record["dropped"] = True
-                        break
+                if record["downloaded"] and record["uploaded"]:
+                    source.delete(record["source_path"])
+                    record["dropped"] = True
 
             except Exception as ex:
                 logger.error("Worker-" + str(number) + ": " + str(ex) + " with file " + source_path)
                 # может быть ошибка что флешка на пиксе не доступна (ошибка 110 например)
-                # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE" & сбросить ftp "rosservice call /mavros/ftp/reset"    
+                # закрыть поток на ftp "rosservice call /mavros/ftp/close NAME_OF_FILE"
+                # & сбросить ftp "rosservice call /mavros/ftp/reset"    
                 # вообще, в случае этой ошибки можно перейти к другому элементу из очереди
                 time.sleep(2)
 
@@ -126,9 +123,11 @@ def worker(number, args):
 
 
 def in_thread(function, *args):
+    #name='Worker-1'
     t = Thread(target=function, args=(args,))
     t.daemon = True
     t.start()
+    return t
 
 
 def downloader(number, args):

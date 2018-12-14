@@ -66,9 +66,8 @@ class SmartBuffer(object):
         self.already_read = 0
         self.already_wrote = 0
 
+        self.is_error = False
         self.last_read = b''
-        self.last_already_read = 0
-
 
     def _read(self, chunk_size):
         """
@@ -122,6 +121,9 @@ class SmartBuffer(object):
                     # diff == 0
                     needs = chunk_size
 
+                # нужно чтобы в первый момент времени upload не упал,
+                # ну и вообще когда один догоняет другой,
+                # думаю по размеру файла проверять (блокировать или отдавать b'')
                 if self.already_read == self.file_size:
                     return buf
                 else:
@@ -134,8 +136,10 @@ class SmartBuffer(object):
         в случае ошибки при работе с данными полученными от фукнции,
         есть возможность продолжить с того же места
         """
-        self.last_already_read = self.already_read
-        self.last_read = self._read2(chunk_size)
+        if self.is_error:
+            self.is_error = False
+        else:
+            self.last_read = self._read2(chunk_size)
         return self.last_read
 
 
@@ -221,3 +225,7 @@ class SmartBuffer(object):
                 return self.file_size
             else:
                 return 100000000
+
+
+    def was_error(self):
+        self.is_error = True
