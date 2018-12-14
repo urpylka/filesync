@@ -83,13 +83,24 @@ class FTP(Device):
     def upload(self, source_stream, device_path, chunk_size=1024):
         self.is_remote_available.wait()
 
-        def _callback1(text):
-            print("urpylka")
-            print(text)
+        # f_blocksize = 1024
+        # total_size = os.path.getsize(file_path)
+        # size_written = 0
+
+        # # http://qaru.site/questions/15601924/ftplib-storbinary-with-ftps-is-hangingnever-completing
+        # def handle(block):
+        #     global size_written
+        #     global total_size
+        #     global f_blocksize
+        #     size_written = size_written + f_blocksize if size_written + f_blocksize < total_size else total_size
+        #     percent_complete = size_written / total_size * 100
+        #     print("%s percent complete" %str(percent_complete))
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            res = self._ftp.storbinary('STOR ' + device_path, source_stream, callback=_callback1)
+            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
+
+            #res = self._ftp.storbinary('STOR ' + device_path, source_stream, blocksize=f_blocksize, callback=handle)
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
