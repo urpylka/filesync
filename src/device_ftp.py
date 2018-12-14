@@ -104,3 +104,17 @@ class FTP(Device):
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
+
+        # def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
+        #     self.voidcmd('TYPE I')
+        #     with self.transfercmd(cmd, rest) as conn:
+        #         while 1:
+        #         buf = fp.read(blocksize)
+        #         if not buf: break
+        #         conn.sendall(buf)
+        #         if callback: callback(buf)
+        #         # shutdown ssl layer
+        #         if isinstance(conn, ssl.SSLSocket):
+        #         # HACK: Instead of attempting unwrap the connection, pass here
+        #         pass
+        #     return self.voidresp()
