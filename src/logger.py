@@ -18,6 +18,9 @@
 
 import logging
 
+# Redirecting print to logger
+# https://stackoverflow.com/questions/11124093/redirect-python-print-output-to-logger
+
 def get_logger(name, path, level):
     # https://python-scripts.com/logging-python
     logger = logging.getLogger(name)
@@ -29,11 +32,18 @@ def get_logger(name, path, level):
     elif level == "ERROR":
         logger.setLevel(logging.ERROR)
 
-    # create the logging file handler
-    file_handle = logging.FileHandler(path, "w", "UTF-8")
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+    # create the logging file handler
+    file_handle = logging.FileHandler(path, "w", "UTF-8")
     file_handle.setFormatter(formatter)
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+
     # add handler to logger object
     logger.addHandler(file_handle)
+    logger.addHandler(console_handler)
+
     return logger
