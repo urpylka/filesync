@@ -140,27 +140,32 @@ class FTP(Device):
         #     percent_complete = size_written / total_size * 100
         #     print("%s percent complete" %str(percent_complete))
 
+
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
+            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
 
-            self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
+            #res = self._ftp.storbinary('STOR ' + device_path, source_stream, blocksize=f_blocksize, callback=handle)
 
-            self._ftp.voidcmd("TYPE I")
 
-            with self._ftp.transfercmd("STOR " + device_path, rest) as conn:
+            # self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
 
-                while 1:
-                    buf = source_stream.read(chunk_size)
-                    if not buf: break
+            # self._ftp.voidcmd("TYPE I")
 
-                    while 1:
-                        try:
-                            conn.sendall(buf)
-                            break
-                        except:
-                            pass
+            # with self._ftp.transfercmd("STOR " + device_path, rest) as conn:
 
-                res = self._ftp.voidresp()
+            #     while 1:
+            #         buf = source_stream.read(chunk_size)
+            #         if not buf: break
+
+            #         while 1:
+            #             try:
+            #                 conn.sendall(buf)
+            #                 break
+            #             except:
+            #                 pass
+
+            #     res = self._ftp.voidresp()
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
