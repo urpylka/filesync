@@ -96,8 +96,8 @@ class FTP(Device):
         #     percent_complete = size_written / total_size * 100
         #     print("%s percent complete" %str(percent_complete))
 
-        rest = 0    # already_upload
-        buf = b''   # what trying try to upload
+        rest = 0    # already upload wo errors
+        buf = b''   # what we trying try to upload last time
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
@@ -119,32 +119,5 @@ class FTP(Device):
 
                 res = self._ftp.voidresp()
 
-            
-
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
-
-
-    def _cb(self, buf):
-        """
-        Метод в первую очередь для ведения статистики количества
-        записанный чанков в FTP
-
-        Также можно считать количество информации записанной для ведения стастики
-        """
-        self.already_read += len(self.last_buf)
-        self.last_buf = buf
-
-        # def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
-        #     self.voidcmd('TYPE I')
-        #     with self.transfercmd(cmd, rest) as conn:
-        #         while 1:
-        #         buf = fp.read(blocksize)
-        #         if not buf: break
-        #         conn.sendall(buf)
-        #         if callback: callback(buf)
-        #         # shutdown ssl layer
-        #         if isinstance(conn, ssl.SSLSocket):
-        #         # HACK: Instead of attempting unwrap the connection, pass here
-        #         pass
-        #     return self.voidresp()
