@@ -21,6 +21,9 @@ import logging
 # Redirecting print to logger
 # https://stackoverflow.com/questions/11124093/redirect-python-print-output-to-logger
 
+# https://docs.python.org/3/howto/logging.html
+# https://aykutakin.wordpress.com/2013/08/06/logging-to-console-and-file-in-python/
+
 def get_logger(name, path, level):
     # https://python-scripts.com/logging-python
     logger = logging.getLogger(name)
@@ -33,7 +36,7 @@ def get_logger(name, path, level):
         logger.setLevel(logging.ERROR)
 
     # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
     # create the logging file handler
     file_handle = logging.FileHandler(path, "w", "UTF-8")
