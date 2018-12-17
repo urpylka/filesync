@@ -143,9 +143,9 @@ class FTP(Device):
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
+            res = self._ftp.storbinary("STOR " + device_path, source_stream)
 
-            #res = self._ftp.storbinary('STOR ' + device_path, source_stream, blocksize=f_blocksize, callback=handle)
+            #res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=f_blocksize, callback=handle)
 
 
             # self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
@@ -167,7 +167,7 @@ class FTP(Device):
 
             #     res = self._ftp.voidresp()
 
-            if not res.startswith('226 Transfer complete'):
+            if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
 
 
