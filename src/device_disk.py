@@ -58,7 +58,7 @@ class DISK(Device):
         my_list = []
         for rootdir, dirs, files in os.walk(self.kwargs["mount_point"]):
             for file in files:
-                path = os.path.join(rootdir.replace(self.kwargs["mount_point"], '', 1), file)
+                path = os.path.join(rootdir.replace(self.kwargs["mount_point"], '/', 1), file)
                 _path = os.path.join(rootdir, file)
                 size = os.stat(_path).st_size
                 my_list.append({"path": path, "size": size, "hash": ""})
