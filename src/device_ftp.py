@@ -80,7 +80,7 @@ class FTP(Device):
                         self.kwargs["logger"].info("TARGET: FTP недоступен, все операции заблокированы")
 
 
-    def upload(self, source_stream, device_path, chunk_size=1024):
+    def upload(self, source_stream, device_path, chunk_size=8192):
         self.is_remote_available.wait()
 
         # f_blocksize = 1024
@@ -96,14 +96,44 @@ class FTP(Device):
         #     percent_complete = size_written / total_size * 100
         #     print("%s percent complete" %str(percent_complete))
 
+        rest = 0    # already_upload
+        buf = b''   # what trying try to upload
+
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            res = self._ftp.storbinary('STOR ' + device_path, source_stream)
 
-            #res = self._ftp.storbinary('STOR ' + device_path, source_stream, blocksize=f_blocksize, callback=handle)
+            self._ftp.voidcmd("TYPE I")
+
+            with self._ftp.transfercmd("STOR " + device_path, rest) as conn:
+
+                while 1:
+                    buf = source_stream.read(chunk_size)
+                    if not buf: break
+
+                    while 1:
+                        try:
+                            conn.sendall(buf)
+                            break
+                        except:
+                            pass
+
+                res = self._ftp.voidresp()
+
+            
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
+
+
+    def _cb(self, buf):
+        """
+        Метод в первую очередь для ведения статистики количества
+        записанный чанков в FTP
+
+        Также можно считать количество информации записанной для ведения стастики
+        """
+        self.already_read += len(self.last_buf)
+        self.last_buf = buf
 
         # def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
         #     self.voidcmd('TYPE I')
