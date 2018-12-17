@@ -24,7 +24,7 @@ import os, time
 class DISK(Device):
     def _connect(self):
         self.is_remote_available.clear()
-        self.kwargs["logger"].info("SOURCE: Раздел недоступен, все операции заблокированы")
+        self.kwargs["logger"].info("SOURCE: Partition is unavailable. All operations is lock")
         while True:
             time.sleep(1)
             code = None
@@ -35,7 +35,7 @@ class DISK(Device):
                 if self.kwargs["mount_point"] in str(output):
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        self.kwargs["logger"].info("SOURCE: Раздел доступен, все операции разблокированы")
+                        self.kwargs["logger"].info("SOURCE: Partition is available. All operations is unlock")
                 else:
                     self.kwargs["logger"].debug("SOURCE: Try to mount partition")
                     a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self.kwargs["uuid"] + " " + self.kwargs["mount_point"], self.kwargs["logger"])
@@ -43,7 +43,7 @@ class DISK(Device):
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    self.kwargs["logger"].info("SOURCE: Раздел недоступен, все операции заблокированы")
+                    self.kwargs["logger"].info("SOURCE: Partition is unavailable. All operations is lock")
 
                     if code == 32:
                         self.kwargs["logger"].debug("SOURCE: The partition was ejected")

@@ -91,7 +91,7 @@ class FTP(Device):
 
     def _connect(self):
         self.is_remote_available.clear()
-        self.kwargs["logger"].info("TARGET: FTP недоступен, все операции заблокированы")
+        self.kwargs["logger"].info("TARGET: FTP is unavailble. All operations is lock")
 
         while True:
             time.sleep(1)
@@ -111,7 +111,7 @@ class FTP(Device):
 
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        self.kwargs["logger"].info("TARGET: FTP доступен, все операции разблокированы")
+                        self.kwargs["logger"].info("TARGET: FTP is availble. All operations is unlock")
 
                 except IOError as ex:
                     retry = True
@@ -121,7 +121,7 @@ class FTP(Device):
                     self.kwargs["logger"].debug("TARGET: " + str(ex))
                     if self.is_remote_available.is_set():
                         self.is_remote_available.clear()
-                        self.kwargs["logger"].info("TARGET: FTP недоступен, все операции заблокированы")
+                        self.kwargs["logger"].info("TARGET: FTP is unavailble. All operations is lock")
 
 
     def upload(self, source_stream, device_path, chunk_size=8192):
