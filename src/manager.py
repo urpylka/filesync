@@ -197,7 +197,8 @@ def create_threads(count, function, *args):
 
 def main():
     logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "INFO")
-    source = DISK(uuid="66F8-E5D9", mount_point="/mnt", logger=logger)
+    source = DISK(uuid="1234-5678", mount_point="/mnt", logger=logger)
+    # source = DISK(uuid="66F8-E5D9", mount_point="/mnt", logger=logger)
     target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger)
     db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger)
 
@@ -207,7 +208,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff"], logger)
+    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI"], logger)
     create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     create_threads(1, uploader, target, uq, logger)
 

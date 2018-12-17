@@ -26,6 +26,50 @@ from threading import Lock
 
 from device_abstract import Device
 
+
+class my_ftp(ftplib.FTP):
+    def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
+        """
+        Пришлось исправить стандартный метод
+        перестановкой отправки сообщения и вызова callback
+        """
+        print("urpylka")
+        self.voidcmd('TYPE I')
+        with self.transfercmd(cmd, rest) as conn:
+            while 1:
+                buf = fp.read(blocksize)
+                if not buf: break
+
+                if callback: callback(buf)
+
+                # эта штука умеет как минимум выбрасывать
+                # [Errno 32] Broken pipe
+
+                # При тестировании, при прерывании сразу
+                # было пустое сообщение об ошибке
+                # будто throw Exception()
+                conn.sendall(buf)
+
+        return self.voidresp()
+
+    def storbinary2(self, cmd, fp, blocksize=8192, callback=None, rest=None):
+        """
+        Пришлось исправить стандартный метод
+        перестановкой отправки сообщения и вызова callback
+        """
+        print("urpylka2")
+        self.voidcmd('TYPE I')
+        with self.transfercmd(cmd, rest) as conn:
+            while 1:
+                buf = fp.read(blocksize)
+                if not buf: break
+
+                if callback: callback(buf)
+                conn.sendall(buf)
+
+        return self.voidresp()
+
+
 class FTP(Device):
     """
     target = FTP("192.168.0.10", "test-1", "passwd", logging)
@@ -38,7 +82,7 @@ class FTP(Device):
     """
 
     _internal_lock = Lock()
-    _ftp = ftplib.FTP()
+    _ftp = my_ftp.FTP()
 
     def __del__(self):
         self._ftp.abort()
@@ -96,11 +140,10 @@ class FTP(Device):
         #     percent_complete = size_written / total_size * 100
         #     print("%s percent complete" %str(percent_complete))
 
-        rest = 0    # already upload wo errors
-        buf = b''   # what we trying try to upload last time
-
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
+
+            self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
 
             self._ftp.voidcmd("TYPE I")
 
@@ -121,3 +164,18 @@ class FTP(Device):
 
             if not res.startswith('226 Transfer complete'):
                 raise Exception("File was not uploaded successful: " + res)
+
+
+    rest = 0    # already upload wo errors
+    buf = b''   # what trying try to upload last time
+
+
+    def _cb(self, buf):
+        """
+        Метод в первую очередь для ведения статистики количества
+        записанный чанков в FTP
+
+        Также можно считать количество информации записанной для ведения стастики
+        """
+        self.rest += len(self.buf)
+        self.buf = buf
