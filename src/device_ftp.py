@@ -36,7 +36,6 @@ class my_ftp(ftplib.FTP):
         self.voidcmd('TYPE I')
         with self.transfercmd(cmd, rest) as conn:
             while 1:
-                time.sleep(1)
                 buf = fp.read(blocksize)
                 if not buf: break
 
