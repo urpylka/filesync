@@ -44,6 +44,7 @@ class my_ftp(ftplib.FTP):
 
                 # эта штука умеет как минимум выбрасывать
                 # [Errno 32] Broken pipe
+                # [Errno 104] Connection reset by peer
 
                 # При тестировании, при прерывании сразу
                 # было пустое сообщение об ошибке
@@ -64,8 +65,16 @@ class my_ftp(ftplib.FTP):
                 buf = fp.read(blocksize)
                 if not buf: break
 
+                while 1:
+                    time.sleep(1)
+                    try:
+                        conn.sendall(buf)
+                        break
+                    except Exception as ex:
+                        print(str(ex))
+                        #self.kwargs["logger"].error("TARGET: " + str(ex))
+
                 if callback: callback(buf)
-                conn.sendall(buf)
 
         return self.voidresp()
 
@@ -143,29 +152,38 @@ class FTP(Device):
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            res = self._ftp.storbinary("STOR " + device_path, source_stream)
+            # res = self._ftp.storbinary("STOR " + device_path, source_stream)
 
             #res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=f_blocksize, callback=handle)
 
-
             # self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
+            self._ftp.voidcmd("TYPE I")
 
-            # self._ftp.voidcmd("TYPE I")
+            with self._ftp.transfercmd("STOR " + device_path, self.rest) as conn:
 
-            # with self._ftp.transfercmd("STOR " + device_path, rest) as conn:
+                while 1:
+                    buf = source_stream.read(chunk_size)
+                    if not buf: break
 
-            #     while 1:
-            #         buf = source_stream.read(chunk_size)
-            #         if not buf: break
+                    while 1:
+                        time.sleep(1)
+                        try:
+                            conn.sendall(buf)
+                            break
+                        except Exception as ex:
+                            # print(str(ex))
 
-            #         while 1:
-            #             try:
-            #                 conn.sendall(buf)
-            #                 break
-            #             except:
-            #                 pass
+                            # эта штука умеет как минимум выбрасывать
+                            # [Errno 32] Broken pipe
+                            # [Errno 104] Connection reset by peer
 
-            #     res = self._ftp.voidresp()
+                            # При тестировании, при прерывании сразу
+                            # было пустое сообщение об ошибке
+                            # будто throw Exception()
+
+                            self.kwargs["logger"].error("TARGET: " + str(ex))
+
+                res = self._ftp.voidresp()
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
