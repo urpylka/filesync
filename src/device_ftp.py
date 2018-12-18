@@ -152,45 +152,42 @@ class FTP(Device):
 
         with self._internal_lock:
             self._ftp.cwd(os.path.dirname(device_path))
-            # res = self._ftp.storbinary("STOR " + device_path, source_stream)
+            
+            self.rest = 0    # already upload wo errors
+            
+            res = None
+            while 1:
+                try:
+                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
+                    break
+                except Exception as ex:
+                    source_stream.was_error()
+    
+                    # Можно реализовать метод seek для reader’a
+                    # С исключением если воайтер уже догнал ридер
+                    # и сик не может исполнится или еще чего
 
-            #res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=f_blocksize, callback=handle)
+                    # Обычно когда возникает ошибка здесь,
+                    # мне кажется нужно заново выполнять
+                    # transfercmd("STOR " + device_path, self.rest)
 
-            # self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
-            self._ftp.voidcmd("TYPE I")
+                    # тк ошибок может быть очень много и разных,
+                    # и не всегда известно записалась часть файла
+                    # или нет и лучше начать с той позиции в которой ошибок не было
 
-            with self._ftp.transfercmd("STOR " + device_path, self.rest) as conn:
+                    # эта штука умеет как минимум выбрасывать
+                    # [Errno 32] Broken pipe
+                    # [Errno 104] Connection reset by peer
 
-                while 1:
-                    buf = source_stream.read(chunk_size)
-                    if not buf: break
+                    # При тестировании, при прерывании сразу
+                    # было пустое сообщение об ошибке
+                    # будто throw Exception()
 
-                    while 1:
-                        time.sleep(1)
-                        try:
-                            conn.sendall(buf)
-                            break
-                        except Exception as ex:
-                            # print(str(ex))
-
-                            # эта штука умеет как минимум выбрасывать
-                            # [Errno 32] Broken pipe
-                            # [Errno 104] Connection reset by peer
-
-                            # При тестировании, при прерывании сразу
-                            # было пустое сообщение об ошибке
-                            # будто throw Exception()
-
-                            self.kwargs["logger"].error("TARGET: " + str(ex))
-
-                res = self._ftp.voidresp()
+                    self.kwargs["logger"].error("TARGET: " + str(ex))
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
 
-
-    rest = 0    # already upload wo errors
-    buf = b''   # what trying try to upload last time
 
 
     def _cb(self, buf):
@@ -200,5 +197,4 @@ class FTP(Device):
 
         Также можно считать количество информации записанной для ведения стастики
         """
-        self.rest += len(self.buf)
-        self.buf = buf
+        self.rest += len(buf)
