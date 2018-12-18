@@ -159,6 +159,7 @@ class FTP(Device):
                         try:
                             time.sleep(1)
                             self.is_remote_available.wait()
+                            self._ftp.voidcmd('TYPE I')
                             self.already_sent = self._ftp.size(device_path)
                             self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self.already_sent))
                             break
