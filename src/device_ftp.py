@@ -31,7 +31,7 @@ class my_ftp(ftplib.FTP):
     def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
         """
         Пришлось исправить стандартный метод
-        перестановкой отправки сообщения и вызова callback
+        перестановкой вызова callback
         """
         print("urpylka")
         self.voidcmd('TYPE I')
@@ -41,40 +41,7 @@ class my_ftp(ftplib.FTP):
                 if not buf: break
 
                 if callback: callback(buf)
-
-                # эта штука умеет как минимум выбрасывать
-                # [Errno 32] Broken pipe
-                # [Errno 104] Connection reset by peer
-
-                # При тестировании, при прерывании сразу
-                # было пустое сообщение об ошибке
-                # будто throw Exception()
                 conn.sendall(buf)
-
-        return self.voidresp()
-
-    def storbinary2(self, cmd, fp, blocksize=8192, callback=None, rest=None):
-        """
-        Пришлось исправить стандартный метод
-        перестановкой отправки сообщения и вызова callback
-        """
-        print("urpylka2")
-        self.voidcmd('TYPE I')
-        with self.transfercmd(cmd, rest) as conn:
-            while 1:
-                buf = fp.read(blocksize)
-                if not buf: break
-
-                while 1:
-                    time.sleep(1)
-                    try:
-                        conn.sendall(buf)
-                        break
-                    except Exception as ex:
-                        print(str(ex))
-                        #self.kwargs["logger"].error("TARGET: " + str(ex))
-
-                if callback: callback(buf)
 
         return self.voidresp()
 
@@ -91,7 +58,7 @@ class FTP(Device):
     """
 
     _internal_lock = Lock()
-    _ftp = ftplib.FTP()
+    _ftp = my_ftp()
 
     def __del__(self):
         self._ftp.abort()
@@ -154,6 +121,7 @@ class FTP(Device):
             self._ftp.cwd(os.path.dirname(device_path))
             
             self.rest = 0    # already upload wo errors
+            self.buf = b''   # the last of chunks that was trying to send
             
             res = None
             while 1:
@@ -161,7 +129,6 @@ class FTP(Device):
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
                     break
                 except Exception as ex:
-                    source_stream.was_error()
     
                     # Можно реализовать метод seek для reader’a
                     # С исключением если воайтер уже догнал ридер
@@ -186,6 +153,7 @@ class FTP(Device):
                     self.kwargs["logger"].error("TARGET: " + str(ex))
 
             self.rest = 0
+            self.buf = b''
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
@@ -199,4 +167,5 @@ class FTP(Device):
 
         Также можно считать количество информации записанной для ведения стастики
         """
-        self.rest += len(buf)
+        self.rest += len(self.buf)
+        self.buf = buf
