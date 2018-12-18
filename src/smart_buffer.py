@@ -198,18 +198,19 @@ class SmartBuffer(object):
         pass
 
 
-    def read_all(self):
+    def is_read_all(self):
         if self.file_size == self.already_read:
             return True
         else:
             return False
 
 
-    def wrote_all(self):
+    def is_wrote_all(self):
         if self.file_size == self.already_wrote:
             return True
         else:
             return False
+
 
     def get_optimize_buf_size(self):
         if self.buf_type == 0: # RAM
@@ -229,3 +230,23 @@ class SmartBuffer(object):
 
     def was_error(self):
         self.is_error = True
+
+
+    def seekable(self):
+        return False
+
+
+    def seek(self, offset, whence=0):
+        raise OSError("SmartBuffer doesn't support seek()")
+
+
+    def tell(self):
+        raise OSError("SmartBuffer doesn't support tell()")
+
+
+    def truncate(self):
+        raise OSError("SmartBuffer doesn't support truncate()")
+
+
+    def writable(self):
+        return True
