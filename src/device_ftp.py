@@ -162,8 +162,8 @@ class FTP(Device):
                             self.already_sent = self._ftp.size(device_path)
                             self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self.already_sent))
                             break
-                        except:
-                            self.kwargs["logger"].info("TARGET: Can't get file size on ftp server")
+                        except Exception as ex:
+                            self.kwargs["logger"].error("TARGET: Can't get file size on ftp server: " + str(ex))
 
 
             self.rest = 0
