@@ -125,6 +125,7 @@ class FTP(Device):
             
             res = None
             while 1:
+                time.sleep(1)
                 try:
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
                     break
