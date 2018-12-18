@@ -70,7 +70,7 @@ class DISK(Device):
         return copy(remote_path, local_path, self.kwargs["logger"])
 
 
-    def download(self, device_path, target_stream, chunk_size=1024):
+    def download(self, device_path, target_stream, chunk_size=2000000):
         """
 
         from device_disk import DISK
@@ -97,7 +97,7 @@ class DISK(Device):
                 target_stream.write(chunk)
 
 
-    def upload(self, source_stream, device_path, chunk_size=1024):
+    def upload(self, source_stream, device_path, chunk_size=2000000):
         """
 
         with open("file_name", 'rb') as source_stream:
