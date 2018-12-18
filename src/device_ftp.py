@@ -129,7 +129,7 @@ class FTP(Device):
                 self.kwargs["logger"].info("TARGET: self.buf: " + str(self.buf)[:10])
                 try:
                     self.is_remote_available.wait()
-                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.already_send)
+                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.already_sent)
                     break
                 except Exception as ex:
 
