@@ -245,6 +245,13 @@ class SmartBuffer(object):
 
 
     def truncate(self):
+        """
+        Resize the stream to the given size in bytes (or the current position if size is not specified).
+        The current stream position isn’t changed. This resizing can extend or reduce the current file size.
+        In case of extension, the contents of the new file area depend on the platform
+        (on most systems, additional bytes are zero-filled). The new file size is returned.
+        Changed in version 3.5: Windows will now zero-fill files when extending.
+        """
         raise OSError("SmartBuffer doesn't support truncate()")
 
 
