@@ -100,8 +100,6 @@ class FTP(Device):
 
 
     def upload(self, source_stream, device_path, chunk_size=8192):
-        self.is_remote_available.wait()
-
         # f_blocksize = 1024
         # total_size = os.path.getsize(file_path)
         # size_written = 0
@@ -117,10 +115,12 @@ class FTP(Device):
 
 
         with self._internal_lock:
+            self.is_remote_available.wait()
             self._ftp.cwd(os.path.dirname(device_path))
             
             self.rest = 0    # already upload wo errors
             self.buf = b''   # the last of chunks that was trying to send
+            self.already_send = 0
             
             res = None
             while 1:
@@ -128,10 +128,11 @@ class FTP(Device):
                 self.kwargs["logger"].info("TARGET: self.rest: " + str(self.rest))
                 self.kwargs["logger"].info("TARGET: len(self.buf): " + str(self.buf)[:10])
                 try:
-                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
+                    self.is_remote_available.wait()
+                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.already_send)
                     break
                 except Exception as ex:
-    
+
                     # Можно реализовать метод seek для reader’a
                     # С исключением если воайтер уже догнал ридер
                     # и сик не может исполнится или еще чего
@@ -154,10 +155,14 @@ class FTP(Device):
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
                 
-                try:
-                    self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self._ftp.size(device_path)))
-                except:
-                    pass
+                    while 1:
+                        try:
+                            self.is_remote_available.wait()
+                            self.already_send = self._ftp.size(device_path)
+                            self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str())
+                            break
+                        except:
+                            pass
 
 
             self.rest = 0
