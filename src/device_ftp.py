@@ -163,6 +163,7 @@ class FTP(Device):
                             break
                         except:
                             self.kwargs["logger"].info("TARGET: Can't get file size on ftp server")
+                            time.sleep(1)
 
             self.rest = 0
             self.buf = b''
