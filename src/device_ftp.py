@@ -128,7 +128,6 @@ class FTP(Device):
                 self.kwargs["logger"].info("TARGET: self.rest: " + str(self.rest))
                 self.kwargs["logger"].info("TARGET: len(self.buf): " + str(len(self.buf)))
                 try:
-                    self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self._ftp.size(device_path)))
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
                     break
                 except Exception as ex:
@@ -154,6 +153,12 @@ class FTP(Device):
                     # будто throw Exception()
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
+                
+                try:
+                    self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self._ftp.size(device_path)))
+                except:
+                    pass
+
 
             self.rest = 0
             self.buf = b''
