@@ -72,6 +72,12 @@ class DISK(Device):
 
     def download(self, device_path, target_stream, chunk_size=2000000):
         """
+        Сделать отсчет по времени с момента начала
+        типа так:
+        Downloader-1 Start download FILE
+        Downloader-1 Error on downloading FILE
+        Downloader-1 Resume downloading FILE
+        Downloader-1 End of downloading FILE
 
         from device_disk import DISK
         from logger import get_logger
