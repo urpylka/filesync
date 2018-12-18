@@ -157,13 +157,14 @@ class FTP(Device):
                 
                     while 1:
                         try:
+                            time.sleep(1)
                             self.is_remote_available.wait()
                             self.already_sent = self._ftp.size(device_path)
                             self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self.already_sent))
                             break
                         except:
                             self.kwargs["logger"].info("TARGET: Can't get file size on ftp server")
-                            time.sleep(1)
+
 
             self.rest = 0
             self.buf = b''
