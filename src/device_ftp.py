@@ -185,6 +185,8 @@ class FTP(Device):
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
 
+            self.rest = 0
+
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
 
