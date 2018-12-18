@@ -126,7 +126,7 @@ class FTP(Device):
             while 1:
                 time.sleep(3)
                 self.kwargs["logger"].info("TARGET: self.rest: " + str(self.rest))
-                self.kwargs["logger"].info("TARGET: self.buf: " + str(len(self.buf)))
+                self.kwargs["logger"].info("TARGET: len(self.buf): " + str(len(self.buf)))
                 try:
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.rest)
                     break
