@@ -120,13 +120,13 @@ class FTP(Device):
             
             self.rest = 0    # already upload wo errors
             self.buf = b''   # the last of chunks that was trying to send
-            self.already_send = 0
+            self.already_sent = 0
             
             res = None
             while 1:
                 time.sleep(3)
                 self.kwargs["logger"].info("TARGET: self.rest: " + str(self.rest))
-                self.kwargs["logger"].info("TARGET: len(self.buf): " + str(self.buf)[:10])
+                self.kwargs["logger"].info("TARGET: self.buf: " + str(self.buf)[:10])
                 try:
                     self.is_remote_available.wait()
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.already_send)
@@ -158,15 +158,16 @@ class FTP(Device):
                     while 1:
                         try:
                             self.is_remote_available.wait()
-                            self.already_send = self._ftp.size(device_path)
-                            self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str())
+                            self.already_sent = self._ftp.size(device_path)
+                            self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self.already_sent))
                             break
                         except:
-                            pass
-
+                            self.kwargs["logger"].info("TARGET: Can't get file size on ftp server")
 
             self.rest = 0
             self.buf = b''
+            self.already_sent = 0
+
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
