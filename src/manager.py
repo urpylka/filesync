@@ -140,7 +140,8 @@ def downloader(number, args):
         # поэтому изменение record приведет к изменению record в JsonArray
         record = dq.get()
         source_path = record['source_path']
-        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
+        # local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
+        local_path = local_directory + '/' + os.path.basename(source_path)
         logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
