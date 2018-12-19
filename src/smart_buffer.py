@@ -324,19 +324,3 @@ class SmartBuffer(object):
 
     def writable(self):
         return True
-
-
-    def update_really_read_bytes(self, bytes):
-        """
-        [ pos_w, really_read_bytes, pos_r ]
-
-        really_read_bytes <= aleready_read
-
-        """
-        # self.really_read = bytes
-        pass
-
-
-    def reset_pos_r_to_really_read_bytes(self):
-        # self.pos_r = self.really_read
-        pass
