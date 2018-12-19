@@ -66,8 +66,8 @@ class SmartBuffer(object):
         self.already_read = 0
         self.already_wrote = 0
 
-        self.is_error = False
-        self.last_read = b''
+        # self.is_error = False
+        # self.last_read = b''
 
     def _read(self, chunk_size):
         """
@@ -85,7 +85,7 @@ class SmartBuffer(object):
         return buf
 
 
-    def _read2(self, chunk_size):
+    def read(self, chunk_size):
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
             # может равняться -1 тогда будет весь буффер
@@ -130,17 +130,17 @@ class SmartBuffer(object):
                     return buf + self.read(needs)
 
 
-    def read(self, chunk_size):
-        """
-        Функция записывает ответ _read2 в переменную last_read,
-        в случае ошибки при работе с данными полученными от фукнции,
-        есть возможность продолжить с того же места
-        """
-        if self.is_error:
-            self.is_error = False
-        else:
-            self.last_read = self._read2(chunk_size)
-        return self.last_read
+    # def read(self, chunk_size):
+    #     """
+    #     Функция записывает ответ _read2 в переменную last_read,
+    #     в случае ошибки при работе с данными полученными от фукнции,
+    #     есть возможность продолжить с того же места
+    #     """
+    #     if self.is_error:
+    #         self.is_error = False
+    #     else:
+    #         self.last_read = self._read2(chunk_size)
+    #     return self.last_read
 
 
     def _write(self, chunk):
@@ -228,8 +228,8 @@ class SmartBuffer(object):
                 return 100000000
 
 
-    def was_error(self):
-        self.is_error = True
+    # def was_error(self):
+    #     self.is_error = True
 
 
     def seekable(self):
