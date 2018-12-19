@@ -340,7 +340,3 @@ class SmartBuffer(object):
     def reset_pos_r_to_really_read_bytes(self):
         # self.pos_r = self.really_read
         pass
-
-
-    # вообще, по хорошему нужен метод seek для read
-    # чтобы выполнить сброс используя seek()
