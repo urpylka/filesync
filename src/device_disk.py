@@ -93,7 +93,8 @@ class DISK(Device):
         """
         self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
-        while 1:
+        downloading = 1
+        while downloading:
             already_save = target_stream.tell()
 
             self.is_remote_available.wait()
@@ -103,12 +104,15 @@ class DISK(Device):
                 try:
                     while 1:
                         chunk = stream.read(chunk_size)
-                        if not chunk: break
+
+                        if not chunk:
+                            downloading = 0
+                            break
+
                         target_stream.write(chunk)
                 except Exception as ex:
                     self.kwargs["logger"].info("TARGET: Donwloading was interrupting: " + str(ex))
                     time.sleep(1.5)
-
 
 
     def upload(self, source_stream, device_path, chunk_size=2000000):
