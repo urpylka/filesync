@@ -91,16 +91,23 @@ class DISK(Device):
         https://docs.python.org/3/library/asyncio-stream.html
         https://python-scripts.com/threading
         """
-        self.is_remote_available.wait()
         self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
         with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+
+            self.is_remote_available.wait()
+            stream.seek(target_stream.tell())
+
             while True:
-                stream.seek(target_stream.tell())
                 try:
                     chunk = stream.read(chunk_size)
                 except:
                     self.kwargs["logger"].info("Download was interrupted")
+
+                    time.sleep(1.5)
+                    self.is_remote_available.wait()
+                    stream.seek(target_stream.tell())
+
                     continue
 
                 if not chunk: break
