@@ -279,7 +279,7 @@ class SmartBuffer(object):
                 raise EOFError("The data isn't wrote yet")
 
             self.already_read = offset
-            self.pos_r = offset % self.buf_size
+            self.pos_r = self.already_read % self.buf_size
 
             # смещение позиции незатираемой истории
             self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
