@@ -93,25 +93,22 @@ class DISK(Device):
         """
         self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
-        with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+        while 1:
+            already_save = target_stream.tell()
 
             self.is_remote_available.wait()
-            stream.seek(target_stream.tell())
+            with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
 
-            while True:
+                stream.seek(already_save)
                 try:
-                    chunk = stream.read(chunk_size)
+                    while 1:
+                        chunk = stream.read(chunk_size)
+                        if not chunk: break
+                        target_stream.write(chunk)
                 except Exception as ex:
-                    self.kwargs["logger"].info("Download was interrupted: " + str(ex))
-
+                    self.kwargs["logger"].info("TARGET: Donwloading was interrupting: " + str(ex))
                     time.sleep(1.5)
-                    self.is_remote_available.wait()
-                    stream.seek(target_stream.tell())
 
-                    continue
-
-                if not chunk: break
-                target_stream.write(chunk)
 
 
     def upload(self, source_stream, device_path, chunk_size=2000000):
