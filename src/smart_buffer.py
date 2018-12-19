@@ -167,10 +167,12 @@ class SmartBuffer(object):
                 self._write(chunk)
             else:
                 self._write(chunk[0, available-1])
+                # не будет ли здесь взаимной блокировки?
                 self.write(chunk[available, chunk_size-1])
 
 
     def __del__(self):
+        # save to flash
         self.buffer.close()
 
 
