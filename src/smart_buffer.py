@@ -49,6 +49,7 @@ class SmartBuffer(object):
 
         self.file_size = file_size
         self.buf_type = buf_type
+        self.history_size = 1000000 if file_size < 1000000 else file_size # min(1MB, file_size)
 
         if buf_size is None:
             self.buf_size = self.get_optimize_buf_size()
@@ -265,8 +266,11 @@ class SmartBuffer(object):
             чанка и буффера не проходила блокировка
             pos_w + chunk_w + pos_s + pos_r + chunk_r >= buf_size
 
-        + - pos_w - позиция с которой начинается запись
-        - - pos_r - позиция последнего прочитанного элемента
+        + - pos_w - позиция с которой начинается запись,
+        но пока там ничего не записано
+        - - pos_r - позиция следующего элемента который
+        будет считан, может использоваться только если pos_w ушел вперед
+
 
         offset - позиция в байтах от начала файла,
         и если она укладывается между
@@ -274,13 +278,26 @@ class SmartBuffer(object):
         иначе raise CriticalException
         """
         if whence != 0:
-            raise OSError("seek() not support relative offset")
+            raise NotImplementedError("seek() not support relative offset")
 
-        raise OSError("SmartBuffer doesn't support seek()")
+        with self.threads_lock:
+            left = self.already_wrote - self.buf_size
+
+            if offset < left:
+                raise BufferError("The data is already rewrite")
+
+            if offset > self.already_wrote:
+                raise EOFError("The data isn't wrote yet")
+
+            self.already_read = offset
+            self.pos_r = offset % self.buf_size
+
+            # смещение позиции незатираемой истории
+            self.pos_s = max(left, self.already_read - self.history_size) % self.buf_size
 
 
     def tell(self):
-        raise OSError("SmartBuffer doesn't support tell()")
+        return self.already_read
 
 
     def truncate(self):
