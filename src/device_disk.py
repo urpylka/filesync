@@ -96,8 +96,13 @@ class DISK(Device):
 
         with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
             while True:
-                # print(stream.tell())
-                chunk = stream.read(chunk_size)
+                stream.seek(target_stream.tell())
+                try:
+                    chunk = stream.read(chunk_size)
+                except:
+                    self.kwargs["logger"].info("Download was interrupted")
+                    continue
+
                 if not chunk: break
                 target_stream.write(chunk)
 
