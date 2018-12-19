@@ -166,11 +166,11 @@ class FTP(Device):
                         except Exception as ex:
                             self.kwargs["logger"].error("TARGET: Can't get file size on ftp server: " + str(ex))
 
+                        source_stream.seek(self.already_sent)
 
             self.rest = 0
             self.buf = b''
             self.already_sent = 0
-
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
