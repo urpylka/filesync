@@ -237,6 +237,43 @@ class SmartBuffer(object):
 
 
     def seek(self, offset, whence=0):
+        """
+        Only for read side!
+
+        ================================================
+        Change the stream position to the given byte offset.
+        offset is interpreted relative to the position indicated by whence.
+        The default value for whence is SEEK_SET. Values for whence are:
+
+        SEEK_SET or 0 – start of the stream (the default); offset should be zero or positive
+        SEEK_CUR or 1 – current stream position; offset may be negative
+        SEEK_END or 2 – end of the stream; offset is usually negative
+        Return the new absolute position.
+
+        New in version 2.7: The SEEK_* constants
+        ================================================
+
+        | *         +   |
+        | 0 1 2 3 4 5 6 |
+        |     -         |
+
+        * - pos_s - статический размер незатераемой истории
+            pos_s = pos_r - amount_of_history
+            нужно выбрать аккуратно чтобы при заданных размеров
+            чанка и буффера не проходила блокировка
+            pos_w + chunk_w + pos_s + pos_r + chunk_r >= buf_size
+
+        + - pos_w - позиция с которой начинается запись
+        - - pos_r - позиция последнего прочитанного элемента
+
+        offset - позиция в байтах от начала файла,
+        и если она укладывается между
+        + справа и + слева, то смещаем pos_r и pos_s,
+        иначе raise CriticalException
+        """
+        if whence != 0:
+            raise OSError("seek() not support relative offset")
+
         raise OSError("SmartBuffer doesn't support seek()")
 
 
@@ -261,7 +298,7 @@ class SmartBuffer(object):
 
     def update_really_read_bytes(self, bytes):
         """
-        [ pos_w, [зазор], really_read_bytes, [зазор], pos_r ]
+        [ pos_w, really_read_bytes, pos_r ]
 
         really_read_bytes <= aleready_read
 
