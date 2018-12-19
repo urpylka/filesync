@@ -157,7 +157,7 @@ class FTP(Device):
                 
                     while 1:
                         try:
-                            time.sleep(0.5)
+                            time.sleep(1)
                             self.is_remote_available.wait()
                             self._ftp.voidcmd('TYPE I')
                             self.already_sent = self._ftp.size(device_path)
