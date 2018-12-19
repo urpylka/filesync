@@ -287,9 +287,9 @@ class SmartBuffer(object):
 
     def tell(self):
         """
-        Only for read side!
+        Only for write side!
         """
-        return self.already_read
+        return self.already_wrote
 
 
     def truncate(self):
