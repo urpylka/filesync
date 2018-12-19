@@ -117,19 +117,29 @@ class FTP(Device):
         with self._internal_lock:
             self.is_remote_available.wait()
             self._ftp.cwd(os.path.dirname(device_path))
-            
-            self.rest = 0    # already upload wo errors
-            self.buf = b''   # the last of chunks that was trying to send
-            self.already_sent = 0
-            
+
             res = None
             while 1:
-                time.sleep(3)
-                self.kwargs["logger"].info("TARGET: self.rest: " + str(self.rest))
-                self.kwargs["logger"].info("TARGET: self.buf: " + str(self.buf)[:10])
+                time.sleep(2)
+
+                already_sent = 0 #  already upload wo errors
+
+                while 1:
+                    try:
+                        self.is_remote_available.wait()
+                        self._ftp.voidcmd('TYPE I')
+                        already_sent = self._ftp.size(device_path)
+                        self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(already_sent))
+                        break
+                    except Exception as ex:
+                        # если файла еще нет, нужно продолжить с длиной в ноль
+                        self.kwargs["logger"].error("TARGET: Can't get file size on ftp server: " + str(ex))
+
+                source_stream.seek(already_sent)
+
                 try:
                     self.is_remote_available.wait()
-                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, callback=self._cb, rest=self.already_sent)
+                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)
                     break
                 except Exception as ex:
 
@@ -154,35 +164,17 @@ class FTP(Device):
                     # будто throw Exception()
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
-                
-                    while 1:
-                        try:
-                            time.sleep(1.4) # > timeout of _connect()
-                            self.is_remote_available.wait()
-                            self._ftp.voidcmd('TYPE I')
-                            self.already_sent = self._ftp.size(device_path)
-                            self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(self.already_sent))
-                            break
-                        except Exception as ex:
-                            self.kwargs["logger"].error("TARGET: Can't get file size on ftp server: " + str(ex))
-
-                        source_stream.seek(self.already_sent)
-
-            self.rest = 0
-            self.buf = b''
-            self.already_sent = 0
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
 
 
+    # def _cb(self, buf):
+    #     """
+    #     Метод в первую очередь для ведения статистики количества
+    #     записанный чанков в FTP
 
-    def _cb(self, buf):
-        """
-        Метод в первую очередь для ведения статистики количества
-        записанный чанков в FTP
-
-        Также можно считать количество информации записанной для ведения стастики
-        """
-        self.rest += len(self.buf)
-        self.buf = buf
+    #     Также можно считать количество информации записанной для ведения стастики
+    #     """
+    #     self.rest += len(self.buf)
+    #     self.buf = buf
