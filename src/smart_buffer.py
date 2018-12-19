@@ -86,7 +86,7 @@ class SmartBuffer(object):
 
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
-        self.pos_s = max(left, self.already_read - self.history_size) % self.buf_size
+        self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
 
         return buf
 
@@ -164,10 +164,10 @@ class SmartBuffer(object):
 
             available = 0
 
-            if self.pos_w >= self.pos_s:
+            if self.pos_w >= self.pos_h:
                 available = self.buf_size - self.pos_w
             else:
-                available = self.pos_s - self.pos_w
+                available = self.pos_h - self.pos_w
 
             if available >= chunk_size:
                 self._write(chunk)
@@ -265,11 +265,11 @@ class SmartBuffer(object):
         | 0 1 2 3 4 5 6 |
         |     -         |
 
-        * - pos_s - статический размер незатераемой истории
-            pos_s = pos_r - amount_of_history
+        * - pos_h - статический размер незатераемой истории
+            pos_h = pos_r - amount_of_history
             нужно выбрать аккуратно чтобы при заданных размеров
             чанка и буффера не проходила блокировка
-            pos_w + chunk_w + pos_s + pos_r + chunk_r >= buf_size
+            pos_w + chunk_w + pos_h + pos_r + chunk_r >= buf_size
 
         + - pos_w - позиция с которой начинается запись,
         но пока там ничего не записано
@@ -279,7 +279,7 @@ class SmartBuffer(object):
 
         offset - позиция в байтах от начала файла,
         и если она укладывается между
-        + справа и + слева, то смещаем pos_r и pos_s,
+        + справа и + слева, то смещаем pos_r и pos_h,
         иначе raise CriticalException
         """
         if whence != 0:
@@ -298,7 +298,7 @@ class SmartBuffer(object):
             self.pos_r = offset % self.buf_size
 
             # смещение позиции незатираемой истории
-            self.pos_s = max(left, self.already_read - self.history_size) % self.buf_size
+            self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
 
 
     def tell(self):
