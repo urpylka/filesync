@@ -128,8 +128,10 @@ class FTP(Device):
                     try:
                         self.is_remote_available.wait()
                         self._ftp.voidcmd('TYPE I')
-                        already_sent = self._ftp.size(device_path)
-                        self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(already_sent))
+                        response = self._ftp.size(device_path)
+                        self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(response))
+                        if response: already_sent = response
+                        else: raise Exception("None type from response")
                         break
                     except Exception as ex:
                         # если файла еще нет, нужно продолжить с длиной в ноль
