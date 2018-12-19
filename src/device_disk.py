@@ -101,8 +101,8 @@ class DISK(Device):
             while True:
                 try:
                     chunk = stream.read(chunk_size)
-                except:
-                    self.kwargs["logger"].info("Download was interrupted")
+                except Exception as ex:
+                    self.kwargs["logger"].info("Download was interrupted: " + str(ex))
 
                     time.sleep(1.5)
                     self.is_remote_available.wait()
