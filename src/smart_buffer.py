@@ -241,7 +241,10 @@ class SmartBuffer(object):
 
 
     def seekable(self):
-        return False
+        """
+        Only for read side!
+        """
+        return True
 
 
     def seek(self, offset, whence=0):
@@ -302,6 +305,9 @@ class SmartBuffer(object):
 
 
     def tell(self):
+        """
+        Only for read side!
+        """
         return self.already_read
 
 
