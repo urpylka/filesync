@@ -83,6 +83,11 @@ class SmartBuffer(object):
             self.pos_r = 0
 
         self.already_read += chunk_size
+
+        # смещение позиции незатираемой истории
+        left = self.already_wrote - self.buf_size
+        self.pos_s = max(left, self.already_read - self.history_size) % self.buf_size
+
         return buf
 
 
@@ -159,10 +164,10 @@ class SmartBuffer(object):
 
             available = 0
 
-            if self.pos_w >= self.pos_r:
+            if self.pos_w >= self.pos_s:
                 available = self.buf_size - self.pos_w
             else:
-                available = self.pos_r - self.pos_w
+                available = self.pos_s - self.pos_w
 
             if available >= chunk_size:
                 self._write(chunk)
