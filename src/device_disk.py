@@ -95,6 +95,9 @@ class DISK(Device):
 
         downloading = 1
         while downloading:
+            # вообще хорошо бы считать сколько
+            # мы записали и сохранять это в бд
+            # и для возвращения к загрузке брать данные из бд
             already_save = target_stream.tell()
 
             self.is_remote_available.wait()
