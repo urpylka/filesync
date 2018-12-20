@@ -146,7 +146,9 @@ def downloader(number, args):
         while not record['downloaded']:
             try:
                 #if source.download(source_path, local_path):
+                size = os.stat(local_path).st_size
                 with open(local_path, 'wb') as target_stream:
+                    target_stream.seek(size)
                     source.download(source_path, target_stream)
 
                 record["downloaded"] = True
