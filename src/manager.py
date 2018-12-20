@@ -151,7 +151,7 @@ def downloader(number, args):
                     size = os.stat(local_path).st_size
                 except:
                     pass
-                with open(local_path, 'wb') as target_stream:
+                with open(local_path, 'wb+') as target_stream:
                     target_stream.seek(size)
                     source.download(source_path, target_stream)
 
