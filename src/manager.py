@@ -223,8 +223,9 @@ def main():
         elif not record['uploaded']: uq.put(record)
 
     create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI"], logger)
-    create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
-    create_threads(1, uploader, target, uq, logger)
+    # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
+    # create_threads(1, uploader, target, uq, logger)
+    create_threads(1, target, source, dq, logger)
 
     try:
         while True:
