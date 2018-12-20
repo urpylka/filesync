@@ -154,7 +154,7 @@ def downloader(number, args):
                 except:
                     pass
 
-                logger.info("Downloader-" + str(number) + ": local_path " + local_path + " size: " + size)
+                logger.info("Downloader-" + str(number) + ": local_path " + local_path + " size: " + str(size))
 
                 with open(local_path, 'wb+') as target_stream:
                     target_stream.seek(size)
