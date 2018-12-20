@@ -142,7 +142,7 @@ def downloader(number, args):
         source_path = record['source_path']
         # local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
         local_path = local_directory + '/' + os.path.basename(source_path)
-        logger.debug("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
+        logger.info("Downloader-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
         while not record['downloaded']:
             try:
                 #if source.download(source_path, local_path):
@@ -179,6 +179,8 @@ def uploader(number, args):
         record = uq.get()
         local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
+
+        logger.info("Uploader-" + str(number) + ": source_path " + record['source_path'] + " local_path " + local_path)
 
         while not record['uploaded']:
             try:
