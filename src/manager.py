@@ -151,9 +151,11 @@ def downloader(number, args):
                     # иногда бывает ошибка с возвращением
                     # к позиции связанной с размером файла
                     size = os.stat(local_path).st_size
-                    logger.info("Downloader-" + str(number) + ": local_path " + local_path + " size: " + size)
                 except:
                     pass
+
+                logger.info("Downloader-" + str(number) + ": local_path " + local_path + " size: " + size)
+
                 with open(local_path, 'wb+') as target_stream:
                     target_stream.seek(size)
                     source.download(source_path, target_stream)
