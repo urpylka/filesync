@@ -95,7 +95,7 @@ def worker(number, args):
                 # а source.download и target.upload не теряли указатели
 
                 d = in_thread(source.download, source_path, buffer_stream) # вставляет
-                u = in_thread(target.upload, buffer_stream, target_path)   # сосёт
+                # u = in_thread(target.upload, buffer_stream, target_path)   # сосёт
 
                 d.join()
                 if buffer_stream.already_wrote:
