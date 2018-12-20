@@ -120,7 +120,7 @@ class FTP(Device):
 
             res = None
             while 1:
-                time.sleep(1.5) 
+                time.sleep(1.5)
 
                 already_sent = 0 #  already upload wo errors
 
