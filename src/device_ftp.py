@@ -57,7 +57,7 @@ class FTP(Device):
     """
 
     _internal_lock = Lock()
-    _ftp = my_ftp()
+    _ftp = ftplib.FTP()
 
     def __del__(self):
         self._ftp.abort()
