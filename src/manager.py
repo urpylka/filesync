@@ -148,6 +148,8 @@ def downloader(number, args):
                 #if source.download(source_path, local_path):
                 size = 0
                 try:
+                    # иногда бывает ошибка с возвращением
+                    # к позиции связанной с размером файла
                     size = os.stat(local_path).st_size
                 except:
                     pass
