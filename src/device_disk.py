@@ -114,7 +114,7 @@ class DISK(Device):
 
                         target_stream.write(chunk)
                 except Exception as ex:
-                    self.kwargs["logger"].info("TARGET: Donwloading was interrupting: " + str(ex))
+                    self.kwargs["logger"].error("TARGET: Donwloading was interrupting: " + str(ex))
                     time.sleep(1.5)
 
 

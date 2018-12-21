@@ -130,18 +130,22 @@ class FTP(Device):
                         self._ftp.voidcmd('TYPE I')
                         response = self._ftp.size(device_path)
 
-                        self.kwargs["logger"].info("TARGET: self._ftp.size(device_path): " + str(response))
-
-                        if response: already_sent = response
-                        else: raise Exception("None type from response")
+                        if not response is None: already_sent = response
 
                         break
                     except Exception as ex:
                         # если файла еще нет, нужно продолжить с длиной в ноль
-                        self.kwargs["logger"].error("TARGET: Can't get file size on ftp server: " + str(ex))
+                        exc = str(ex)
+                        if exc.startswith("550"):
+                            self.kwargs["logger"].info("TARGET: File was not uploaded to server: " + exc)
+                            break
+                        else:
+                            raise Exception("TARGET: Can't get file size on ftp server: " + exc)
 
+                self.kwargs["logger"].info("TARGET: already_sent: " + str(already_sent))
+                print("urpylka-1")
                 source_stream.seek(already_sent)
-
+                print("urpylka-2")
                 try:
                     self.is_remote_available.wait()
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)

@@ -63,6 +63,7 @@ class SmartBuffer(object):
 
         self.pos_r = 0
         self.pos_w = 0
+        self.pos_h = 0
 
         self.already_read = 0
         self.already_wrote = 0
@@ -146,9 +147,7 @@ class SmartBuffer(object):
         chunk_size = len(chunk)
 
         with self.threads_lock:
-
             available = 0
-
             if self.pos_w >= self.pos_h:
                 available = self.buf_size - self.pos_w
             else:
@@ -157,9 +156,9 @@ class SmartBuffer(object):
             if available >= chunk_size:
                 self._write(chunk)
             else:
-                self._write(chunk[0, available-1])
+                self._write(chunk[0:available-1])
                 # не будет ли здесь взаимной блокировки?
-                self.write(chunk[available, chunk_size-1])
+                self.write(chunk[available:chunk_size-1])
 
 
     def __del__(self):
@@ -268,8 +267,10 @@ class SmartBuffer(object):
         """
         if whence != 0:
             raise NotImplementedError("seek() not support relative offset")
-
+        print("urpylka-4")
         with self.threads_lock:
+
+            print("urpylka-5")
             left = self.already_wrote - self.buf_size
 
             if offset < left:

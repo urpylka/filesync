@@ -77,7 +77,8 @@ def worker(number, args):
         record = wq.get()
 
         source_path = record['source_path']
-        local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
+        # local_path = local_directory + '/' + os.path.basename(os.path.dirname(source_path)).replace('-', '') + '_' + os.path.basename(source_path).replace('_', '')
+        local_path = local_directory + '/' + os.path.basename(source_path)
 
         # local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
@@ -124,7 +125,7 @@ def worker(number, args):
 
 def in_thread(function, *args):
     #name='Worker-1'
-    t = Thread(target=function, args=(args,))
+    t = Thread(target=function, args=(args[0], args[1],))
     t.daemon = True
     t.start()
     return t
