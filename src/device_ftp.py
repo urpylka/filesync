@@ -143,9 +143,16 @@ class FTP(Device):
                             raise Exception("TARGET: Can't get file size on ftp server: " + exc)
 
                 self.kwargs["logger"].info("TARGET: already_sent: " + str(already_sent))
+
                 print("urpylka-1")
-                source_stream.seek(already_sent)
+                while 1:
+                    try:
+                        source_stream.seek(already_sent)
+                        break
+                    except EOFError:
+                        pass
                 print("urpylka-2")
+
                 try:
                     self.is_remote_available.wait()
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)

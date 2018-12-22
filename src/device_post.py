@@ -30,6 +30,8 @@
 # Use: python3 uploader_ulog.py -d="id1 26102017" -f="миссия" -p=/Volume/ID1/2017-10-26/17_44_35.ulg 
 #
 
+# https://github.com/xianshidan/chunk-download/blob/master/chunk_download.py
+
 import os, argparse, requests
 
 def get_arguments():

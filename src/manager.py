@@ -95,8 +95,8 @@ def worker(number, args):
                 # нужно чтобы буффер не очищался,
                 # а source.download и target.upload не теряли указатели
 
-                d = in_thread(source.download, source_path, buffer_stream) # вставляет
-                u = in_thread(target.upload, buffer_stream, target_path)   # сосёт
+                d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
+                u = in_thread(target.upload, buffer_stream, target_path, 8192)   # сосёт
 
                 d.join()
                 if buffer_stream.already_wrote:
@@ -125,7 +125,7 @@ def worker(number, args):
 
 def in_thread(function, *args):
     #name='Worker-1'
-    t = Thread(target=function, args=(args[0], args[1],))
+    t = Thread(target=function, args=(args[0], args[1], args[2],))
     t.daemon = True
     t.start()
     return t

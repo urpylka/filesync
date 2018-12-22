@@ -70,7 +70,7 @@ class DISK(Device):
         return copy(remote_path, local_path, self.kwargs["logger"])
 
 
-    def download(self, device_path, target_stream, chunk_size=2000000):
+    def download(self, device_path, target_stream, chunk_size=8192):
         """
         Сделать отсчет по времени с момента начала
         типа так:
@@ -118,7 +118,7 @@ class DISK(Device):
                     time.sleep(1.5)
 
 
-    def upload(self, source_stream, device_path, chunk_size=2000000):
+    def upload(self, source_stream, device_path, chunk_size=8192):
         """
 
         with open("file_name", 'rb') as source_stream:

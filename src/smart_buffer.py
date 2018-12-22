@@ -19,6 +19,8 @@
 import io
 from threading import Lock
 
+# http://qaru.site/questions/81837/python-ftp-chunk-iterator-without-loading-entire-file-into-memory
+
 class SmartBuffer(object):
     """
     Smart buffer w fixed size
@@ -49,7 +51,7 @@ class SmartBuffer(object):
 
         self.file_size = file_size
         self.buf_type = buf_type
-        self.history_size = 1000000 if file_size < 1000000 else file_size # min(1MB, file_size)
+        self.history_size = 1000000 if file_size > 1000000 else file_size # min(1MB, file_size)
 
         if buf_size is None:
             self.buf_size = self.get_optimize_buf_size()
@@ -68,6 +70,10 @@ class SmartBuffer(object):
         self.already_read = 0
         self.already_wrote = 0
 
+        print("self.buf_size: " + str(self.buf_size))
+        print("self.buf_type: " + str(self.buf_type))
+        print("self.file_size: " + str(self.file_size))
+        print("self.history_size: " + str(self.history_size))
 
     def _read(self, chunk_size):
         """
@@ -86,17 +92,23 @@ class SmartBuffer(object):
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
         self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
+        print(self.pos_h)
+        print(self.pos_w)
 
         return buf
 
 
-    def read(self, chunk_size):
+    def read2(self, chunk_size):
+        """
+        available - то, что можно в одну строну прочитать методом _read
+        """
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
             # может равняться -1 тогда будет весь буффер
             raise Exception("Размер чанка не может быть отрицательным")
 
         with self.threads_lock:
+            print("urpylka-r")
             diff = self.pos_w - self.pos_r
 
             # если pos_w >= pos_r
@@ -135,30 +147,98 @@ class SmartBuffer(object):
                     return buf + self.read(needs)
 
 
+    def read(self, chunk_size):
+        """
+        available - то, что можно в одну строну прочитать методом _read
+        """
+        if chunk_size < 0:
+            # В аналогичных функциях read chunk_size
+            # может равняться -1 тогда будет весь буффер
+            raise Exception("Размер чанка не может быть отрицательным")
+
+        self.threads_lock.acquire()
+        print("urpylka-r")
+
+        available = self.get_available_for_read()
+
+        if available >= chunk_size:
+            # читаем целый чанк
+            buf = self._read(chunk_size)
+            self.threads_lock.release()
+        else:
+
+            if available > 0:
+                buf = self._read(available)
+
+            self.threads_lock.release()
+
+            needs = chunk_size - available
+
+            # возможно нужно что-то более изящное
+            while self.get_available_for_read() < needs:
+                pass
+
+            buf += self.read(needs)
+
+        return buf
+
+
     def _write(self, chunk):
         chunk_size = len(chunk)
+        print("_w: " + str(chunk_size))
         self.buffer.seek(self.pos_w)
         self.buffer.write(chunk)
         self.pos_w += chunk_size
+        if self.pos_w == self.buf_size:
+            self.pos_w = 0
         self.already_wrote += chunk_size
 
 
+    def get_available_for_read(self):
+        if self.pos_w >= self.pos_r:
+            return self.pos_w - self.pos_r
+        else:
+            return self.buf_size - self.pos_r
+
+
+    def get_available_for_write(self):
+        if self.pos_w >= self.pos_h:
+            return self.buf_size - self.pos_w
+        else:
+            return self.pos_h - self.pos_w
+
+
+    # https://python-scripts.com/synchronization-between-threads
     def write(self, chunk):
         chunk_size = len(chunk)
+        print("Push: " + str(chunk_size))
 
-        with self.threads_lock:
-            available = 0
-            if self.pos_w >= self.pos_h:
-                available = self.buf_size - self.pos_w
-            else:
-                available = self.pos_h - self.pos_w
+        self.threads_lock.acquire()
 
-            if available >= chunk_size:
-                self._write(chunk)
-            else:
-                self._write(chunk[0:available-1])
-                # не будет ли здесь взаимной блокировки?
-                self.write(chunk[available:chunk_size-1])
+        available = self.get_available_for_write()
+
+        if available >= chunk_size:
+            print("urpylka-w1")
+            print("av: " + str(available))
+            self._write(chunk)
+
+            self.threads_lock.release()
+        else:
+            if available > 0:
+                print("urpylka-w2")
+                print("av: " + str(available))
+                self._write(chunk[0:available])
+
+            self.threads_lock.release()
+
+            print("urpylka-w-w")
+            while self.get_available_for_write() <= chunk_size:
+                pass
+
+            print("urpylka-w3")
+            print("av: " + str(available))
+            self.write(chunk[available:chunk_size])
+            print("urpylka-w4")
 
 
     def __del__(self):
@@ -266,11 +346,10 @@ class SmartBuffer(object):
         иначе raise CriticalException
         """
         if whence != 0:
-            raise NotImplementedError("seek() not support relative offset")
-        print("urpylka-4")
+            raise NotImplementedError("seek() doesn't support relative offset")
+        print("urpylka-s")
         with self.threads_lock:
-
-            print("urpylka-5")
+            print("urpylka-s-w")
             left = self.already_wrote - self.buf_size
 
             if offset < left:
