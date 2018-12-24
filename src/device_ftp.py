@@ -149,9 +149,17 @@ class FTP(Device):
                     try:
                         source_stream.seek(already_sent)
                         break
-                    except EOFError:
-                        pass
+                    except EOFError as ex:
+                        self.kwargs["logger"].info("TARGET: " + str(ex))
+                        self.kwargs["logger"].info("TARGET: waiting Downloader side")
+                    except Exception as ex:
+                        self.kwargs["logger"].info("TARGET: " + str(ex))
+                        # Можем взять последнюю позицию что есть в буффере
+                        already_sent = 0
+                        break
                 print("urpylka-2")
+
+                self.kwargs["logger"].info("TARGET: started w 0")
 
                 try:
                     self.is_remote_available.wait()

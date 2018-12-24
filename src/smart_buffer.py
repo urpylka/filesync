@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import io
+import time
 from threading import Lock
 
 # http://qaru.site/questions/81837/python-ftp-chunk-iterator-without-loading-entire-file-into-memory
@@ -65,15 +66,15 @@ class SmartBuffer(object):
 
         self.pos_r = 0
         self.pos_w = 0
-        self.pos_h = 0
+        self.pos_h = self.buf_size - 1
+        if self.pos_h <= 0:
+            raise Exception("pos_h incorrect: " + str(self.pos_h))
 
         self.already_read = 0
         self.already_wrote = 0
 
-        print("self.buf_size: " + str(self.buf_size))
-        print("self.buf_type: " + str(self.buf_type))
-        print("self.file_size: " + str(self.file_size))
-        print("self.history_size: " + str(self.history_size))
+        self.show_stat()
+
 
     def _read(self, chunk_size):
         """
@@ -92,8 +93,8 @@ class SmartBuffer(object):
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
         self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
-        print(self.pos_h)
-        print(self.pos_w)
+        
+        self.show_stat()
 
         return buf
 
@@ -175,7 +176,11 @@ class SmartBuffer(object):
             needs = chunk_size - available
 
             # возможно нужно что-то более изящное
-            while self.get_available_for_read() < needs:
+            while self.get_available_for_read() < 1:
+                # time.sleep(1)
+                # print("self.get_available_for_read(): " + str(self.get_available_for_read()))
+                # print("needs: " + str(needs))
+                # self.show_stat()
                 pass
 
             buf += self.read(needs)
@@ -193,16 +198,20 @@ class SmartBuffer(object):
             self.pos_w = 0
         self.already_wrote += chunk_size
 
+        self.show_stat()
+
 
     def get_available_for_read(self):
+        # 8 999 999 >= 9 999 999
         if self.pos_w >= self.pos_r:
             return self.pos_w - self.pos_r
         else:
             return self.buf_size - self.pos_r
+            # 10 000 000 - 9 999 999
 
 
     def get_available_for_write(self):
-        if self.pos_w >= self.pos_h:
+        if self.pos_w > self.pos_h:
             return self.buf_size - self.pos_w
         else:
             return self.pos_h - self.pos_w
@@ -231,8 +240,12 @@ class SmartBuffer(object):
 
             self.threads_lock.release()
 
-            print("urpylka-w-w")
-            while self.get_available_for_write() <= chunk_size:
+            needs = chunk_size - available
+            while self.get_available_for_write() < 1:
+                # time.sleep(1)
+                # print("self.get_available_for_write(): " + str(self.get_available_for_write()))
+                # print("needs: " + str(needs))
+                # self.show_stat()
                 pass
 
             print("urpylka-w3")
@@ -240,6 +253,19 @@ class SmartBuffer(object):
             self.write(chunk[available:chunk_size])
             print("urpylka-w4")
 
+
+    def show_stat(self):
+        print("===============================================")
+        print("self.buf_size:\t" + str(self.buf_size))
+        print("self.buf_type:\t" + str(self.buf_type))
+        print("self.file_size:\t" + str(self.file_size))
+        print("self.history_size:\t" + str(self.history_size))
+        print("self.already_read:\t" + str(self.already_read))
+        print("self.already_wrote:\t" + str(self.already_wrote))
+        print("self.pos_r:\t" + str(self.pos_r))
+        print("self.pos_w:\t" + str(self.pos_w))
+        print("self.pos_h:\t" + str(self.pos_h))
+        print("===============================================")
 
     def __del__(self):
         # save to flash
@@ -286,18 +312,20 @@ class SmartBuffer(object):
 
     def get_optimize_buf_size(self):
         if self.buf_type == 0: # RAM
-            # < 10MB
-            if self.file_size < 10000000:
+            # < 50MB
+            MAX = 50000000
+            if self.file_size < MAX:
                 return self.file_size
             else:
-                return 10000000
+                return MAX
 
         elif self.buf_type == 1: # FLASH
             # < 100MB
-            if self.file_size < 100000000:
+            MAX = 100000000
+            if self.file_size < MAX:
                 return self.file_size
             else:
-                return 100000000
+                return MAX
 
 
     def seekable(self):
@@ -347,22 +375,27 @@ class SmartBuffer(object):
         """
         if whence != 0:
             raise NotImplementedError("seek() doesn't support relative offset")
-        print("urpylka-s")
         with self.threads_lock:
             print("urpylka-s-w")
             left = self.already_wrote - self.buf_size
-
+            # 9 999 999 - 10 000 000 = 1
+            # offset = 9 337 584
             if offset < left:
                 raise BufferError("The data is already rewrite")
 
-            if offset > self.already_wrote:
-                raise EOFError("The data isn't wrote yet")
+            if self.buf_size > offset:
+                if offset > self.already_wrote:
+                    raise EOFError("The data isn't wrote yet")
+            else:
+                raise AttributeError("Data couldn't be reached")
 
             self.already_read = offset
             self.pos_r = self.already_read % self.buf_size
 
             # смещение позиции незатираемой истории
             self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
+
+            self.show_stat()
 
 
     def tell(self):
