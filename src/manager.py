@@ -87,29 +87,42 @@ def worker(number, args):
 
         buffer_stream = SmartBuffer(record['source_size'])
 
-        while not record['downloaded'] and not record['uploaded'] and not record['dropped']:
+        while not record['downloaded'] or not record['uploaded'] or not record['dropped']:
 
             try:
+                logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker")
 
                 # чтобы при срыве чего-либо все продолжалось с того же места,
                 # нужно чтобы буффер не очищался,
                 # а source.download и target.upload не теряли указатели
 
-                d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
-                u = in_thread(target.upload, buffer_stream, target_path, 400000)   # сосёт
+                # может лучше прям здесь смотреть сколько уже скачано/выкачено
+                # и после этого вместе с оффесетами начинать скачивание?
 
-                d.join()
-                if buffer_stream.already_wrote:
-                    record["downloaded"] = True
-                    # record["local_path"] = local_path
+                if not record["downloaded"]:
+                    d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
+                if not record["uploaded"]:
+                    u = in_thread(target.upload, buffer_stream, target_path, 400000)    # сосёт
 
-                u.join()
-                if buffer_stream.already_read:
-                    record["uploaded"] = True
+                if not record["downloaded"]:
+                    d.join()=
+                    logger.debug("Worker-" + str(number) + ": downloader")
+                    if buffer_stream.already_wrote == buffer_stream.file_size:
+                        record["downloaded"] = True
+                        # record["local_path"] = local_path
+                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
+
+                if not record["uploaded"]:
+                    u.join()
+                    logger.debug("Worker-" + str(number) + ": uploader")
+                    if buffer_stream.already_read == buffer_stream.file_size:
+                        record["uploaded"] = True
+                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
 
                 if record["downloaded"] and record["uploaded"]:
                     source.delete(record["source_path"])
                     record["dropped"] = True
+                    logger.info("Worker-" + str(number) + ": " + str(source_path) + " was deleted")
 
             except Exception as ex:
                 logger.error("Worker-" + str(number) + ": " + str(ex) + " with file " + source_path)
@@ -236,5 +249,9 @@ def main():
         # smart_buffer.dump()
         return 0
 
+
 if __name__ == '__main__':
     main()
+
+# rm -f flir/db.json && clear && sudo ./src/manager.py
+# while :; do sleep 1; clear; ls -l Sherlock.s03e01.avi; done

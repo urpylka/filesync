@@ -93,7 +93,7 @@ class SmartBuffer(object):
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
         self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
-        
+
         self.show_stat()
 
         return buf
@@ -162,6 +162,8 @@ class SmartBuffer(object):
 
         available = self.get_available_for_read()
 
+        buf = b''
+
         if available >= chunk_size:
             # читаем целый чанк
             buf = self._read(chunk_size)
@@ -173,17 +175,18 @@ class SmartBuffer(object):
 
             self.threads_lock.release()
 
-            needs = chunk_size - available
+            if not self.is_read_all:
+                needs = chunk_size - available
 
-            # возможно нужно что-то более изящное
-            while self.get_available_for_read() < 1:
-                # time.sleep(1)
-                # print("self.get_available_for_read(): " + str(self.get_available_for_read()))
-                # print("needs: " + str(needs))
-                # self.show_stat()
-                pass
+                # возможно нужно что-то более изящное
+                while self.get_available_for_read() < 1:
+                    # time.sleep(1)
+                    # print("self.get_available_for_read(): " + str(self.get_available_for_read()))
+                    # print("needs: " + str(needs))
+                    # self.show_stat()
+                    pass
 
-            buf += self.read(needs)
+                buf += self.read(needs)
 
         return buf
 
@@ -326,7 +329,7 @@ class SmartBuffer(object):
                 return self.file_size
             else:
                 return MAX
-
+ 
 
     def seekable(self):
         """
@@ -396,6 +399,10 @@ class SmartBuffer(object):
             self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
 
             self.show_stat()
+
+
+    def start_write_w(self, offset):
+        self.already_wrote = offset
 
 
     def tell(self):

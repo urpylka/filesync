@@ -39,7 +39,7 @@ class Device(object):
     5. Загрузка чанками requests
     https://stackoverflow.com/questions/13909900/progress-of-python-requests-post
 
-    6. Надо добавить в вывод "Такого метода нет в вашей реализации"
+    6. Надо добавить в вывод "Not implemented method"
     наименование класса в котором это все вызывается
     """
 
@@ -54,7 +54,7 @@ class Device(object):
 
 
     def _connect(self):
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+        raise NotImplementedError("Not implemented method")
 
 
     def get_list(self):
@@ -65,7 +65,7 @@ class Device(object):
 
         3. Функция должна возвращать список словарей {"path":"", "size":"", "hash":""}
         """
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+        raise NotImplementedError("Not implemented method")
 
 
     def download(self, device_path, target_stream, chunk_size=1024):
@@ -75,7 +75,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+        raise NotImplementedError("Not implemented method")
 
 
     def upload(self, source_stream, device_path, chunk_size=1024):
@@ -85,7 +85,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+        raise NotImplementedError("Not implemented method")
 
 
     def delete(self, remote_path):
@@ -94,4 +94,4 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Такого метода нет в вашей реализации")
+        raise NotImplementedError("Not implemented method")
