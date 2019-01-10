@@ -68,7 +68,7 @@ class Device(object):
         raise NotImplementedError("Not implemented method")
 
 
-    def download(self, device_path, target_stream, chunk_size=1024):
+    def download(self, device_path, target_stream, chunk_size=1024, offset=0):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке
@@ -78,7 +78,7 @@ class Device(object):
         raise NotImplementedError("Not implemented method")
 
 
-    def upload(self, source_stream, device_path, chunk_size=1024):
+    def upload(self, source_stream, device_path, chunk_size=1024, offset=0):
         """
         Пока не знаю
         1. Функция исполняется в вызывающем потоке

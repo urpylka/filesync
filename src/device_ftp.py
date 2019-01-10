@@ -99,7 +99,31 @@ class FTP(Device):
                         self.kwargs["logger"].info("TARGET: FTP is unavailble. All operations is lock")
 
 
-    def upload(self, source_stream, device_path, chunk_size=8192):
+    def get_size(self, device_path):
+
+        while 1:
+            with self._internal_lock:
+                self.is_remote_available.wait()
+
+                try:
+                    self.is_remote_available.wait()
+                    self._ftp.voidcmd('TYPE I')
+                    response = self._ftp.size(device_path)
+
+                    if not response is None:
+                        return response
+
+                except Exception as ex:
+                    # если файла еще нет, нужно продолжить с длиной в ноль
+                    exc = str(ex)
+                    if exc.startswith("550"):
+                        self.kwargs["logger"].info("TARGET: File was not uploaded to server yet: " + exc)
+                        return 0
+                    else:
+                        raise Exception("TARGET: Can't get file size on ftp server: " + exc)
+
+
+    def upload(self, source_stream, device_path, chunk_size=8192, offset=0):
         # f_blocksize = 1024
         # total_size = os.path.getsize(file_path)
         # size_written = 0
@@ -113,35 +137,26 @@ class FTP(Device):
         #     percent_complete = size_written / total_size * 100
         #     print("%s percent complete" %str(percent_complete))
 
+        # def _cb(self, buf):
+        #     """
+        #     Метод в первую очередь для ведения статистики количества
+        #     записанный чанков в FTP
+
+        #     Также можно считать количество информации записанной для ведения стастики
+        #     """
+        #     self.rest += len(self.buf)
+        #     self.buf = buf
 
         with self._internal_lock:
             self.is_remote_available.wait()
+
             self._ftp.cwd(os.path.dirname(device_path))
 
             res = None
             while 1:
                 time.sleep(1.5)
 
-                already_sent = 0 #  already upload wo errors
-
-                while 1:
-                    try:
-                        self.is_remote_available.wait()
-                        self._ftp.voidcmd('TYPE I')
-                        response = self._ftp.size(device_path)
-
-                        if not response is None: already_sent = response
-
-                        break
-                    except Exception as ex:
-                        # если файла еще нет, нужно продолжить с длиной в ноль
-                        exc = str(ex)
-                        if exc.startswith("550"):
-                            self.kwargs["logger"].info("TARGET: File was not uploaded to server: " + exc)
-                            break
-                        else:
-                            raise Exception("TARGET: Can't get file size on ftp server: " + exc)
-
+                already_sent = self.get_size(device_path) #  already upload wo errors
                 self.kwargs["logger"].info("TARGET: already_sent: " + str(already_sent))
 
                 print("urpylka-1")
@@ -191,14 +206,3 @@ class FTP(Device):
 
             if not res.startswith("226 Transfer complete"):
                 raise Exception("File was not uploaded successful: " + res)
-
-
-    # def _cb(self, buf):
-    #     """
-    #     Метод в первую очередь для ведения статистики количества
-    #     записанный чанков в FTP
-
-    #     Также можно считать количество информации записанной для ведения стастики
-    #     """
-    #     self.rest += len(self.buf)
-    #     self.buf = buf

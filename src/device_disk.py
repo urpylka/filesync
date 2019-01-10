@@ -70,31 +70,13 @@ class DISK(Device):
         return copy(remote_path, local_path, self.kwargs["logger"])
 
 
-    def download(self, device_path, target_stream, chunk_size=8192):
-        """
-        Сделать отсчет по времени с момента начала
-        типа так:
-        Downloader-1 Start download FILE
-        Downloader-1 Error on downloading FILE
-        Downloader-1 Resume downloading FILE
-        Downloader-1 End of downloading FILE
+    def download3(self, device_path, target_stream, chunk_size=8192, offset=0):
 
-        from device_disk import DISK
-        from logger import get_logger
-        logger = get_logger("filesync", "/home/pi/flir/filesync.log")
-        source = DISK("66F8-E5D9", "/mnt", logger)
-        with open("20181106_163024_949.JPG", 'wb') as target_stream:
-            source.download("/20181106_163024/20181106_163024_949.JPG", target_stream)
-        print("OK")
-
-        https://docs.python.org/3/library/io.html
-        https://docs.python.org/3/library/asyncio-stream.html
-        https://python-scripts.com/threading
-        """
         self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
         downloading = 1
         while downloading:
+
             # вообще хорошо бы считать сколько
             # мы записали и сохранять это в бд
             # и для возвращения к загрузке брать данные из бд
@@ -118,7 +100,42 @@ class DISK(Device):
                     time.sleep(1.5)
 
 
-    def upload(self, source_stream, device_path, chunk_size=8192):
+    def download(self, device_path, target_stream, chunk_size=8192, offset=0):
+        """
+        Сделать отсчет по времени с момента начала
+        типа так:
+        Downloader-1 Start download FILE
+        Downloader-1 Error on downloading FILE
+        Downloader-1 Resume downloading FILE
+        Downloader-1 End of downloading FILE
+
+        from device_disk import DISK
+        from logger import get_logger
+        logger = get_logger("filesync", "/home/pi/flir/filesync.log")
+        source = DISK("66F8-E5D9", "/mnt", logger)
+        with open("20181106_163024_949.JPG", 'wb') as target_stream:
+            source.download("/20181106_163024/20181106_163024_949.JPG", target_stream)
+        print("OK")
+
+        https://docs.python.org/3/library/io.html
+        https://docs.python.org/3/library/asyncio-stream.html
+        https://python-scripts.com/threading
+        """
+        self.kwargs["logger"].debug("Downloading from " + str(device_path))
+
+
+        self.is_remote_available.wait()
+        with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+
+            stream.seek(offset)
+
+            while 1:
+                chunk = stream.read(chunk_size)
+                if not chunk: break
+                target_stream.write(chunk)
+
+
+    def upload(self, source_stream, device_path, chunk_size=8192, offset=0):
         """
 
         with open("file_name", 'rb') as source_stream:

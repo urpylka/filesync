@@ -402,6 +402,15 @@ class SmartBuffer(object):
 
 
     def start_write_w(self, offset):
+
+        self.pos_r = 0
+        self.pos_w = 0
+        self.pos_h = self.buf_size - 1
+
+        if self.pos_h <= 0:
+            raise Exception("pos_h incorrect: " + str(self.pos_h))
+
+        self.already_read = offset
         self.already_wrote = offset
 
 
@@ -425,3 +434,22 @@ class SmartBuffer(object):
 
     def writable(self):
         return True
+    
+
+    def in_buffer(self, pos):
+
+        # if self.already_wrote >= pos:
+        #     if pos >= self.already_wrote - self.buf_size:
+        #         # все чотко - продолжаем
+        #         pass
+        #     else:
+        #         # не хватает истории (мы сильно убежали вперед)
+        #         pass
+        # else:
+        #     # нужно дозагрузить в буффер столько сколько нужно
+        #     pass
+
+        if self.already_wrote >= pos >= self.already_wrote - self.buf_size:
+            return 1
+        else:
+            return 0

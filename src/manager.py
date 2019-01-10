@@ -92,32 +92,43 @@ def worker(number, args):
             try:
                 logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker")
 
-                # чтобы при срыве чего-либо все продолжалось с того же места,
-                # нужно чтобы буффер не очищался,
-                # а source.download и target.upload не теряли указатели
-
-                # может лучше прям здесь смотреть сколько уже скачано/выкачено
-                # и после этого вместе с оффесетами начинать скачивание?
-
-                if not record["downloaded"]:
-                    d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
-                if not record["uploaded"]:
-                    u = in_thread(target.upload, buffer_stream, target_path, 400000)    # сосёт
-
-                if not record["downloaded"]:
-                    d.join()=
-                    logger.debug("Worker-" + str(number) + ": downloader")
-                    if buffer_stream.already_wrote == buffer_stream.file_size:
-                        record["downloaded"] = True
-                        # record["local_path"] = local_path
-                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
+                offset_for_upload = target.get_size(target_path)
+                logger.info("TARGET: already_sent: " + str(offset_for_upload))
 
                 if not record["uploaded"]:
+                    u = in_thread(target.upload, buffer_stream, target_path, 400000, offset_for_upload)      # сосёт
+
+
+                    if not buffer_stream.in_buffer(offset_for_upload):
+                        # если позиция вышла за буффер,
+                        # то обнуляем буффер
+                        # и начинаем загружать с оффсета,
+                        # который нужен для target
+                        buffer_stream.start_write_w(offset_for_upload)
+                    # else:
+                        # если позиция находится в буффере,
+                        # то продолжаем загружать в буффер с того места,
+                        # где мы остановились - tell()
+
+                    offset_for_download = buffer_stream.tell()
+
+                    if not record["downloaded"]:
+                        d = in_thread(source.download, source_path, buffer_stream, 1000000, offset_for_download) # вставляет
+
+                        d.join()
+                        logger.debug("Worker-" + str(number) + ": downloader")
+                        if buffer_stream.already_wrote == buffer_stream.file_size:
+                            record["downloaded"] = True
+                            # record["local_path"] = local_path
+                            logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
+
+
                     u.join()
                     logger.debug("Worker-" + str(number) + ": uploader")
                     if buffer_stream.already_read == buffer_stream.file_size:
                         record["uploaded"] = True
                         logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
+
 
                 if record["downloaded"] and record["uploaded"]:
                     source.delete(record["source_path"])
