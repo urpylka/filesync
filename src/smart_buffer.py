@@ -62,7 +62,7 @@ class SmartBuffer(object):
         if buf_type == 0:
             self.buffer = io.BytesIO()
         elif buf_type == 1:
-            self.buffer = io.open("file.temp", "wb")
+            self.buffer = io.open("file.temp", "w+b")
 
         self.pos_r = 0
         self.pos_w = 0
@@ -82,8 +82,8 @@ class SmartBuffer(object):
         """
         Функция умеет читать только до границы буффера
         """
-        self.buffer.seek(self.pos_r)#13200000
-        buf = self.buffer.read(chunk_size)#400000
+        self.buffer.seek(self.pos_r)
+        buf = self.buffer.read(chunk_size)
 
         self.pos_r += chunk_size
 
@@ -106,7 +106,7 @@ class SmartBuffer(object):
 
     def read2(self, chunk_size):
         """
-        available - то, что можно в одну строну прочитать методом _read
+        available - то, что можно в одну строну прочитать методом _read()
         """
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
@@ -167,6 +167,7 @@ class SmartBuffer(object):
 
         available = self.get_available_for_read()
         av = self.file_size - self.already_read
+        print(str(available) + " " + str(av))
         if available > av:
             available = av
 
@@ -183,7 +184,7 @@ class SmartBuffer(object):
 
             self.threads_lock.release()
 
-            if not self.is_read_all:
+            if not self.is_read_all():
                 needs = chunk_size - available
 
                 # возможно нужно что-то более изящное
@@ -237,6 +238,7 @@ class SmartBuffer(object):
         print("==================")
 
         self.threads_lock.acquire()
+        print("Got threads_lock")
 
         # если пытаемся запихнуть больше чем размер файла
         if chunk_size + self.already_wrote > self.file_size:

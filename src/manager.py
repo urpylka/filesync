@@ -85,7 +85,7 @@ def worker(number, args):
 
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
-        buffer_stream = SmartBuffer(record['source_size'])
+        buffer_stream = SmartBuffer(record['source_size'], 50000000, 0)
 
         iter = 0
         while not record['downloaded'] or not record['uploaded'] or not record['dropped']:
@@ -238,7 +238,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi2", "AVI", "mp4", "MP4"], logger)
+    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4"], logger)
     # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     # create_threads(1, uploader, target, uq, logger)
     create_threads(1, worker, target, source, dq, logger)

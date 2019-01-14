@@ -159,6 +159,7 @@ class FTP(Device):
             res = None
             while 1:
                 time.sleep(1)
+                self.kwargs["logger"].debug("TARGET: enter upload")
 
                 try:
                     already_sent = self.get_size(device_path) #  already upload wo errors
@@ -167,6 +168,11 @@ class FTP(Device):
 
                     self.is_remote_available.wait()
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)
+
+                    if not res.startswith("200 I successfully done nothin"):
+                        if not res.startswith("226 Transfer complete"):
+                            raise Exception("File was not uploaded successful: " + res)
+                    
                     break
                 except Exception as ex:
 
@@ -191,7 +197,4 @@ class FTP(Device):
                     # будто throw Exception()
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
-
-            if not res.startswith("200 I successfully done nothin"):
-                if not res.startswith("226 Transfer complete"):
-                    raise Exception("File was not uploaded successful: " + res)
+            self.kwargs["logger"].debug("TARGET: exit upload")
