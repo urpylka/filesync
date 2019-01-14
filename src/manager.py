@@ -87,33 +87,24 @@ def worker(number, args):
 
         buffer_stream = SmartBuffer(record['source_size'])
 
+        iter = 0
         while not record['downloaded'] or not record['uploaded'] or not record['dropped']:
+            
+            iter += 1
+
+            # не делать wq.done()
+            # if iter == 10:
+            #     break
 
             try:
-                logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker")
-
-                offset_for_upload = target.get_size(target_path)
-                logger.info("TARGET: already_sent: " + str(offset_for_upload))
+                logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker. Iteration: " + str(iter))
 
                 if not record["uploaded"]:
-                    u = in_thread(target.upload, buffer_stream, target_path, 400000, offset_for_upload)      # сосёт
+                    u = in_thread(target.upload, buffer_stream, target_path, 400000)        # сосёт
 
-
-                    if not buffer_stream.in_buffer(offset_for_upload):
-                        # если позиция вышла за буффер,
-                        # то обнуляем буффер
-                        # и начинаем загружать с оффсета,
-                        # который нужен для target
-                        buffer_stream.start_write_w(offset_for_upload)
-                    # else:
-                        # если позиция находится в буффере,
-                        # то продолжаем загружать в буффер с того места,
-                        # где мы остановились - tell()
-
-                    offset_for_download = buffer_stream.tell()
-
-                    if not record["downloaded"]:
-                        d = in_thread(source.download, source_path, buffer_stream, 1000000, offset_for_download) # вставляет
+                    if not record["downloaded"] or not buffer_stream.is_wrote_all():
+                    # может вообще убрать эту проверку
+                        d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
 
                         d.join()
                         logger.debug("Worker-" + str(number) + ": downloader")
@@ -247,7 +238,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI"], logger)
+    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi2", "AVI", "mp4", "MP4"], logger)
     # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     # create_threads(1, uploader, target, uq, logger)
     create_threads(1, worker, target, source, dq, logger)

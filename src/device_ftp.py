@@ -22,7 +22,7 @@
 import os
 import time
 import ftplib
-from threading import Lock
+from threading import RLock
 
 from device_abstract import Device
 
@@ -56,7 +56,7 @@ class FTP(Device):
     Два раза пишет что FTP недоступен
     """
 
-    _internal_lock = Lock()
+    _internal_lock = RLock()
     _ftp = ftplib.FTP()
 
     def __del__(self):
@@ -124,6 +124,7 @@ class FTP(Device):
 
 
     def upload(self, source_stream, device_path, chunk_size=8192, offset=0):
+
         # f_blocksize = 1024
         # total_size = os.path.getsize(file_path)
         # size_written = 0
@@ -147,36 +148,23 @@ class FTP(Device):
         #     self.rest += len(self.buf)
         #     self.buf = buf
 
+        self.kwargs["logger"].info("TARGET: Uploading: " + str(device_path))
+
         with self._internal_lock:
             self.is_remote_available.wait()
 
+            # без этого будет работать?
             self._ftp.cwd(os.path.dirname(device_path))
 
             res = None
             while 1:
-                time.sleep(1.5)
-
-                already_sent = self.get_size(device_path) #  already upload wo errors
-                self.kwargs["logger"].info("TARGET: already_sent: " + str(already_sent))
-
-                print("urpylka-1")
-                while 1:
-                    try:
-                        source_stream.seek(already_sent)
-                        break
-                    except EOFError as ex:
-                        self.kwargs["logger"].info("TARGET: " + str(ex))
-                        self.kwargs["logger"].info("TARGET: waiting Downloader side")
-                    except Exception as ex:
-                        self.kwargs["logger"].info("TARGET: " + str(ex))
-                        # Можем взять последнюю позицию что есть в буффере
-                        already_sent = 0
-                        break
-                print("urpylka-2")
-
-                self.kwargs["logger"].info("TARGET: started w 0")
+                time.sleep(1)
 
                 try:
+                    already_sent = self.get_size(device_path) #  already upload wo errors
+                    self.kwargs["logger"].info("TARGET: Started w " + str(already_sent))
+                    source_stream.seek(already_sent)
+
                     self.is_remote_available.wait()
                     res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)
                     break
@@ -204,5 +192,6 @@ class FTP(Device):
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
 
-            if not res.startswith("226 Transfer complete"):
-                raise Exception("File was not uploaded successful: " + res)
+            if not res.startswith("200 I successfully done nothin"):
+                if not res.startswith("226 Transfer complete"):
+                    raise Exception("File was not uploaded successful: " + res)

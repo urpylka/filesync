@@ -54,7 +54,7 @@ class Device(object):
 
 
     def _connect(self):
-        raise NotImplementedError("Not implemented method")
+        raise NotImplementedError("Not implemented method '_connect()'")
 
 
     def get_list(self):
@@ -65,7 +65,7 @@ class Device(object):
 
         3. Функция должна возвращать список словарей {"path":"", "size":"", "hash":""}
         """
-        raise NotImplementedError("Not implemented method")
+        raise NotImplementedError("Not implemented method 'get_list()'")
 
 
     def download(self, device_path, target_stream, chunk_size=1024, offset=0):
@@ -75,7 +75,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Not implemented method")
+        raise NotImplementedError("Not implemented method 'download()'")
 
 
     def upload(self, source_stream, device_path, chunk_size=1024, offset=0):
@@ -85,7 +85,7 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Not implemented method")
+        raise NotImplementedError("Not implemented method 'upload()'")
 
 
     def delete(self, remote_path):
@@ -94,4 +94,4 @@ class Device(object):
         2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
-        raise NotImplementedError("Not implemented method")
+        raise NotImplementedError("Not implemented method 'delete()'")

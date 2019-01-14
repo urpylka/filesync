@@ -73,6 +73,8 @@ class SmartBuffer(object):
         self.already_read = 0
         self.already_wrote = 0
 
+        self.stop_writer = False
+
         self.show_stat()
 
 
@@ -80,8 +82,8 @@ class SmartBuffer(object):
         """
         Функция умеет читать только до границы буффера
         """
-        self.buffer.seek(self.pos_r)
-        buf = self.buffer.read(chunk_size)
+        self.buffer.seek(self.pos_r)#13200000
+        buf = self.buffer.read(chunk_size)#400000
 
         self.pos_r += chunk_size
 
@@ -89,6 +91,9 @@ class SmartBuffer(object):
             self.pos_r = 0
 
         self.already_read += chunk_size
+
+        if self.already_read > self.file_size:
+            raise Exception("already_read:" + str(self.already_read) + " > file_size:" + str(self.file_size))
 
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
@@ -155,12 +160,15 @@ class SmartBuffer(object):
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
             # может равняться -1 тогда будет весь буффер
-            raise Exception("Размер чанка не может быть отрицательным")
+            raise Exception("Size of the chunk must be positive")
 
         self.threads_lock.acquire()
         print("urpylka-r")
 
         available = self.get_available_for_read()
+        av = self.file_size - self.already_read
+        if available > av:
+            available = av
 
         buf = b''
 
@@ -205,27 +213,34 @@ class SmartBuffer(object):
 
 
     def get_available_for_read(self):
-        # 8 999 999 >= 9 999 999
+        # 316 424 >= 13 199 999
         if self.pos_w >= self.pos_r:
             return self.pos_w - self.pos_r
         else:
             return self.buf_size - self.pos_r
-            # 10 000 000 - 9 999 999
+            # 50 000 000 - 13 199 999 = 36 800 001
 
 
     def get_available_for_write(self):
+        # 41 400 000 > 41 800 000
         if self.pos_w > self.pos_h:
             return self.buf_size - self.pos_w
         else:
             return self.pos_h - self.pos_w
-
+            # 41 800 000 - 41 400 000 = 400 000
 
     # https://python-scripts.com/synchronization-between-threads
     def write(self, chunk):
-        chunk_size = len(chunk)
+        chunk_size = len(chunk) #1 000 000
+        print("==================")
         print("Push: " + str(chunk_size))
+        print("==================")
 
         self.threads_lock.acquire()
+
+        # если пытаемся запихнуть больше чем размер файла
+        if chunk_size + self.already_wrote > self.file_size:
+            raise Exception("chunk_size:" + str(chunk_size) + " + already_wrote:" + str(self.already_wrote) + " > file_size:" + str(self.file_size))
 
         available = self.get_available_for_write()
 
@@ -249,12 +264,20 @@ class SmartBuffer(object):
                 # print("self.get_available_for_write(): " + str(self.get_available_for_write()))
                 # print("needs: " + str(needs))
                 # self.show_stat()
-                pass
+                if self.stop_writer:
+                    print("Interrupt get_available_for_write()")
+                    break
+                else:
+                    pass
 
-            print("urpylka-w3")
-            print("av: " + str(available))
-            self.write(chunk[available:chunk_size])
-            print("urpylka-w4")
+            if self.stop_writer:
+                self.stop_writer = False
+                raise Exception("Interrupt writer from seek()")
+            else:
+                print("urpylka-w3")
+                print("av: " + str(available))
+                self.write(chunk[available:chunk_size])
+                print("urpylka-w4")
 
 
     def show_stat(self):
@@ -370,7 +393,6 @@ class SmartBuffer(object):
         - - pos_r - позиция следующего элемента который
         будет считан, может использоваться только если pos_w ушел вперед
 
-
         offset - позиция в байтах от начала файла,
         и если она укладывается между
         + справа и + слева, то смещаем pos_r и pos_h,
@@ -378,40 +400,67 @@ class SmartBuffer(object):
         """
         if whence != 0:
             raise NotImplementedError("seek() doesn't support relative offset")
-        with self.threads_lock:
-            print("urpylka-s-w")
-            left = self.already_wrote - self.buf_size
-            # 9 999 999 - 10 000 000 = 1
-            # offset = 9 337 584
-            if offset < left:
-                raise BufferError("The data is already rewrite")
 
-            if self.buf_size > offset:
-                if offset > self.already_wrote:
-                    raise EOFError("The data isn't wrote yet")
+        if offset > self.file_size:
+            raise Exception("offset > file_size")
+        
+        if offset < 0:
+            raise Exception("offset < 0")
+
+        with self.threads_lock:
+
+            if self.file_size >= offset:
+                
+                left = self.already_wrote - self.buf_size
+
+                if  offset > self.already_wrote or left > offset:
+                    #raise EOFError("The data isn't wrote yet")
+
+                    # тут есть момент что мы можем подождать,
+                    # пока writer допишет нужную нам инфу
+
+                    # если позиция вышла за буффер,
+                    # то обнуляем буффер
+                    # и начинаем загружать с оффсета,
+                    # который нужен для target
+                    self.stop_writer = True
+
+                    self.pos_r = 0
+                    self.pos_w = 0
+                    self.pos_h = self.buf_size - 1
+
+                    if self.pos_h <= 0:
+                        raise Exception("pos_h incorrect: " + str(self.pos_h))
+
+                    self.already_read = offset
+                    self.already_wrote = offset
+                else:
+                    # если здесь не добавить
+                    # self.stop_writer = True есть вероятность,
+                    # что рекурсивная часть writer после
+                    # исполнения _seek() что-то не так поймет
+
+                    self.already_read = offset
+                    self.pos_r = self.already_read % self.buf_size
+
+                    # смещение позиции незатираемой истории
+                    self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
             else:
                 raise AttributeError("Data couldn't be reached")
 
-            self.already_read = offset
-            self.pos_r = self.already_read % self.buf_size
 
-            # смещение позиции незатираемой истории
-            self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
+            # if offset < left:
+            #     #raise BufferError("The data is already rewrite")
+
+            #     # если позиция вышла за буффер,
+            #     # то обнуляем буффер
+            #     # и начинаем загружать с оффсета,
+            #     # который нужен для target
+            #     self._start_write_w(offset)
+            # else:
+            #     self._seek(offset)
 
             self.show_stat()
-
-
-    def start_write_w(self, offset):
-
-        self.pos_r = 0
-        self.pos_w = 0
-        self.pos_h = self.buf_size - 1
-
-        if self.pos_h <= 0:
-            raise Exception("pos_h incorrect: " + str(self.pos_h))
-
-        self.already_read = offset
-        self.already_wrote = offset
 
 
     def tell(self):
@@ -436,7 +485,7 @@ class SmartBuffer(object):
         return True
     
 
-    def in_buffer(self, pos):
+    def _in_buffer(self, abs_pos):
 
         # if self.already_wrote >= pos:
         #     if pos >= self.already_wrote - self.buf_size:
@@ -449,7 +498,7 @@ class SmartBuffer(object):
         #     # нужно дозагрузить в буффер столько сколько нужно
         #     pass
 
-        if self.already_wrote >= pos >= self.already_wrote - self.buf_size:
+        if self.already_wrote - self.buf_size <= abs_pos <= self.already_wrote:
             return 1
         else:
             return 0

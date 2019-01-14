@@ -65,42 +65,12 @@ class DISK(Device):
         return my_list
 
 
-    def download2(self, remote_path, local_path):
+    def download_bash_local(self, remote_path, local_path):
         self.is_remote_available.wait()
         return copy(remote_path, local_path, self.kwargs["logger"])
 
 
-    def download3(self, device_path, target_stream, chunk_size=8192, offset=0):
-
-        self.kwargs["logger"].debug("Downloading from " + str(device_path))
-
-        downloading = 1
-        while downloading:
-
-            # вообще хорошо бы считать сколько
-            # мы записали и сохранять это в бд
-            # и для возвращения к загрузке брать данные из бд
-            already_save = target_stream.tell()
-
-            self.is_remote_available.wait()
-            with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
-
-                stream.seek(already_save)
-                try:
-                    while 1:
-                        chunk = stream.read(chunk_size)
-
-                        if not chunk:
-                            downloading = 0
-                            break
-
-                        target_stream.write(chunk)
-                except Exception as ex:
-                    self.kwargs["logger"].error("TARGET: Donwloading was interrupting: " + str(ex))
-                    time.sleep(1.5)
-
-
-    def download(self, device_path, target_stream, chunk_size=8192, offset=0):
+    def download(self, device_path, target_stream, chunk_size=8192):
         """
         Сделать отсчет по времени с момента начала
         типа так:
@@ -121,21 +91,36 @@ class DISK(Device):
         https://docs.python.org/3/library/asyncio-stream.html
         https://python-scripts.com/threading
         """
+
         self.kwargs["logger"].debug("Downloading from " + str(device_path))
 
+        downloading = 1
+        while downloading:
 
-        self.is_remote_available.wait()
-        with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+            # вообще хорошо бы считать сколько
+            # мы записали и сохранять это в бд
+            # и для возвращения к загрузке брать данные из бд
+            # already_save = target_stream.tell()
 
-            stream.seek(offset)
+            self.is_remote_available.wait()
+            with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
 
-            while 1:
-                chunk = stream.read(chunk_size)
-                if not chunk: break
-                target_stream.write(chunk)
+                stream.seek(target_stream.tell())
+                try:
+                    while 1:
+                        chunk = stream.read(chunk_size)
+
+                        if not chunk:
+                            downloading = 0
+                            break
+
+                        target_stream.write(chunk)
+                except Exception as ex:
+                    self.kwargs["logger"].error("SOURCE: Downloading was interrupting: " + str(ex))
+                    time.sleep(1)
 
 
-    def upload(self, source_stream, device_path, chunk_size=8192, offset=0):
+    def upload(self, source_stream, device_path, chunk_size=8192):
         """
 
         with open("file_name", 'rb') as source_stream:
@@ -150,3 +135,7 @@ class DISK(Device):
                 chunk = source_stream.read(chunk_size)
                 if not chunk: break
                 stream.write(chunk)
+
+
+    def delete(self, device_path):
+        pass
