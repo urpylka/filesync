@@ -40,7 +40,7 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
-    def __init__(self, file_size, buf_size=None, buf_type=0):
+    def __init__(self, file_size, buf_type=0, buf_size=None, buf_name=None):
         """
         Buffer can be placed in memory or flash
 
@@ -62,7 +62,7 @@ class SmartBuffer(object):
         if buf_type == 0:
             self.buffer = io.BytesIO()
         elif buf_type == 1:
-            self.buffer = io.open("file.temp", "w+b")
+            self.buffer = io.open(buf_name, "w+b")
 
         self.pos_r = 0
         self.pos_w = 0

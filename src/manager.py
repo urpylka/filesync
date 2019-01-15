@@ -85,7 +85,10 @@ def worker(number, args):
 
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
-        buffer_stream = SmartBuffer(record['source_size'], 50000000, 0)
+        buffer_stream = SmartBuffer(record['source_size'], 0, None, os.path.basename(local_path) + ".temp")
+        # если задать размер буффера меньше,
+        # перезапустить программу с большим буффером (в файл),
+        # то не знаю будет ли перезаписываться или какие-то еще глюки
 
         iter = 0
         while not record['downloaded'] or not record['uploaded'] or not record['dropped']:
