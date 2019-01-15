@@ -123,7 +123,7 @@ class FTP(Device):
                         raise Exception("TARGET: Can't get file size on ftp server: " + exc)
 
 
-    def upload(self, source_stream, device_path, chunk_size=8192, offset=0):
+    def upload(self, source_stream, device_path, chunk_size=8192):
 
         # f_blocksize = 1024
         # total_size = os.path.getsize(file_path)
@@ -177,8 +177,8 @@ class FTP(Device):
                 except Exception as ex:
 
                     # Можно реализовать метод seek для reader’a
-                    # С исключением если воайтер уже догнал ридер
-                    # и сик не может исполнится или еще чего
+                    # С исключением если writer уже догнал reader
+                    # и seek не может исполнится или еще чего
 
                     # Обычно когда возникает ошибка здесь,
                     # мне кажется нужно заново выполнять
@@ -198,3 +198,57 @@ class FTP(Device):
 
                     self.kwargs["logger"].error("TARGET: " + str(ex))
             self.kwargs["logger"].debug("TARGET: exit upload")
+
+
+    def download(self, device_path, target_stream, chunk_size=8192):
+
+        self.kwargs["logger"].debug("Downloading from " + str(device_path))
+
+
+        with self._internal_lock:
+            self.is_remote_available.wait()
+
+            # без этого будет работать?
+            self._ftp.cwd(os.path.dirname(device_path))
+
+
+            while 1:
+
+                try:
+                    #FTP-stream.seek(target_stream.tell())
+
+                    self.is_remote_available.wait()
+                    res = self._ftp.retrbinary("RETR " + device_path, target_stream.write)
+
+                    if not res.startswith("200 I successfully done nothin"):
+                        if not res.startswith("226 Transfer complete"):
+                            raise Exception("File was not uploaded successful: " + res)
+
+                    break
+
+                except Exception as ex:
+                    self.kwargs["logger"].error("SOURCE: Downloading was interrupting: " + str(ex))
+                    time.sleep(1)
+
+
+    def get_list(self):
+        """
+        Get list of files
+        """
+
+        rootdir = '/'
+        with self._internal_lock:
+            self.is_remote_available.wait()
+
+            # без этого будет работать?
+            self._ftp.cwd(os.path.dirname(rootdir))
+
+            my_list = []
+            filenames = self._ftp.nlst()
+
+            for filename in filenames:
+                path = os.path.join(rootdir, filename)
+                size = self.get_size(path)
+
+                my_list.append({"path": path, "size": size, "hash": ""})
+            return my_list

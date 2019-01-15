@@ -124,6 +124,24 @@ class DISK(Device):
                     time.sleep(1)
 
 
+    def get_size(self, device_path):
+
+        while 1:
+            self.is_remote_available.wait()
+
+            try:
+                self.is_remote_available.wait()
+                response = os.path.getsize(device_path)
+
+                if not response is None:
+                    return response
+                else:
+                    raise Exception("Can't get file size: response is None")
+
+            except Exception as ex:
+                self.kwargs["logger"].error("TARGET: " + str(ex))
+
+
     def upload(self, source_stream, device_path, chunk_size=8192):
         """
 
@@ -131,15 +149,41 @@ class DISK(Device):
             target.upload(source_stream, "device_path")
 
         """
-        self.is_remote_available.wait()
-        self.kwargs["logger"].debug("Upload to " + str(device_path))
 
-        with open(self.kwargs["mount_point"] + device_path, 'wb') as stream:
-            while True:
-                chunk = source_stream.read(chunk_size)
-                if not chunk: break
-                stream.write(chunk)
+        self.kwargs["logger"].info("TARGET: Uploading: " + str(device_path))
+
+        self.is_remote_available.wait()
+
+        while 1:
+            time.sleep(1)
+            self.kwargs["logger"].debug("TARGET: enter upload")
+
+            try:
+                already_sent = self.get_size(device_path) #  already upload wo errors
+                self.kwargs["logger"].info("TARGET: Started w " + str(already_sent))
+                source_stream.seek(already_sent)
+
+                self.is_remote_available.wait()
+                with open(self.kwargs["mount_point"] + device_path, 'wb') as stream:
+                    while True:
+                        chunk = source_stream.read(chunk_size)
+                        if not chunk: break
+                        stream.write(chunk)
+
+            except Exception as ex:
+                self.kwargs["logger"].error("TARGET: " + str(ex))
+        self.kwargs["logger"].debug("TARGET: exit upload")
 
 
     def delete(self, device_path):
-        pass
+        self.kwargs["logger"].info("SOURCE: Deleting: " + str(device_path))
+
+        # try:
+        #     if os.path.isfile(device_path):
+        #         os.remove(device_path)
+        #     else:
+        #         raise Exception("File doesn't exist")
+        # except OSError as e:  ## if failed, report it back to the user ##
+        #     self.kwargs["logger"].error("TARGET: %s - %s." % (e.filename, e.strerror))
+        # except Exception as ex:  ## if failed, report it back to the user ##
+        #     self.kwargs["logger"].error("TARGET: " + str(ex))
