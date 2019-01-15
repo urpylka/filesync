@@ -38,8 +38,11 @@ class DISK(Device):
                         self.kwargs["logger"].info("SOURCE: Partition is available. All operations is unlock")
                 else:
                     self.kwargs["logger"].debug("SOURCE: Try to mount partition")
+                    # http://qaru.site/questions/447799/what-happens-if-you-mount-to-a-non-empty-mount-point-with-fuse
+                    # чтобы не было ошибок с exfat можно добавить флаг "-o nonempty"
+                    # или, как сделал я, сначала вызвать umount
+                    a0, b0, c0 = bash_command("/bin/umount " + self.kwargs["mount_point"], self.kwargs["logger"])
                     a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self.kwargs["uuid"] + " " + self.kwargs["mount_point"], self.kwargs["logger"])
-                    continue
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
@@ -47,7 +50,8 @@ class DISK(Device):
 
                     if code == 32:
                         self.kwargs["logger"].debug("SOURCE: The partition was ejected")
-                    else: self.kwargs["logger"].debug("SOURCE: lsblk returned code: " + str(code))
+                    else:
+                        self.kwargs["logger"].debug("SOURCE: lsblk returned code: " + str(code))
 
 
     def get_list(self):
