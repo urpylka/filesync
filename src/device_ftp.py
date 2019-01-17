@@ -28,7 +28,15 @@ from device_abstract import Device
 
 
 class my_ftp(ftplib.FTP):
-    def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
+
+    # try:
+    #     import ssl
+    # except ImportError:
+    #     _SSLSocket = None
+    # else:
+    #     _SSLSocket = ssl.SSLSocket
+
+    def my_storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
         """
         Пришлось исправить стандартный метод
         перестановкой вызова callback
@@ -44,6 +52,62 @@ class my_ftp(ftplib.FTP):
 
         return self.voidresp()
 
+
+    def storbinary(self, cmd, fp, blocksize=8192, callback=None, rest=None):
+        """Store a file in binary mode.  A new port is created for you.
+
+        Args:
+          cmd: A STOR command.
+          fp: A file-like object with a read(num_bytes) method.
+          blocksize: The maximum data size to read from fp and send over
+                     the connection at once.  [default: 8192]
+          callback: An optional single parameter callable that is called on
+                    each block of data after it is sent.  [default: None]
+          rest: Passed to transfercmd().  [default: None]
+
+        Returns:
+          The response code.
+        """
+        self.voidcmd('TYPE I')
+        with self.transfercmd(cmd, rest) as conn:
+            while 1:
+                buf = fp.read(blocksize)
+                if not buf:
+                    break
+                conn.sendall(buf)
+                if callback:
+                    callback(buf)
+            # shutdown ssl layer
+            if _SSLSocket is not None and isinstance(conn, _SSLSocket):
+                conn.unwrap()
+        return self.voidresp()
+
+
+    def retrbinary(self, cmd, callback, blocksize=8192, rest=None):
+            """Retrieve data in binary mode.  A new port is created for you.
+
+            Args:
+            cmd: A RETR command.
+            callback: A single parameter callable to be called on each
+                        block of data read.
+            blocksize: The maximum number of bytes to read from the
+                        socket at one time.  [default: 8192]
+            rest: Passed to transfercmd().  [default: None]
+
+            Returns:
+            The response code.
+            """
+            self.voidcmd('TYPE I')
+            with self.transfercmd(cmd, rest) as conn:
+                while 1:
+                    data = conn.recv(blocksize)
+                    if not data:
+                        break
+                    callback(data)
+                # shutdown ssl layer
+                if _SSLSocket is not None and isinstance(conn, _SSLSocket):
+                    conn.unwrap()
+            return self.voidresp()
 
 class FTP(Device):
     """
