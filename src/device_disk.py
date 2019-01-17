@@ -22,9 +22,11 @@ from bash_commands import *
 import os, time
 
 class DISK(Device):
+
     def _connect(self):
         self.is_remote_available.clear()
-        self.kwargs["logger"].info("SOURCE: Partition is unavailable. All operations is lock")
+        self._prefix = self.kwargs["uuid"] + ": "
+        self.kwargs["logger"].info(self._prefix + "Partition is unavailable. All operations is lock")
         while True:
             time.sleep(1)
             code = None
@@ -35,9 +37,9 @@ class DISK(Device):
                 if self.kwargs["mount_point"] in str(output):
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        self.kwargs["logger"].info("SOURCE: Partition is available. All operations is unlock")
+                        self.kwargs["logger"].info(self._prefix + "Partition is available. All operations is unlock")
                 else:
-                    self.kwargs["logger"].debug("SOURCE: Try to mount partition")
+                    self.kwargs["logger"].debug(self._prefix + "Try to mount partition")
                     # http://qaru.site/questions/447799/what-happens-if-you-mount-to-a-non-empty-mount-point-with-fuse
                     # чтобы не было ошибок с exfat можно добавить флаг "-o nonempty"
                     # или, как сделал я, сначала вызвать umount
@@ -46,13 +48,16 @@ class DISK(Device):
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
-                    self.kwargs["logger"].info("SOURCE: Partition is unavailable. All operations is lock")
+                    self.kwargs["logger"].info(self._prefix + "Partition is unavailable. All operations is lock")
 
                     if code == 32:
-                        self.kwargs["logger"].debug("SOURCE: The partition was ejected")
+                        self.kwargs["logger"].debug(self._prefix + "The partition was ejected")
                     else:
-                        self.kwargs["logger"].debug("SOURCE: lsblk returned code: " + str(code))
+                        self.kwargs["logger"].debug(self._prefix + "lsblk returned code: " + str(code))
 
+
+    def __del__(self):
+        a0, b0, c0 = bash_command("/bin/umount " + self.kwargs["mount_point"], self.kwargs["logger"])
 
     def get_list(self):
         """
@@ -74,7 +79,7 @@ class DISK(Device):
         return copy(remote_path, local_path, self.kwargs["logger"])
 
 
-    def download(self, device_path, target_stream, chunk_size=8192):
+    def download(self, device_path, target_stream, chunk_size=1000000):
         """
         Сделать отсчет по времени с момента начала
         типа так:
@@ -95,88 +100,85 @@ class DISK(Device):
         https://docs.python.org/3/library/asyncio-stream.html
         https://python-scripts.com/threading
         """
-
-        self.kwargs["logger"].debug("Downloading from " + str(device_path))
-
-        downloading = 1
-        while downloading:
-
-            # вообще хорошо бы считать сколько
-            # мы записали и сохранять это в бд
-            # и для возвращения к загрузке брать данные из бд
-            # already_save = target_stream.tell()
-
-            self.is_remote_available.wait()
-            with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
-
-                stream.seek(target_stream.tell())
-                try:
-                    while 1:
-                        chunk = stream.read(chunk_size)
-
-                        if not chunk:
-                            downloading = 0
-                            break
-
-                        target_stream.write(chunk)
-                except Exception as ex:
-                    self.kwargs["logger"].error("SOURCE: Downloading was interrupting: " + str(ex))
-                    time.sleep(1)
-
-
-    def get_size(self, device_path):
-
+        self.is_remote_available.wait()
+        self.kwargs["logger"].info(self._prefix + "Downloading " + str(device_path))
         while 1:
             self.is_remote_available.wait()
-
             try:
-                self.is_remote_available.wait()
-                response = os.path.getsize(device_path)
 
-                if not response is None:
-                    return response
-                else:
-                    raise Exception("Can't get file size: response is None")
+                already_sent = target_stream.tell() #  already upload wo errors
+                self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
+
+                with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+                    stream.seek(already_sent)
+
+                    while 1:
+                        chunk = stream.read(chunk_size)
+                        if not chunk: break
+                        target_stream.write(chunk)
+
+                break
 
             except Exception as ex:
-                self.kwargs["logger"].error("TARGET: " + str(ex))
+                self.kwargs["logger"].error(self._prefix + "Downloading was interrupted: " + str(ex))
+                time.sleep(1)
 
 
-    def upload(self, source_stream, device_path, chunk_size=8192):
+    def upload(self, source_stream, device_path, chunk_size=1000000):
         """
 
         with open("file_name", 'rb') as source_stream:
             target.upload(source_stream, "device_path")
 
         """
-
-        self.kwargs["logger"].info("TARGET: Uploading: " + str(device_path))
-
         self.is_remote_available.wait()
-
+        self.kwargs["logger"].info(self._prefix + "Uploading " + str(device_path))
         while 1:
-            time.sleep(1)
-            self.kwargs["logger"].debug("TARGET: enter upload")
-
+            self.is_remote_available.wait()
             try:
+
                 already_sent = self.get_size(device_path) #  already upload wo errors
-                self.kwargs["logger"].info("TARGET: Started w " + str(already_sent))
+                self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
                 source_stream.seek(already_sent)
 
-                self.is_remote_available.wait()
                 with open(self.kwargs["mount_point"] + device_path, 'wb') as stream:
-                    while True:
+                    while 1:
                         chunk = source_stream.read(chunk_size)
                         if not chunk: break
                         stream.write(chunk)
 
+                break
+
             except Exception as ex:
-                self.kwargs["logger"].error("TARGET: " + str(ex))
-        self.kwargs["logger"].debug("TARGET: exit upload")
+                self.kwargs["logger"].error(self._prefix + "Uploading was interrupted: " + str(ex))
+                time.sleep(1)
+
+
+    def get_size(self, device_path):
+
+        while 1:
+            self.is_remote_available.wait()
+            try:
+
+                response = os.path.getsize(self.kwargs["mount_point"] + device_path)
+                if not response is None: return response
+                else: raise Exception("Can't get file size: response is None")
+
+            except OSError as ex:
+                if ex.errno == 2:
+                    # No such file or directory
+                    self.kwargs["logger"].error(self._prefix + "File was not uploaded yet: " + str(ex))
+                    return 0
+                else:
+                    self.kwargs["logger"].error(self._prefix + "Can't get file size: " + str(ex))
+            except Exception as ex:
+                self.kwargs["logger"].error(self._prefix + "" + str(ex))
+
+            time.sleep(1)
 
 
     def delete(self, device_path):
-        self.kwargs["logger"].info("SOURCE: Deleting: " + str(device_path))
+        self.kwargs["logger"].info(self._prefix + "Deleting " + str(device_path))
 
         # try:
         #     if os.path.isfile(device_path):
