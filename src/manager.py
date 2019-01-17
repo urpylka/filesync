@@ -85,7 +85,7 @@ def worker(number, args):
 
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
-        buffer_stream = SmartBuffer(record['source_size'], 0, None, os.path.basename(local_path) + ".temp")
+        buffer_stream = SmartBuffer(record['source_size'], logger, 0, None, os.path.basename(local_path) + ".temp")
         # если задать размер буффера меньше,
         # перезапустить программу с большим буффером (в файл),
         # то не знаю будет ли перезаписываться или какие-то еще глюки
@@ -230,7 +230,7 @@ def create_threads(count, function, *args):
 
 
 def main():
-    logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "INFO")
+    logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "DEBUG")
     # скрипка 0313-D11F # flirduo 66F8-E5D9
 
     source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger)

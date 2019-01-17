@@ -49,11 +49,6 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
-    def my_print(self, data):
-        pass
-
-    _print = print
-
     down_speed = 0
     up_speed = 0
     down_percent = 0
@@ -99,7 +94,7 @@ class SmartBuffer(object):
         in_thread(self.show_progress, 1)
 
 
-    def __init__(self, file_size, buf_type=0, buf_size=None, buf_name=None):
+    def __init__(self, file_size, logger, buf_type=0, buf_size=None, buf_name=None):
         """
         Buffer can be placed in memory or flash
 
@@ -108,6 +103,9 @@ class SmartBuffer(object):
         и имя файла куда мы хотим его сохранить,
         то получится local
         """
+
+        self._prefix = "SB: "
+        self.logger = logger
 
         self.file_size = file_size
         self.buf_type = buf_type
@@ -136,11 +134,11 @@ class SmartBuffer(object):
 
         # self.measure_progress()
 
-        self._print("===============================================")
-        self._print("self.buf_size:\t" + str(self.buf_size))
-        self._print("self.buf_type:\t" + str(self.buf_type))
-        self._print("self.file_size:\t" + str(self.file_size))
-        self._print("self.hist_size:\t" + str(self.hist_size))
+        self.logger.debug(self._prefix + "===============================================")
+        self.logger.debug(self._prefix + "self.buf_size:\t" + str(self.buf_size))
+        self.logger.debug(self._prefix + "self.buf_type:\t" + str(self.buf_type))
+        self.logger.debug(self._prefix + "self.file_size:\t" + str(self.file_size))
+        self.logger.debug(self._prefix + "self.hist_size:\t" + str(self.hist_size))
         self.show_stat()
 
 
@@ -172,7 +170,7 @@ class SmartBuffer(object):
 
     def _write(self, chunk):
         chunk_size = len(chunk)
-        self._print("_w: " + str(chunk_size))
+        self.logger.debug(self._prefix + "_w: " + str(chunk_size))
         self.buffer.seek(self.pos_w)
         self.buffer.write(chunk)
         self.pos_w += chunk_size
@@ -194,7 +192,7 @@ class SmartBuffer(object):
     #         raise Exception("Размер чанка не может быть отрицательным")
 
     #     with self.threads_lock:
-    #         self._print("urpylka-r")
+    #         self.logger.debug(self._prefix + "urpylka-r")
     #         diff = self.pos_w - self.pos_r
 
     #         # если pos_w >= pos_r
@@ -237,7 +235,7 @@ class SmartBuffer(object):
         """
         available - то, что можно в одну строну прочитать методом _read
         """
-        self._print("Pull: " + str(chunk_size))
+        self.logger.debug(self._prefix + "Pull: " + str(chunk_size))
 
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
@@ -245,11 +243,11 @@ class SmartBuffer(object):
             raise Exception("Size of the chunk must be positive")
 
         self.threads_lock.acquire()
-        self._print("urpylka-r")
+        self.logger.debug(self._prefix + "urpylka-r")
 
         available = self.get_available_for_read()
         av = self.file_size - self.already_read
-        self._print(str(available) + " " + str(av))
+        self.logger.debug(self._prefix + str(available) + " " + str(av))
         if available > av:
             available = av
 
@@ -272,7 +270,7 @@ class SmartBuffer(object):
                 # возможно нужно что-то более изящное
                 while self.get_available_for_read() < 1:
                     # time.sleep(8)
-                    # self._print("needs: " + str(needs))
+                    # self.logger.debug(self._prefix + "needs: " + str(needs))
                     pass
 
                 buf += self.read(needs)
@@ -305,7 +303,7 @@ class SmartBuffer(object):
     # https://python-scripts.com/synchronization-between-threads
     def write(self, chunk):
         chunk_size = len(chunk)
-        self._print("Push: " + str(chunk_size))
+        self.logger.debug(self._prefix + "Push: " + str(chunk_size))
 
         self.threads_lock.acquire()
 
@@ -316,22 +314,22 @@ class SmartBuffer(object):
         available = self.get_available_for_write()
 
         if available >= chunk_size:
-            self._print("urpylka-w1")
-            self._print("av: " + str(available))
+            self.logger.debug(self._prefix + "urpylka-w1")
+            self.logger.debug(self._prefix + "av: " + str(available))
             self._write(chunk)
 
             self.threads_lock.release()
         else:
             if available > 0:
-                self._print("urpylka-w2")
-                self._print("av: " + str(available))
+                self.logger.debug(self._prefix + "urpylka-w2")
+                self.logger.debug(self._prefix + "av: " + str(available))
                 self._write(chunk[0:available])
 
             self.threads_lock.release()
 
             while self.get_available_for_write() < 1:
                 if self.stop_writer:
-                    self._print("Interrupting get_available_for_write()")
+                    self.logger.debug(self._prefix + "Interrupting get_available_for_write()")
                     break
                 else:
                     pass
@@ -340,20 +338,20 @@ class SmartBuffer(object):
                 self.stop_writer = False
                 raise Exception("Interrupting writer from seek()")
             else:
-                self._print("urpylka-w3")
-                self._print("av: " + str(available))
+                self.logger.debug(self._prefix + "urpylka-w3")
+                self.logger.debug(self._prefix + "av: " + str(available))
                 self.write(chunk[available:chunk_size])
-                self._print("urpylka-w4")
+                self.logger.debug(self._prefix + "urpylka-w4")
 
 
     def show_stat(self):
-        self._print("===============================================")
-        self._print("self.already_read:\t" + str(self.already_read))
-        self._print("self.already_wrote:\t" + str(self.already_wrote))
-        self._print("self.pos_r:\t" + str(self.pos_r))
-        self._print("self.pos_w:\t" + str(self.pos_w))
-        self._print("self.pos_h:\t" + str(self.pos_h))
-        self._print("===============================================")
+        self.logger.debug(self._prefix + "===============================================")
+        self.logger.debug(self._prefix + "self.already_read:\t" + str(self.already_read))
+        self.logger.debug(self._prefix + "self.already_wrote:\t" + str(self.already_wrote))
+        self.logger.debug(self._prefix + "self.pos_r:\t" + str(self.pos_r))
+        self.logger.debug(self._prefix + "self.pos_w:\t" + str(self.pos_w))
+        self.logger.debug(self._prefix + "self.pos_h:\t" + str(self.pos_h))
+        self.logger.debug(self._prefix + "===============================================")
 
 
     def __del__(self):
