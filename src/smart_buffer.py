@@ -111,7 +111,7 @@ class SmartBuffer(object):
 
         self.file_size = file_size
         self.buf_type = buf_type
-        self.history_size = 1000000 if file_size > 1000000 else file_size # min(1MB, file_size)
+        self.hist_size = 1000000 if file_size > 1000000 else file_size # min(1MB, file_size)
 
         if buf_size is None:
             self.buf_size = self.get_optimize_buf_size()
@@ -136,6 +136,11 @@ class SmartBuffer(object):
 
         # self.measure_progress()
 
+        self._print("===============================================")
+        self._print("self.buf_size:\t" + str(self.buf_size))
+        self._print("self.buf_type:\t" + str(self.buf_type))
+        self._print("self.file_size:\t" + str(self.file_size))
+        self._print("self.hist_size:\t" + str(self.hist_size))
         self.show_stat()
 
 
@@ -158,7 +163,7 @@ class SmartBuffer(object):
 
         # смещение позиции незатираемой истории
         left = self.already_wrote - self.buf_size
-        self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
+        self.pos_h = max(left, self.already_read - self.hist_size) % self.buf_size
 
         self.show_stat()
 
@@ -176,6 +181,7 @@ class SmartBuffer(object):
         self.already_wrote += chunk_size
 
         self.show_stat()
+        # time.sleep(1)
 
 
     # def read2(self, chunk_size):
@@ -231,6 +237,8 @@ class SmartBuffer(object):
         """
         available - то, что можно в одну строну прочитать методом _read
         """
+        self._print("Pull: " + str(chunk_size))
+
         if chunk_size < 0:
             # В аналогичных функциях read chunk_size
             # может равняться -1 тогда будет весь буффер
@@ -263,8 +271,8 @@ class SmartBuffer(object):
 
                 # возможно нужно что-то более изящное
                 while self.get_available_for_read() < 1:
-                    time.sleep(1)
-                    self._print("needs: " + str(needs))
+                    # time.sleep(8)
+                    # self._print("needs: " + str(needs))
                     pass
 
                 buf += self.read(needs)
@@ -297,12 +305,9 @@ class SmartBuffer(object):
     # https://python-scripts.com/synchronization-between-threads
     def write(self, chunk):
         chunk_size = len(chunk)
-        self._print("==================")
         self._print("Push: " + str(chunk_size))
-        self._print("==================")
 
         self.threads_lock.acquire()
-        self._print("Got threads_lock")
 
         # если пытаемся запихнуть больше чем размер файла
         if chunk_size + self.already_wrote > self.file_size:
@@ -343,10 +348,6 @@ class SmartBuffer(object):
 
     def show_stat(self):
         self._print("===============================================")
-        self._print("self.buf_size:\t" + str(self.buf_size))
-        self._print("self.buf_type:\t" + str(self.buf_type))
-        self._print("self.file_size:\t" + str(self.file_size))
-        self._print("self.history_size:\t" + str(self.history_size))
         self._print("self.already_read:\t" + str(self.already_read))
         self._print("self.already_wrote:\t" + str(self.already_wrote))
         self._print("self.pos_r:\t" + str(self.pos_r))
@@ -507,7 +508,7 @@ class SmartBuffer(object):
                     self.pos_r = self.already_read % self.buf_size
 
                     # смещение позиции незатираемой истории
-                    self.pos_h = max(left, self.already_read - self.history_size) % self.buf_size
+                    self.pos_h = max(left, self.already_read - self.hist_size) % self.buf_size
             else:
                 raise AttributeError("Data couldn't be reached")
 
