@@ -247,7 +247,7 @@ def main():
         if not record['downloaded']: dq.put(record)
         elif not record['uploaded']: uq.put(record)
 
-    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv_"], logger)
+    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"], logger)
     # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     # create_threads(1, uploader, target, uq, logger)
     create_threads(1, worker, target, source, dq, logger)
