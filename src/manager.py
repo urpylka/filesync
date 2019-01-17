@@ -231,6 +231,8 @@ def create_threads(count, function, *args):
 
 def main():
     logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "DEBUG")
+    logger.info("filesync v0.2")
+
     # скрипка 0313-D11F # flirduo 66F8-E5D9
 
     source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger)
