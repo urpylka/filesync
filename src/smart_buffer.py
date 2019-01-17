@@ -18,9 +18,18 @@
 
 import io
 import time
+import sys
 from threading import Lock
+from threading import Thread
 
 # http://qaru.site/questions/81837/python-ftp-chunk-iterator-without-loading-entire-file-into-memory
+
+
+def in_thread(function, args):
+    t = Thread(target=function, args=(args,))
+    t.daemon = True
+    t.start()
+
 
 class SmartBuffer(object):
     """
@@ -44,6 +53,52 @@ class SmartBuffer(object):
         pass
 
     _print = print
+
+    down_speed = 0
+    up_speed = 0
+    down_percent = 0
+    up_percent = 0
+    prog = 1
+
+    def measure_down_speed(self, delay):
+        diff = 0
+        while self.prog:
+            diff = self.already_wrote
+            time.sleep(delay)
+            diff -= self.already_wrote
+            self.down_speed = -diff / delay
+
+
+    def measure_up_speed(self, delay):
+        diff = 0
+        while self.prog:
+            diff = self.already_read
+            time.sleep(delay)
+            diff -= self.already_read
+            self.up_speed = -diff / delay
+
+
+    def show_progress(self, delay):
+        while self.prog:
+            # по хорошему нужно выводить имя файла
+            self.down_percent = int(self.already_wrote / self.file_size * 100)
+            self.up_percent = int(self.already_read / self.file_size * 100)
+            #http://qaru.site/questions/28009/print-to-the-same-line-and-not-a-new-line-in-python
+            print(
+                "DOWN [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.down_percent, self.already_wrote, self.file_size, int(self.down_speed/1000)) + \
+                " <=> " + \
+                "UP [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.up_percent, self.already_read, self.file_size, int(self.up_speed/1000))
+                , end='\r')
+
+            time.sleep(delay)
+
+
+    def measure_progress(self):
+        in_thread(self.measure_down_speed, 1)
+        in_thread(self.measure_up_speed, 1)
+        in_thread(self.show_progress, 1)
+
+
     def __init__(self, file_size, buf_type=0, buf_size=None, buf_name=None):
         """
         Buffer can be placed in memory or flash
@@ -78,6 +133,8 @@ class SmartBuffer(object):
         self.already_wrote = 0
 
         self.stop_writer = False
+
+        # self.measure_progress()
 
         self.show_stat()
 
@@ -301,6 +358,7 @@ class SmartBuffer(object):
     def __del__(self):
         # save to flash
         self.buffer.close()
+        self.prog = 0
 
 
     # def ram_to_flash(self, local_path):
