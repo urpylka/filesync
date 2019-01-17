@@ -109,6 +109,7 @@ class my_ftp(ftplib.FTP):
                     conn.unwrap()
             return self.voidresp()
 
+
 class FTP(Device):
     """
     target = FTP("192.168.0.10", "test-1", "passwd", logging)
@@ -130,17 +131,17 @@ class FTP(Device):
 
     def _connect(self):
         self.is_remote_available.clear()
-        self.kwargs["logger"].info("TARGET: FTP is unavailble. All operations is lock")
+        self._prefix = self.kwargs["user"] + "@" + self.kwargs["host"] + ": "
+
+        self.kwargs["logger"].info(self._prefix + "FTP is unavailble. All operations is lock")
 
         while True:
             time.sleep(1)
 
             # starttime = time.time()
             retry = False
-            try:
-                self._ftp.voidcmd("NOOP")
-            except:
-                retry = True
+            try: self._ftp.voidcmd("NOOP")
+            except: retry = True
 
             while retry:
                 try:
@@ -150,17 +151,17 @@ class FTP(Device):
 
                     if not self.is_remote_available.is_set():
                         self.is_remote_available.set()
-                        self.kwargs["logger"].info("TARGET: FTP is availble. All operations is unlock")
+                        self.kwargs["logger"].info(self._prefix + "FTP is availble. All operations is unlock")
 
                 except IOError as ex:
                     retry = True
                     # self.kwargs["logger"].info("TARGET: Time disconnected - " + str(time.time() - starttime))
 
                     # ошибка 111 - если хост недоступен
-                    self.kwargs["logger"].debug("TARGET: " + str(ex))
+                    self.kwargs["logger"].debug(self._prefix + "_connect(): " + str(ex))
                     if self.is_remote_available.is_set():
                         self.is_remote_available.clear()
-                        self.kwargs["logger"].info("TARGET: FTP is unavailble. All operations is lock")
+                        self.kwargs["logger"].info(self._prefix + "FTP is unavailble. All operations is lock")
 
 
     def get_size(self, device_path):
@@ -181,10 +182,10 @@ class FTP(Device):
                     # если файла еще нет, нужно продолжить с длиной в ноль
                     exc = str(ex)
                     if exc.startswith("550"):
-                        self.kwargs["logger"].info("TARGET: File was not uploaded to server yet: " + exc)
+                        self.kwargs["logger"].info(self._prefix + "File was not uploaded to server yet: " + exc)
                         return 0
                     else:
-                        raise Exception("TARGET: Can't get file size on ftp server: " + exc)
+                        raise Exception(self._prefix + "Can't get file size on ftp server: " + exc)
 
 
     def upload(self, source_stream, device_path, chunk_size=8192):
@@ -212,22 +213,17 @@ class FTP(Device):
         #     self.rest += len(self.buf)
         #     self.buf = buf
 
-        self.kwargs["logger"].info("TARGET: Uploading: " + str(device_path))
-
         with self._internal_lock:
             self.is_remote_available.wait()
-
-            # без этого будет работать?
-            self._ftp.cwd(os.path.dirname(device_path))
-
-            res = None
+            self.kwargs["logger"].info(self._prefix + "Uploading " + str(device_path))
             while 1:
-                time.sleep(1)
-                self.kwargs["logger"].debug("TARGET: enter upload")
-
+                self.is_remote_available.wait()
                 try:
+                    # без этого будет работать?
+                    self._ftp.cwd(os.path.dirname(device_path))
+
                     already_sent = self.get_size(device_path) #  already upload wo errors
-                    self.kwargs["logger"].info("TARGET: Started w " + str(already_sent))
+                    self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
                     source_stream.seek(already_sent)
 
                     self.is_remote_available.wait()
@@ -236,54 +232,34 @@ class FTP(Device):
                     if not res.startswith("200 I successfully done nothin"):
                         if not res.startswith("226 Transfer complete"):
                             raise Exception("File was not uploaded successful: " + res)
-                    
+
                     break
+
                 except Exception as ex:
 
-                    # Можно реализовать метод seek для reader’a
-                    # С исключением если writer уже догнал reader
-                    # и seek не может исполнится или еще чего
-
-                    # Обычно когда возникает ошибка здесь,
-                    # мне кажется нужно заново выполнять
-                    # transfercmd("STOR " + device_path, self.rest)
-
-                    # тк ошибок может быть очень много и разных,
-                    # и не всегда известно записалась часть файла
-                    # или нет и лучше начать с той позиции в которой ошибок не было
-
-                    # эта штука умеет как минимум выбрасывать
                     # [Errno 32] Broken pipe
                     # [Errno 104] Connection reset by peer
+                    # Пустой Exception()
 
-                    # При тестировании, при прерывании сразу
-                    # было пустое сообщение об ошибке
-                    # будто throw Exception()
-
-                    self.kwargs["logger"].error("TARGET: " + str(ex))
-            self.kwargs["logger"].debug("TARGET: exit upload")
+                    self.kwargs["logger"].error(self._prefix + "Uploading was interrupted: " + str(ex))
+                    time.sleep(1)
 
 
     def download(self, device_path, target_stream, chunk_size=8192):
 
-        self.kwargs["logger"].debug("Downloading from " + str(device_path))
-
-
         with self._internal_lock:
             self.is_remote_available.wait()
-
-            # без этого будет работать?
-            self._ftp.cwd(os.path.dirname(device_path))
-
-
+            self.kwargs["logger"].debug(self._prefix + "Downloading " + str(device_path))
             while 1:
-
+                self.is_remote_available.wait()
                 try:
-                    #FTP-stream.seek(target_stream.tell())
+                    # без этого будет работать?
+                    self._ftp.cwd(os.path.dirname(device_path))
 
-                    self.is_remote_available.wait()
-                    res = self._ftp.retrbinary("RETR " + device_path, target_stream.write)
+                    already_sent = target_stream.tell() #  already upload wo errors
+                    self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
 
+                    res = self._ftp.retrbinary("RETR " + device_path, target_stream.write, blocksize=chunk_size, rest=already_sent)
                     if not res.startswith("200 I successfully done nothin"):
                         if not res.startswith("226 Transfer complete"):
                             raise Exception("File was not uploaded successful: " + res)
@@ -291,7 +267,7 @@ class FTP(Device):
                     break
 
                 except Exception as ex:
-                    self.kwargs["logger"].error("SOURCE: Downloading was interrupting: " + str(ex))
+                    self.kwargs["logger"].error(self._prefix + "Downloading was interrupted: " + str(ex))
                     time.sleep(1)
 
 
@@ -308,11 +284,15 @@ class FTP(Device):
             self._ftp.cwd(os.path.dirname(rootdir))
 
             my_list = []
-            filenames = self._ftp.nlst()
 
-            for filename in filenames:
+            for filename in self._ftp.nlst():
+
                 path = os.path.join(rootdir, filename)
                 size = self.get_size(path)
 
                 my_list.append({"path": path, "size": size, "hash": ""})
             return my_list
+
+
+    def delete(self, device_path):
+        self.kwargs["logger"].info(self._prefix + "Deleting " + str(device_path))
