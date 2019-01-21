@@ -72,6 +72,19 @@ Program wrote by pubsub technology & consist three workers:
   * 3 - лог удален из source
   * 4 - лог выкачен не полностью
 
+* Параллельная работа с FTP
+* Проверка hash
+* Reverse direction
+* Надежность
+* Last seek
+* Progress bar (в буффер)
+
+Filename
+Down ↓ 1021444 / 2200000002 (70%) 1.4MB/s
+Up   ↑  900023 / 2200000002 (62%) 700KB/s
+
+Можно реализовать в методах _read() и _write(). Правда там был минус.
+
 ### Ошибки
 
 1. Вот так можно сломать:

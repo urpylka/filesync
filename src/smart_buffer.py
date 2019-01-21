@@ -49,6 +49,8 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
+    debug = 1
+
     down_speed = 0
     up_speed = 0
     down_percent = 0
@@ -58,31 +60,31 @@ class SmartBuffer(object):
     def measure_down_speed(self, delay):
         diff = 0
         while self.prog:
-            diff = self.already_wrote
+            diff = self.alr_wrote
             time.sleep(delay)
-            diff -= self.already_wrote
+            diff -= self.alr_wrote
             self.down_speed = -diff / delay
 
 
     def measure_up_speed(self, delay):
         diff = 0
         while self.prog:
-            diff = self.already_read
+            diff = self.alr_read
             time.sleep(delay)
-            diff -= self.already_read
+            diff -= self.alr_read
             self.up_speed = -diff / delay
 
 
     def show_progress(self, delay):
         while self.prog:
             # по хорошему нужно выводить имя файла
-            self.down_percent = int(self.already_wrote / self.file_size * 100)
-            self.up_percent = int(self.already_read / self.file_size * 100)
+            self.down_percent = int(self.alr_wrote / self.file_size * 100)
+            self.up_percent = int(self.alr_read / self.file_size * 100)
             #http://qaru.site/questions/28009/print-to-the-same-line-and-not-a-new-line-in-python
             print(
-                "DOWN [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.down_percent, self.already_wrote, self.file_size, int(self.down_speed/1000)) + \
+                "DOWN [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.down_percent, self.alr_wrote, self.file_size, int(self.down_speed/1000)) + \
                 " <=> " + \
-                "UP [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.up_percent, self.already_read, self.file_size, int(self.up_speed/1000))
+                "UP [{1:12}/{2:12}] {0:3}%  {3:8}KB/s".format(self.up_percent, self.alr_read, self.file_size, int(self.up_speed/1000))
                 , end='\r')
 
             time.sleep(delay)
@@ -123,23 +125,24 @@ class SmartBuffer(object):
 
         self.pos_r = 0
         self.pos_w = 0
-        self.pos_h = self.buf_size - 1
+        self.pos_h = self.buf_size -1
         if self.pos_h <= 0:
             raise Exception("pos_h incorrect: " + str(self.pos_h))
 
-        self.already_read = 0
-        self.already_wrote = 0
+        self.alr_read = 0
+        self.alr_wrote = 0
 
         self.stop_writer = False
 
         # self.measure_progress()
 
-        self.logger.debug(self._prefix + "===============================================")
-        self.logger.debug(self._prefix + "self.buf_size:\t" + str(self.buf_size))
-        self.logger.debug(self._prefix + "self.buf_type:\t" + str(self.buf_type))
-        self.logger.debug(self._prefix + "self.file_size:\t" + str(self.file_size))
-        self.logger.debug(self._prefix + "self.hist_size:\t" + str(self.hist_size))
         self.show_stat()
+
+
+    def _get_left(self):
+        left = self.alr_wrote - self.buf_size
+        if left < 0: left = 0
+        return left
 
 
     def _read(self, chunk_size):
@@ -154,16 +157,15 @@ class SmartBuffer(object):
         if self.pos_r == self.buf_size:
             self.pos_r = 0
 
-        self.already_read += chunk_size
+        self.alr_read += chunk_size
 
-        if self.already_read > self.file_size:
-            raise Exception("already_read:" + str(self.already_read) + " > file_size:" + str(self.file_size))
+        if self.alr_read > self.file_size:
+            raise Exception("alr_read:" + str(self.alr_read) + " > file_size:" + str(self.file_size))
 
         # смещение позиции незатираемой истории
-        left = self.already_wrote - self.buf_size
-        self.pos_h = max(left, self.already_read - self.hist_size) % self.buf_size
+        self.pos_h = max(self._get_left(), self.alr_read - self.hist_size, self.pos_h) % self.buf_size
 
-        self.show_stat()
+        if self.debug: self.show_stat()
 
         return buf
 
@@ -176,59 +178,12 @@ class SmartBuffer(object):
         self.pos_w += chunk_size
         if self.pos_w == self.buf_size:
             self.pos_w = 0
-        self.already_wrote += chunk_size
+        self.alr_wrote += chunk_size
 
-        self.show_stat()
-        # time.sleep(1)
+        if self.debug: self.show_stat()
 
-
-    # def read2(self, chunk_size):
-    #     """
-    #     available - то, что можно в одну строну прочитать методом _read()
-    #     """
-    #     if chunk_size < 0:
-    #         # В аналогичных функциях read chunk_size
-    #         # может равняться -1 тогда будет весь буффер
-    #         raise Exception("Размер чанка не может быть отрицательным")
-
-    #     with self.threads_lock:
-    #         self.logger.debug(self._prefix + "urpylka-r")
-    #         diff = self.pos_w - self.pos_r
-
-    #         # если pos_w >= pos_r
-    #         # AND chunk_size > 0,
-    #         # что, логично, то проверка
-    #         # diff >= 0 не нужна
-    #         if diff >= chunk_size:
-    #             # читаем целый чанк
-    #             return self._read(chunk_size)
-    #         else:
-    #             # если доступно меньше чанка
-    #             needs = 0
-    #             buf = b''
-
-    #             if diff > 0:
-    #                 # читаем до pos_w
-    #                 buf = self._read(diff)
-    #                 needs = chunk_size - diff
-
-    #             elif diff < 0:
-    #                 # читаем, что осталось на этой стороне
-    #                 available = self.buf_size - self.pos_r
-    #                 needs = chunk_size - available
-    #                 buf = self._read(available)
-
-    #             else:
-    #                 # diff == 0
-    #                 needs = chunk_size
-
-    #             # нужно чтобы в первый момент времени upload не упал,
-    #             # ну и вообще когда один догоняет другой,
-    #             # думаю по размеру файла проверять (блокировать или отдавать b'')
-    #             if self.already_read == self.file_size:
-    #                 return buf
-    #             else:
-    #                 return buf + self.read(needs)
+        if self.alr_read < self._get_left():
+            raise Exception("alr_read:" + str(self.alr_read) + " < _get_left:" + str(self._get_left()))
 
 
     def read(self, chunk_size):
@@ -243,13 +198,9 @@ class SmartBuffer(object):
             raise Exception("Size of the chunk must be positive")
 
         self.threads_lock.acquire()
-        self.logger.debug(self._prefix + "urpylka-r")
 
-        available = self.get_available_for_read()
-        av = self.file_size - self.already_read
-        self.logger.debug(self._prefix + str(available) + " " + str(av))
-        if available > av:
-            available = av
+        available = self.av_r()
+        self.logger.debug(self._prefix + "av_r: " + str(available))
 
         buf = b''
 
@@ -268,7 +219,7 @@ class SmartBuffer(object):
                 needs = chunk_size - available
 
                 # возможно нужно что-то более изящное
-                while self.get_available_for_read() < 1:
+                while self.av_r() < 1:
                     # time.sleep(8)
                     # self.logger.debug(self._prefix + "needs: " + str(needs))
                     pass
@@ -278,26 +229,40 @@ class SmartBuffer(object):
         return buf
 
 
-    def get_available_for_read(self):
+    def av_r(self):
         """
-        Just gave available bytes for read (to pos_w or buf_size).
-        Doesn't matter pos > file_size.
+        Available bytes for read (to pos_w or buf_size)
+        w check if pos > file_size.
         """
+        av = 0
         if self.pos_w >= self.pos_r:
-            return self.pos_w - self.pos_r
+            av = self.pos_w - self.pos_r
         else:
-            return self.buf_size - self.pos_r
+            av = self.buf_size - self.pos_r
+
+        av2 = self.file_size - self.alr_read
+        if av2 < 0: raise Exception("alr_read > file_size")
+
+        if av > av2: av = av2
+        return av
 
 
-    def get_available_for_write(self):
+    def av_w(self):
         """
-        Just gave available bytes for write (to pos_h or buf_size).
-        Doesn't matter pos > file_size.
+        Return available bytes for write (to pos_h or buf_size)
+        w check if pos > file_size.
         """
+        av = 0
         if self.pos_w > self.pos_h:
-            return self.buf_size - self.pos_w
+            av = self.buf_size - self.pos_w
         else:
-            return self.pos_h - self.pos_w
+            av = self.pos_h - self.pos_w
+        
+        av2 = self.file_size - self.alr_wrote
+        if av2 < 0: raise Exception("alr_wrote > file_size")
+
+        if av > av2: av = av2
+        return av
 
 
     # https://python-scripts.com/synchronization-between-threads
@@ -308,28 +273,32 @@ class SmartBuffer(object):
         self.threads_lock.acquire()
 
         # если пытаемся запихнуть больше чем размер файла
-        if chunk_size + self.already_wrote > self.file_size:
-            raise Exception("chunk_size:" + str(chunk_size) + " + already_wrote:" + str(self.already_wrote) + " > file_size:" + str(self.file_size))
+        # этому куску не откуда взяться, тк размер файла задан в буффере
+        # и если мы его превысили, значит мы где-то ошиблись индексом
+        if chunk_size + self.alr_wrote > self.file_size:
+            raise Exception("chunk_size:" + str(chunk_size) + " + alr_wrote:" + str(self.alr_wrote) + " > file_size:" + str(self.file_size))
 
-        available = self.get_available_for_write()
+        available = self.av_w()
+        self.logger.debug(self._prefix + "av_w: " + str(available))
 
         if available >= chunk_size:
             self.logger.debug(self._prefix + "urpylka-w1")
-            self.logger.debug(self._prefix + "av: " + str(available))
             self._write(chunk)
+
+            if self.stop_writer:
+                self.stop_writer = False
 
             self.threads_lock.release()
         else:
             if available > 0:
                 self.logger.debug(self._prefix + "urpylka-w2")
-                self.logger.debug(self._prefix + "av: " + str(available))
                 self._write(chunk[0:available])
 
             self.threads_lock.release()
 
-            while self.get_available_for_write() < 1:
+            while self.av_w() < 1:
                 if self.stop_writer:
-                    self.logger.debug(self._prefix + "Interrupting get_available_for_write()")
+                    self.logger.debug(self._prefix + "Interrupting av_w()")
                     break
                 else:
                     pass
@@ -339,60 +308,42 @@ class SmartBuffer(object):
                 raise Exception("Interrupting writer from seek()")
             else:
                 self.logger.debug(self._prefix + "urpylka-w3")
-                self.logger.debug(self._prefix + "av: " + str(available))
+
+                # здесь available уже другой (если не было прерывания,
+                # тк отпущена блокировка, точно больше нуля)
+                av = self.av_w()
+                self.logger.debug(self._prefix + "av_w: " + str(av))
+
                 self.write(chunk[available:chunk_size])
                 self.logger.debug(self._prefix + "urpylka-w4")
 
 
     def show_stat(self):
-        self.logger.debug(self._prefix + "===============================================")
-        self.logger.debug(self._prefix + "self.already_read:\t" + str(self.already_read))
-        self.logger.debug(self._prefix + "self.already_wrote:\t" + str(self.already_wrote))
-        self.logger.debug(self._prefix + "self.pos_r:\t" + str(self.pos_r))
-        self.logger.debug(self._prefix + "self.pos_w:\t" + str(self.pos_w))
-        self.logger.debug(self._prefix + "self.pos_h:\t" + str(self.pos_h))
-        self.logger.debug(self._prefix + "===============================================")
-
-
-    def __del__(self):
-        # save to flash
-        self.buffer.close()
-        self.prog = 0
-
-
-    # def ram_to_flash(self, local_path):
-    #     """
-    #     Должен использовать в случае исключений при прерывании
-    #     Или при переходе на хранения всего файла во Flash
-
-    #     Нужен метод для сохранения в файл local
-    #     Этот метод должен вызваться в самом начале исполнения uploader,
-    #     чтобы буффер не успел ничем затереться
-    #     """
-    #     pass
-
-
-    # def maximize_buffer(self):
-    #     """
-    #     Может работать только, если считано строго меньше размера буффера
-    #     в обратном случае исключение
-    #     """
-    #     pass
-
-
-    # def rename_file_buffer(self, local_path):
-    #     pass
+        self.logger.info(self._prefix + "===============================================")
+        self.logger.info(self._prefix + "buf_type:\t{0:11}".format(self.buf_type))
+        self.logger.info(self._prefix + "buf_size:\t{0:11}".format(self.buf_size))
+        self.logger.info(self._prefix + "file_size:\t{0:11}".format(self.file_size))
+        self.logger.info(self._prefix + "left:\t{0:11}".format(self._get_left()))
+        self.logger.info(self._prefix + "alr_wrote:\t{0:11}".format(self.alr_wrote))
+        self.logger.info(self._prefix + "alr_read:\t{0:11}".format(self.alr_read))
+        self.logger.info(self._prefix + "hist_size:\t{0:11}".format(self.hist_size))
+        self.logger.info(self._prefix + "pos_r:\t{0:11}".format(self.pos_r))
+        self.logger.info(self._prefix + "pos_w:\t{0:11}".format(self.pos_w))
+        self.logger.info(self._prefix + "pos_h:\t{0:11}".format(self.pos_h))
+        self.logger.info(self._prefix + "av_write:\t{0:11}".format(self.av_w()))
+        self.logger.info(self._prefix + "av_read:\t{0:11}".format(self.av_r()))
+        self.logger.info(self._prefix + "===============================================")
 
 
     def is_read_all(self):
-        if self.file_size == self.already_read:
+        if self.file_size == self.alr_read:
             return True
         else:
             return False
 
 
     def is_wrote_all(self):
-        if self.file_size == self.already_wrote:
+        if self.file_size == self.alr_wrote:
             return True
         else:
             return False
@@ -460,68 +411,66 @@ class SmartBuffer(object):
         + справа и + слева, то смещаем pos_r и pos_h,
         иначе raise CriticalException
         """
+        self.logger.info(self._prefix + "seek() to:\t" + str(offset))
+
         if whence != 0:
             raise NotImplementedError("seek() doesn't support relative offset")
 
         if offset > self.file_size:
-            raise Exception("offset > file_size")
+            raise AttributeError("Data couldn't be reached: offset > file_size")
+            # работаем только,
+            # если self.file_size >= offset
         
         if offset < 0:
             raise Exception("offset < 0")
 
         with self.threads_lock:
 
-            if self.file_size >= offset:
-                
-                left = self.already_wrote - self.buf_size
+            self.logger.info(self._prefix + "before")
 
-                if  offset > self.already_wrote or left > offset:
-                    #raise EOFError("The data isn't wrote yet")
+            self.logger.info(self._prefix + "alr_read:\t{0}".format(self.alr_read))
+            self.logger.info(self._prefix + "alr_wrote:\t{0}".format(self.alr_wrote))
 
-                    # тут есть момент что мы можем подождать,
-                    # пока writer допишет нужную нам инфу
-
-                    # если позиция вышла за буффер,
-                    # то обнуляем буффер
-                    # и начинаем загружать с оффсета,
-                    # который нужен для target
-                    self.stop_writer = True
-
-                    self.pos_r = 0
-                    self.pos_w = 0
-                    self.pos_h = self.buf_size - 1
-
-                    if self.pos_h <= 0:
-                        raise Exception("pos_h incorrect: " + str(self.pos_h))
-
-                    self.already_read = offset
-                    self.already_wrote = offset
-                else:
-                    # если здесь не добавить
-                    # self.stop_writer = True есть вероятность,
-                    # что рекурсивная часть writer после
-                    # исполнения _seek() что-то не так поймет
-
-                    self.already_read = offset
-                    self.pos_r = self.already_read % self.buf_size
-
-                    # смещение позиции незатираемой истории
-                    self.pos_h = max(left, self.already_read - self.hist_size) % self.buf_size
-            else:
-                raise AttributeError("Data couldn't be reached")
-
+            left = self._get_left()
 
             # if offset < left:
             #     #raise BufferError("The data is already rewrite")
 
-            #     # если позиция вышла за буффер,
-            #     # то обнуляем буффер
-            #     # и начинаем загружать с оффсета,
-            #     # который нужен для target
-            #     self._start_write_w(offset)
-            # else:
-            #     self._seek(offset)
+            if  offset > self.alr_wrote or left > offset:
+                #raise EOFError("The data isn't wrote yet")
 
+                # тут есть момент что мы можем подождать,
+                # пока writer допишет нужную нам инфу
+
+                # если позиция вышла за буффер,
+                # то обнуляем буффер
+                # и начинаем загружать с оффсета,
+                # который нужен для target
+                self.stop_writer = True
+
+                self.pos_r = 0
+                self.pos_w = 0
+                self.pos_h = self.buf_size - 1
+
+                if self.pos_h <= 0:
+                    raise Exception("pos_h incorrect: " + str(self.pos_h))
+
+                self.alr_read = offset
+                self.alr_wrote = offset
+            else:
+                # если здесь не добавить
+                # self.stop_writer = True есть вероятность,
+                # что рекурсивная часть writer после
+                # исполнения _seek() что-то не так поймет
+
+                self.alr_read = offset
+                self.pos_r = self.alr_read % self.buf_size
+
+                # смещение позиции незатираемой истории
+                self.pos_h = max(left, self.alr_read - self.hist_size, self.pos_h) % self.buf_size
+
+
+            self.logger.info(self._prefix + "after")
             self.show_stat()
 
 
@@ -529,7 +478,7 @@ class SmartBuffer(object):
         """
         Only for write side!
         """
-        return self.already_wrote
+        return self.alr_wrote
 
 
     def truncate(self):
@@ -545,12 +494,42 @@ class SmartBuffer(object):
 
     def writable(self):
         return True
+
+
+    def __del__(self):
+        # save to flash
+        self.buffer.close()
+        self.prog = 0
+
+
+    # def ram_to_flash(self, local_path):
+    #     """
+    #     Должен использовать в случае исключений при прерывании
+    #     Или при переходе на хранения всего файла во Flash
+
+    #     Нужен метод для сохранения в файл local
+    #     Этот метод должен вызваться в самом начале исполнения uploader,
+    #     чтобы буффер не успел ничем затереться
+    #     """
+    #     pass
+
+
+    # def maximize_buffer(self):
+    #     """
+    #     Может работать только, если считано строго меньше размера буффера
+    #     в обратном случае исключение
+    #     """
+    #     pass
+
+
+    # def rename_file_buffer(self, local_path):
+    #     pass
     
 
     # def _in_buffer(self, abs_pos):
 
-    #     # if self.already_wrote >= pos:
-    #     #     if pos >= self.already_wrote - self.buf_size:
+    #     # if self.alr_wrote >= pos:
+    #     #     if pos >= self.alr_wrote - self.buf_size:
     #     #         # все чотко - продолжаем
     #     #         pass
     #     #     else:
@@ -560,7 +539,55 @@ class SmartBuffer(object):
     #     #     # нужно дозагрузить в буффер столько сколько нужно
     #     #     pass
 
-    #     if self.already_wrote - self.buf_size <= abs_pos <= self.already_wrote:
+    #     if self.alr_wrote - self.buf_size <= abs_pos <= self.alr_wrote:
     #         return 1
     #     else:
     #         return 0
+
+    # def read2(self, chunk_size):
+    #     """
+    #     available - то, что можно в одну строну прочитать методом _read()
+    #     """
+    #     if chunk_size < 0:
+    #         # В аналогичных функциях read chunk_size
+    #         # может равняться -1 тогда будет весь буффер
+    #         raise Exception("Размер чанка не может быть отрицательным")
+
+    #     with self.threads_lock:
+    #         self.logger.debug(self._prefix + "urpylka-r")
+    #         diff = self.pos_w - self.pos_r
+
+    #         # если pos_w >= pos_r
+    #         # AND chunk_size > 0,
+    #         # что, логично, то проверка
+    #         # diff >= 0 не нужна
+    #         if diff >= chunk_size:
+    #             # читаем целый чанк
+    #             return self._read(chunk_size)
+    #         else:
+    #             # если доступно меньше чанка
+    #             needs = 0
+    #             buf = b''
+
+    #             if diff > 0:
+    #                 # читаем до pos_w
+    #                 buf = self._read(diff)
+    #                 needs = chunk_size - diff
+
+    #             elif diff < 0:
+    #                 # читаем, что осталось на этой стороне
+    #                 available = self.buf_size - self.pos_r
+    #                 needs = chunk_size - available
+    #                 buf = self._read(available)
+
+    #             else:
+    #                 # diff == 0
+    #                 needs = chunk_size
+
+    #             # нужно чтобы в первый момент времени upload не упал,
+    #             # ну и вообще когда один догоняет другой,
+    #             # думаю по размеру файла проверять (блокировать или отдавать b'')
+    #             if self.alr_read == self.file_size:
+    #                 return buf
+    #             else:
+    #                 return buf + self.read(needs)

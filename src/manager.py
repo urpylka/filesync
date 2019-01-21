@@ -111,7 +111,7 @@ def worker(number, args):
 
                         d.join()
                         logger.debug("Worker-" + str(number) + ": downloader")
-                        if buffer_stream.already_wrote == buffer_stream.file_size:
+                        if buffer_stream.is_wrote_all():
                             record["downloaded"] = True
                             # record["local_path"] = local_path
                             logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
@@ -119,7 +119,7 @@ def worker(number, args):
 
                     u.join()
                     logger.debug("Worker-" + str(number) + ": uploader")
-                    if buffer_stream.already_read == buffer_stream.file_size:
+                    if buffer_stream.is_read_all():
                         record["uploaded"] = True
                         logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
 
@@ -231,17 +231,19 @@ def create_threads(count, function, *args):
 
 def main():
     logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "DEBUG")
+    logger_silent = get_logger("filesync2", "/home/pi/filesync/flir/filesync2.log", "INFO")
+
     logger.info("filesync v0.2")
 
     # скрипка 0313-D11F # flirduo 66F8-E5D9
 
-    source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger)
-    target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger)
+    source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
+    target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
 
     # target = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger)
     # source = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger)
 
-    db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger)
+    db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger_silent)
 
     dq = Queue()
     uq = Queue()

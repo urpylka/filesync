@@ -257,7 +257,7 @@ class FTP(Device):
                     self._ftp.cwd(os.path.dirname(device_path))
 
                     already_sent = target_stream.tell() #  already upload wo errors
-                    self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
+                    self.kwargs["logger"].info(self._prefix + "Resume w " + str(already_sent))
 
                     res = self._ftp.retrbinary("RETR " + device_path, target_stream.write, blocksize=chunk_size, rest=already_sent)
                     if not res.startswith("200 I successfully done nothin"):
