@@ -271,6 +271,26 @@ class FTP(Device):
                     time.sleep(1)
 
 
+    def rename(self, old_path, new_path):
+
+        with self._internal_lock:
+            self.is_remote_available.wait()
+            self.kwargs["logger"].debug(self._prefix + "Renaming " + str(old_path) + " to "+ str(new_path))
+            while 1:
+                self.is_remote_available.wait()
+                try:
+                    # без этого будет работать?
+                    self._ftp.cwd(os.path.dirname(old_path))
+
+                    self._ftp.rename(old_path, new_path)
+
+                    break
+
+                except Exception as ex:
+                    self.kwargs["logger"].error(self._prefix + "Renaming was interrupted: " + str(ex))
+                    time.sleep(1)
+
+
     def get_list(self):
         """
         Get list of files
