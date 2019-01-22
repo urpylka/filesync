@@ -295,4 +295,20 @@ class FTP(Device):
 
 
     def delete(self, device_path):
-        self.kwargs["logger"].info(self._prefix + "Deleting " + str(device_path))
+
+        with self._internal_lock:
+            self.is_remote_available.wait()
+            self.kwargs["logger"].info(self._prefix + "Deleting " + str(device_path))
+            while 1:
+                self.is_remote_available.wait()
+                try:
+                    # без этого будет работать?
+                    self._ftp.cwd(os.path.dirname(device_path))
+
+                    self._ftp.delete(device_path)
+
+                    break
+
+                except Exception as ex:
+                    self.kwargs["logger"].error(self._prefix + "Deleting was interrupted: " + str(ex))
+                    time.sleep(1)
