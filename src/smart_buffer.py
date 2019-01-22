@@ -307,8 +307,9 @@ class SmartBuffer(object):
         # если пытаемся запихнуть больше чем размер файла
         # этому куску не откуда взяться, тк размер файла задан в буффере
         # и если мы его превысили, значит мы где-то ошиблись индексом
+        # Нужно начинать сначала
         if chunk_size + self.alr_wrote > self.file_size:
-            raise Exception("chunk_size:" + str(chunk_size) + " + alr_wrote:" + str(self.alr_wrote) + " > file_size:" + str(self.file_size))
+            raise BufferError("chunk_size:" + str(chunk_size) + " + alr_wrote:" + str(self.alr_wrote) + " > file_size:" + str(self.file_size))
 
         available = self.av_w()
         self.can_write = False

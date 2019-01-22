@@ -116,7 +116,6 @@ def worker(number, args):
                             # record["local_path"] = local_path
                             logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
 
-
                     u.join()
                     logger.debug("Worker-" + str(number) + ": uploader")
                     if buffer_stream.is_read_all():
@@ -245,16 +244,20 @@ def main():
 
     db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger_silent)
 
-    dq = Queue()
-    uq = Queue()
-    for record in db:
-        if not record['downloaded']: dq.put(record)
-        elif not record['uploaded']: uq.put(record)
+    # dq = Queue()
+    # uq = Queue()
+    # for record in db:
+    #     if not record['downloaded']: dq.put(record)
+    #     elif not record['uploaded']: uq.put(record)
 
-    create_threads(1, finder, db, source, 10, dq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"], logger)
+    wq = Queue()
+    for record in db:
+        if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+
+    create_threads(1, finder, db, source, 10, wq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"], logger)
     # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     # create_threads(1, uploader, target, uq, logger)
-    create_threads(1, worker, target, source, dq, logger)
+    create_threads(1, worker, target, source, wq, logger)
 
     try:
         while True:
