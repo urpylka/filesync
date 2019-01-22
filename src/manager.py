@@ -82,6 +82,7 @@ def worker(number, args):
 
         # local_path = record['local_path']
         target_path = '/' + os.path.basename(local_path)
+        temp_target_path = target_path + ".part"
 
         logger.debug("Worker-" + str(number) + ": source_path " + source_path + " local_path " + local_path)
 
@@ -103,7 +104,7 @@ def worker(number, args):
                 logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker. Iteration: " + str(iter))
 
                 if not record["uploaded"]:
-                    u = in_thread(target.upload, buffer_stream, target_path, 400000)        # сосёт
+                    u = in_thread(target.upload, buffer_stream, temp_target_path, 400000)        # сосёт
 
                     if not record["downloaded"] or not buffer_stream.is_wrote_all():
                     # может вообще убрать эту проверку
@@ -124,6 +125,7 @@ def worker(number, args):
 
 
                 if record["downloaded"] and record["uploaded"]:
+                    target.rename(temp_target_path, target_path)
                     source.delete(record["source_path"])
                     record["dropped"] = True
                     logger.info("Worker-" + str(number) + ": " + str(source_path) + " was deleted")
