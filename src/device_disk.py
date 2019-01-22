@@ -179,14 +179,15 @@ class DISK(Device):
 
 
     def delete(self, device_path):
+        self.is_remote_available.wait()
         self.kwargs["logger"].info(self._prefix + "Deleting " + str(device_path))
 
-        # try:
-        #     if os.path.isfile(device_path):
-        #         os.remove(device_path)
-        #     else:
-        #         raise Exception("File doesn't exist")
-        # except OSError as e:  ## if failed, report it back to the user ##
-        #     self.kwargs["logger"].error("TARGET: %s - %s." % (e.filename, e.strerror))
-        # except Exception as ex:  ## if failed, report it back to the user ##
-        #     self.kwargs["logger"].error("TARGET: " + str(ex))
+        try:
+            if os.path.isfile(self.kwargs["mount_point"] + device_path):
+                os.remove(self.kwargs["mount_point"] + device_path)
+            else:
+                raise Exception("File doesn't exist")
+        except OSError as e:  ## if failed, report it back to the user ##
+            self.kwargs["logger"].error("TARGET: %s - %s." % (e.filename, e.strerror))
+        except Exception as ex:  ## if failed, report it back to the user ##
+            self.kwargs["logger"].error("TARGET: " + str(ex))
