@@ -191,3 +191,18 @@ class DISK(Device):
             self.kwargs["logger"].error("TARGET: %s - %s." % (e.filename, e.strerror))
         except Exception as ex:  ## if failed, report it back to the user ##
             self.kwargs["logger"].error("TARGET: " + str(ex))
+
+
+    def rename(self, old_name, new_name):
+        self.is_remote_available.wait()
+        self.kwargs["logger"].info(self._prefix + "Renaming " + str(old_name))
+
+        try:
+            if os.path.isfile(self.kwargs["mount_point"] + old_name):
+                os.rename(self.kwargs["mount_point"] + old_name, self.kwargs["mount_point"] + new_name)
+            else:
+                raise Exception("File doesn't exist")
+        except OSError as e:  ## if failed, report it back to the user ##
+            self.kwargs["logger"].error("TARGET: %s - %s." % (e.filename, e.strerror))
+        except Exception as ex:  ## if failed, report it back to the user ##
+            self.kwargs["logger"].error("TARGET: " + str(ex))
