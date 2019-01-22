@@ -49,7 +49,7 @@ class SmartBuffer(object):
 
     threads_lock = Lock()
 
-    debug = 1
+    debug = 0
 
     down_speed = 0
     up_speed = 0
@@ -138,7 +138,7 @@ class SmartBuffer(object):
         self.can_read = False
         self.can_write = True
 
-        # self.measure_progress()
+        self.measure_progress()
 
         self.show_stat()
 

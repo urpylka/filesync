@@ -241,8 +241,8 @@ def main():
     source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
     target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
 
-    # target = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger)
-    # source = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger)
+    # target = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
+    # source = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
 
     db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger_silent)
 
@@ -259,7 +259,7 @@ def main():
     create_threads(1, finder, db, source, 10, wq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"], logger)
     # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
     # create_threads(1, uploader, target, uq, logger)
-    create_threads(1, worker, target, source, wq, logger)
+    create_threads(1, worker, target, source, wq, logger_silent)
 
     try:
         while True:
