@@ -125,14 +125,18 @@ class SmartBuffer(object):
 
         self.pos_r = 0
         self.pos_w = 0
-        self.pos_h = self.buf_size -1
+        self.pos_h = self.buf_size - 1
         if self.pos_h <= 0:
             raise Exception("pos_h incorrect: " + str(self.pos_h))
 
         self.alr_read = 0
         self.alr_wrote = 0
 
+        self.offset = 0 # нужно для смещения left
+
         self.stop_writer = False
+        self.can_read = False
+        self.can_write = True
 
         # self.measure_progress()
 
@@ -141,7 +145,9 @@ class SmartBuffer(object):
 
     def _get_left(self):
         left = self.alr_wrote - self.buf_size
-        if left < 0: left = 0
+        # if left < 0: left = 0
+        # не нужно тк offset начинается с 0
+        if left < self.offset: left = self.offset
         return left
 
 
@@ -163,7 +169,7 @@ class SmartBuffer(object):
             raise Exception("alr_read:" + str(self.alr_read) + " > file_size:" + str(self.file_size))
 
         # смещение позиции незатираемой истории
-        self.pos_h = max(self._get_left(), self.alr_read - self.hist_size, self.pos_h) % self.buf_size
+        self.pos_h = max(self._get_left(), self.alr_read - self.hist_size) % self.buf_size
 
         if self.debug: self.show_stat()
 
@@ -200,6 +206,7 @@ class SmartBuffer(object):
         self.threads_lock.acquire()
 
         available = self.av_r()
+        self.can_read = False
         self.logger.debug(self._prefix + "av_r: " + str(available))
 
         buf = b''
@@ -235,10 +242,25 @@ class SmartBuffer(object):
         w check if pos > file_size.
         """
         av = 0
-        if self.pos_w >= self.pos_r:
-            av = self.pos_w - self.pos_r
-        else:
+
+        # if self.pos_w >= self.pos_r:
+        #     av = self.pos_w - self.pos_r
+        # else:
+        #     av = self.buf_size - self.pos_r
+
+        # can_read => pos_w == pos_r
+        if self.pos_w < self.pos_r or self.can_read:
             av = self.buf_size - self.pos_r
+        else:
+            av = self.pos_w - self.pos_r
+
+        # # Проблема с блокировкой после seek(), 
+        # # когда позиция pos_r становится <= por_w
+        # if av == 0 and self.can_read:
+        #     av = self.buf_size - self.pos_r
+        #     # chunk must be < buf_size (иначе уйдем за 50.000.000 при pos_r = 0)
+
+        # self.can_read = False
 
         av2 = self.file_size - self.alr_read
         if av2 < 0: raise Exception("alr_read > file_size")
@@ -253,11 +275,21 @@ class SmartBuffer(object):
         w check if pos > file_size.
         """
         av = 0
-        if self.pos_w > self.pos_h:
+        # if self.pos_w > self.pos_h:
+
+        # can_write => pos_w == pos_h
+        if self.pos_w > self.pos_h or self.can_write:
             av = self.buf_size - self.pos_w
         else:
             av = self.pos_h - self.pos_w
-        
+
+        # # Решение проблемы со сбросом сначала
+        # if av == 0 and self.can_write:
+        #     av = self.buf_size - self.pos_w
+        #     # chunk must be < buf_size (иначе уйдем за 50.000.000 при pos_w = 0)
+
+        # self.can_write = False
+
         av2 = self.file_size - self.alr_wrote
         if av2 < 0: raise Exception("alr_wrote > file_size")
 
@@ -279,6 +311,7 @@ class SmartBuffer(object):
             raise Exception("chunk_size:" + str(chunk_size) + " + alr_wrote:" + str(self.alr_wrote) + " > file_size:" + str(self.file_size))
 
         available = self.av_w()
+        self.can_write = False
         self.logger.debug(self._prefix + "av_w: " + str(available))
 
         if available >= chunk_size:
@@ -425,52 +458,40 @@ class SmartBuffer(object):
             raise Exception("offset < 0")
 
         with self.threads_lock:
+            # предлагаю остановить writer в любом случае сразу,
+            # потому что есть av_w() исполняется без блокировки неправильно
+            self.stop_writer = True
 
-            self.logger.info(self._prefix + "before")
-
-            self.logger.info(self._prefix + "alr_read:\t{0}".format(self.alr_read))
-            self.logger.info(self._prefix + "alr_wrote:\t{0}".format(self.alr_wrote))
+            self.alr_read = offset
+            self.pos_r = self.alr_read % self.buf_size
 
             left = self._get_left()
 
-            # if offset < left:
-            #     #raise BufferError("The data is already rewrite")
-
-            if  offset > self.alr_wrote or left > offset:
-                #raise EOFError("The data isn't wrote yet")
-
-                # тут есть момент что мы можем подождать,
-                # пока writer допишет нужную нам инфу
-
-                # если позиция вышла за буффер,
-                # то обнуляем буффер
-                # и начинаем загружать с оффсета,
-                # который нужен для target
-                self.stop_writer = True
-
-                self.pos_r = 0
-                self.pos_w = 0
-                self.pos_h = self.buf_size - 1
-
-                if self.pos_h <= 0:
-                    raise Exception("pos_h incorrect: " + str(self.pos_h))
-
-                self.alr_read = offset
-                self.alr_wrote = offset
-            else:
-                # если здесь не добавить
-                # self.stop_writer = True есть вероятность,
-                # что рекурсивная часть writer после
-                # исполнения _seek() что-то не так поймет
-
-                self.alr_read = offset
-                self.pos_r = self.alr_read % self.buf_size
+            if  left <= offset <= self.alr_wrote:
+                # Если мы не вышли за пределы буффера
 
                 # смещение позиции незатираемой истории
-                self.pos_h = max(left, self.alr_read - self.hist_size, self.pos_h) % self.buf_size
+                self.pos_h = max(left, self.alr_read - self.hist_size) % self.buf_size
 
+                # if offset == left => pos_r = pos_w => блокировка reader
+                if self.pos_r == self.pos_w:
+                    self.can_read = True
 
-            self.logger.info(self._prefix + "after")
+            else:
+                #raise BufferError("The data is already rewrite")
+                #raise EOFError("The data isn't wrote yet") # writer может дописать данные
+
+                self.offset = offset # нужно для смещения left
+
+                self.alr_wrote = offset
+                self.pos_w = self.alr_wrote % self.buf_size
+
+                # смещение позиции незатираемой истории
+                self.pos_h = self.pos_w
+
+                # offset = left = alr_w = alr_r => pos_w = pos_h => возникает блокировка
+                self.can_write = True
+
             self.show_stat()
 
 

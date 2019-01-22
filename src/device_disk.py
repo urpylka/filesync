@@ -59,6 +59,7 @@ class DISK(Device):
     def __del__(self):
         a0, b0, c0 = bash_command("/bin/umount " + self.kwargs["mount_point"], self.kwargs["logger"])
 
+
     def get_list(self):
         """
         Get list of files
