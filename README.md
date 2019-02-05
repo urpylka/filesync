@@ -7,6 +7,26 @@ This software allow to sync a group of files between devices w difficult access:
 * website (POST requests, developed for logs.px4.io)
 * FTP server
 
+## Start FTP server & filesync manager
+
+For start ftp-server use:
+
+```bash
+git clone https://github.com/urpylka/filesync
+cd filesync
+mkdir ftpdir
+sudo ./src/ftp_server.py
+```
+
+For start filesync manager use:
+
+```bash
+git clone https://github.com/urpylka/filesync
+cd filesync
+mkdir flir
+sudo ./src/manager.py
+```
+
 ## Logic model
 
 ### Model of devices
