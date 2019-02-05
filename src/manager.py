@@ -231,8 +231,8 @@ def create_threads(count, function, *args):
 
 
 def main():
-    logger = get_logger("filesync", "/home/pi/filesync/flir/filesync.log", "DEBUG")
-    logger_silent = get_logger("filesync2", "/home/pi/filesync/flir/filesync2.log", "INFO")
+    logger = get_logger("filesync", "./temp/filesync.log", "DEBUG")
+    logger_silent = get_logger("filesync2", "./temp/filesync2.log", "INFO")
 
     logger.info("filesync v0.2")
 
@@ -244,7 +244,7 @@ def main():
     # target = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
     # source = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
 
-    db = JsonArray("/home/pi/filesync/flir/db.json", 5, logger_silent)
+    db = JsonArray("./temp/db.json", 5, logger_silent)
 
     # dq = Queue()
     # uq = Queue()

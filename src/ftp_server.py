@@ -12,7 +12,7 @@ def main():
     """
     FTP_USER="test-1"
     FTP_PASS="passwd"
-    FTP_ROOT="ftpdir"
+    FTP_ROOT="temp"
     FTP_PORT="21"
     """
     # Instantiate a dummy authorizer for managing 'virtual' users
@@ -23,7 +23,7 @@ def main():
     # authorizer.add_user(environ['FTP_USER'],
     #                     environ['FTP_PASS'],
     #                     environ['FTP_ROOT'], perm='elradfmwM')
-    authorizer.add_user("test-1", "passwd", "ftpdir", perm='elradfmwM')
+    authorizer.add_user("test-1", "passwd", "temp", perm='elradfmwM')
 
     # Instantiate FTP handler class
     handler = FTPHandler

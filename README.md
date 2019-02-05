@@ -14,7 +14,7 @@ For start ftp-server use:
 ```bash
 git clone https://github.com/urpylka/filesync
 cd filesync
-mkdir ftpdir
+mkdir temp
 sudo ./src/ftp_server.py
 ```
 
@@ -23,7 +23,7 @@ For start filesync manager use:
 ```bash
 git clone https://github.com/urpylka/filesync
 cd filesync
-mkdir flir
+mkdir temp
 sudo ./src/manager.py
 ```
 

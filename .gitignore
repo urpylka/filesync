@@ -1,6 +1,5 @@
 *.pyc
 *.pyo
 .DS_Store
-flir/*
-ftpdir/*
+temp/*
 .vscode
