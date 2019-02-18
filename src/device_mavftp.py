@@ -87,73 +87,66 @@ class ProgressBar:
 
 class MAVFTP(Device):
 
-    ftp_list = rospy.ServiceProxy('/mavros/ftp/list', FileList)
-    mavftp_lock = Lock()
-
-    def __init__(self, *args):
-        self.logdir = args
-
-        t = Thread(target=self._px4_available, args=())
-        t.daemon = True
-        t.start()
-
+    _mavftp_lock = Lock()
 
     def _connect(self):
-        rospy.loginfo('Inited px4logs_manager')
+        self.is_remote_available.clear()
+        self._prefix = "MAVFTP: "
+        rospy.loginfo('Init px4logs_manager')
         rospy.init_node("mavftp", anonymous=True)
+        self.ftp_list = rospy.ServiceProxy("/mavros/ftp/list", FileList)
+
         # mavros.set_namespace("/mavros")
         rospy.spin()
 
-
-    def download(self, remote_path, local_path):
+    def download(self, device_path, target_stream, chunk_size=1024, offset=0):
         """
         кароче качать можно и нужно вообще побайтно (в принципе как я понял можно уже в полете),
         но туповато это самому реализовывать поэтому возьму это из mavftp
         """
 
-        with mavftp_lock:
+        with self._mavftp_lock:
 
-            verbose = True
+            # verbose = True
             verify = True
 
             # optimized transfer size for FTP message payload
             # XXX: bug in ftp.cpp cause a doubling request of last package.
             # -1 fixes that.
-            FTP_CHUNK = 239 * 18 - 1
+            # FTP_CHUNK = 239 * 18 - 1
             # Change of chunk size doesn't most affect to download speed ~36Kb
 
             mavros.set_namespace("/mavros")
 
             local_crc = 0
-            local_file = open(file_name, 'wb')
+            # local_file = open(file_name, 'wb')
 
-            print_if(verbose, "Downloading from", file_path, "to", file_name)
+            self.kwargs["logger"].info(self._prefix + "Downloading from", device_path, "to", file_name)
             # https://stackoverflow.com/questions/7447284/how-to-troubleshoot-an-attributeerror-exit-in-multiproccesing-in-python
 
             try:
                 # /opt/ros/kinetic/lib/python2.7/dist-packages/mavros/ftp.py
-                with mavros.ftp.open(file_path, 'r') as remote_file:
+                with mavros.ftp.open(device_path, 'r') as remote_file:
 
                     if remote_file.size == 0:
                         raise Exception("File size = 0!")
 
-                    bar = ProgressBar(no_progressbar, "Downloading: ", remote_file.size)
+                    # bar = ProgressBar(no_progressbar, "Downloading: ", remote_file.size)
 
                     while True:
 
-                        buf = remote_file.read(FTP_CHUNK)
-                        if len(buf) == 0:
-                            break
+                        buf = remote_file.read(chunk_size)
+                        if len(buf) == 0: break
 
                         local_crc = mavros.nuttx_crc32(buf, local_crc)
 
-                        local_file.write(buf)
+                        target_stream.write(buf)
 
-                        bar.update(remote_file.tell())
+                        # bar.update(remote_file.tell())
 
                         if verify:
-                            print_if(verbose, "Verifying...")
-                            remote_crc = mavros.ftp.checksum(file_path)
+                            self.kwargs["logger"].info(self._prefix + "Verifying...")
+                            remote_crc = mavros.ftp.checksum(device_path)
                             if local_crc != remote_crc:
                                 raise Exception("Verification failed: 0x{local_crc:08x} != 0x{remote_crc:08x}".format(**locals()))
 
@@ -189,51 +182,54 @@ class MAVFTP(Device):
             except Exception as ex:
                 mavros.ftp.reset_server()
                 raise Exception("Download error: " + str(ex))
-            finally:
-                local_file.close()
+            # finally:
+            #     local_file.close()
 
-            return remote_file.size
+            # return remote_file.size
 
 
-def get_list(self):
-    root_path = "/fs/microsd/log"
-    array = []
-    while True:
-        try:
-            with mavftp_lock:
+    def get_list(self):
+        """
+        {"path":"", "size":"", "hash":""}
+        """
+        root_path = "/fs/microsd/log"
+        array = []
+        while True:
+            try:
+                with self._mavftp_lock:
 
-                logs_folder = self.ftp_list(root_path)
-                if not logs_folder.success or logs_folder.r_errno != 0:
-                    raise Exception("Import log folder error in " + root_path)
-                else:
-                    # проход по корневой папке /fs/microsd/log
-                    for logs_folder_list in logs_folder.list:
+                    logs_folder = self.ftp_list(root_path)
+                    if not logs_folder.success or logs_folder.r_errno != 0:
+                        raise Exception("Import log folder error in " + root_path)
+                    else:
+                        # проход по корневой папке /fs/microsd/log
+                        for logs_folder_list in logs_folder.list:
 
-                        # если type равен 0, значит это файл, если 1, то это папка
-                        # тк пикс не создает супервложенных директорий для логов,
-                        # можно обойтись без рекурсивного перехода между папками
-                        if logs_folder_list.type == 1:
+                            # если type равен 0, значит это файл, если 1, то это папка
+                            # тк пикс не создает супервложенных директорий для логов,
+                            # можно обойтись без рекурсивного перехода между папками
+                            if logs_folder_list.type == 1:
 
-                            path_session_logs_folder = root_path + '/' + logs_folder_list.name
+                                path_session_logs_folder = root_path + '/' + logs_folder_list.name
 
-                            # проход по папкам с файлами логов
-                            session_logs_folder = self.ftp_list(path_session_logs_folder)
+                                # проход по папкам с файлами логов
+                                session_logs_folder = self.ftp_list(path_session_logs_folder)
 
-                            if not session_logs_folder.success or session_logs_folder.r_errno != 0:
-                                raise Exception("Import log folder error in " + path_session_logs_folder)
-                            else:
-                                for log in session_logs_folder.list:
+                                if not session_logs_folder.success or session_logs_folder.r_errno != 0:
+                                    raise Exception("Import log folder error in " + path_session_logs_folder)
+                                else:
+                                    for log in session_logs_folder.list:
 
-                                    # если найден файл лога
-                                    if log.type == 0:
-                                        array.append(path_session_logs_folder + "/" + log.name)
+                                        # если найден файл лога
+                                        if log.type == 0:
+                                            array.append({path_session_logs_folder + "/" + log.name, 0, 0})
 
-        except Exception as ex:
-            raise Exception("Finder error: " + str(ex))
-        return array
+            except Exception as ex:
+                raise Exception("Error: " + str(ex))
+            return array
 
 def main():
-
+    pass
     # /mavros/ftp/checksum
     # /mavros/ftp/close
     # /mavros/ftp/list
@@ -254,5 +250,5 @@ def main():
     # r_errno: 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
