@@ -1,7 +1,8 @@
 {
-    "_comment": "worker - это downloader соединенный с uploader через pipe",
     "workers": [
         {
+            "disable": false,
+            "name": "worker_1",
             "source": {
                 "module_path": "device_disk",
                 "device_class": "DISK",
@@ -23,9 +24,8 @@
             },
             "count": 5,
             "logger": {
-                "name": "filesync",
-                "log_path": "./temp/filesync.log",
-                "log_level": "DEBUG",
+                "log_path": "./temp/worker_1-filesync.log",
+                "log_level": "INFO",
                 "dontused----default_record": {
                     "source_path": "",
                     "downloaded": false,
@@ -36,7 +36,7 @@
                 "dontused----key": "source_path"
             },
             "db": {
-                "db_path": "./temp/db.json",
+                "db_path": "./temp/worker_1-db.json",
                 "autosave_interval": 5
             },
             "finder": {
@@ -44,29 +44,31 @@
                 "finder_interval": 10,
                 "extensions": ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"]
             }
-        }
-    ],
-    "deprecated": {
-        "source": {
-            "device_class": "LOCAL",
-            "args": {
-                "dir": "/home/pi/worker1"
-            }
         },
-        "rules": {},
-        "target": {
-            "device_class": "POST",
-            "args": {
-                "uploader_url": "https://logs.px4.io/upload",
-                "values": {
-                    "description": "",
-                    "additional_feedback": "",
-                    "email": "i@smirart.ru",
-                    "allow_for_analysis": false,
-                    "obfuscated": false
+        {
+            "disable": true,
+            "name": "worker_2",
+            "source": {
+                "device_class": "LOCAL",
+                "args": {
+                    "dir": "/home/pi/worker1"
                 }
-            }
-        },
-        "count": 5
-    }
+            },
+            "rules": {},
+            "target": {
+                "device_class": "POST",
+                "args": {
+                    "uploader_url": "https://logs.px4.io/upload",
+                    "values": {
+                        "description": "",
+                        "additional_feedback": "",
+                        "email": "i@smirart.ru",
+                        "allow_for_analysis": false,
+                        "obfuscated": false
+                    }
+                }
+            },
+            "count": 5
+        }
+    ]
 }

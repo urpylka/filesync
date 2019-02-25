@@ -74,6 +74,7 @@ def worker(number, args):
     while True:
         # объект из очереди передается по ссылке,
         # поэтому изменение record приведет к изменению record в JsonArray
+
         record = wq.get()
 
         source_path = record['source_path']
@@ -230,46 +231,6 @@ def create_threads(count, function, *args):
         t.start()
 
 
-def main_manual():
-    logger = get_logger("filesync", "./temp/filesync.log", "DEBUG")
-    logger_silent = get_logger("filesync2", "./temp/filesync2.log", "INFO")
-
-    logger.info("filesync v0.2")
-
-    # скрипка 0313-D11F # flirduo 66F8-E5D9
-
-    source = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
-    target = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
-
-    # target = DISK(uuid="0313-D11F", mount_point="/mnt", logger=logger_silent)
-    # source = FTP(host="192.168.0.10", user="test-1", passwd="passwd", logger=logger_silent)
-
-    db = JsonArray("./temp/db.json", 5, logger_silent)
-
-    # dq = Queue()
-    # uq = Queue()
-    # for record in db:
-    #     if not record['downloaded']: dq.put(record)
-    #     elif not record['uploaded']: uq.put(record)
-
-    wq = Queue()
-    for record in db:
-        if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
-
-    create_threads(1, finder, db, source, 10, wq, ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"], logger)
-    # create_threads(5, downloader, source, "/home/pi/filesync/flir", dq, uq, logger)
-    # create_threads(1, uploader, target, uq, logger)
-    create_threads(1, worker, target, source, wq, logger_silent)
-
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        del db
-        # smart_buffer.dump()
-        return 0
-
-
 def main():
 
     config_path = "./config.json"
@@ -294,26 +255,29 @@ def main():
         exit(1)
 
 
-    if config["workers"].count() < 1:
+    if len(config["workers"]) < 1:
         print("Error 4. Count of worker less then 1")
         exit(1)
     else:
-        for worker in config["workers"].items():
-            logger = get_logger(worker["logger"]["name"], worker["logger"]["log_path"], worker["logger"]["log_level"])
+        for worker_data in config["workers"]:
+            if not worker_data["disable"]:
+                logger = get_logger(worker_data["name"], worker_data["logger"]["log_path"], worker_data["logger"]["log_level"])
 
-            db = JsonArray(worker["db"]["db_path"], worker["db"]["autosave_interval"], logger)
-            wq = Queue()
-            for record in db:
-                if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+                db = JsonArray(worker_data["db"]["db_path"], worker_data["db"]["autosave_interval"], logger)
+                wq = Queue()
+                for record in db:
+                    if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
 
-            m1 = __import__(worker["source"]["module_path"])
-            source = getattr(m1, worker["source"]["device_class"])(worker["source"]["args"], logger=logger)
+                m1 = __import__(worker_data["source"]["module_path"])
+                worker_data["source"]["args"]["logger"] = logger
+                source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
 
-            m2 = __import__(worker["target"]["module_path"])
-            target = getattr(m2, worker["target"]["device_class"])(worker["target"]["args"], logger=logger)
+                m2 = __import__(worker_data["target"]["module_path"])
+                worker_data["target"]["args"]["logger"] = logger
+                target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
 
-            create_threads(worker["finder"]["count"], finder, db, source, worker["finder"]["finder_interval"], wq, worker["finder"]["extentions"], logger)
-            create_threads(worker["count"], worker, target, source, wq, logger)
+                create_threads(worker_data["finder"]["count"], finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
+                create_threads(worker_data["count"], worker, target, source, wq, logger)
 
     try:
         while True:
