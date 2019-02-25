@@ -1,6 +1,6 @@
 # FileSync
 
-This software allow to sync a group of files between devices w difficult access:
+This software allows to sync a group of files between devices w difficult access:
 
 * Pixracer (mavros ftp)
 * FlirDuo (external flash drive)
@@ -83,8 +83,6 @@ Program wrote by pubsub technology & consist three workers:
 
 ### TODO
 
-* Нужнен гибкий конфигурационный файл с правилами, откуда, куда и что делать.
-* Реализовать API для ведения прогресс-бара
 * Если процесс непрерывный и последовательный, можно сделать одну числовую переменную, описывающую состояния файла. Например:
   * 0 - лог найден в source
   * 1 - лог скачен в local
@@ -92,18 +90,8 @@ Program wrote by pubsub technology & consist three workers:
   * 3 - лог удален из source
   * 4 - лог выкачен не полностью
 
-* Параллельная работа с FTP
-* Проверка hash
 * Reverse direction
 * Надежность
-* Last seek
-* Progress bar (в буффер)
-
-Filename
-Down ↓ 1021444 / 2200000002 (70%) 1.4MB/s
-Up   ↑  900023 / 2200000002 (62%) 700KB/s
-
-Можно реализовать в методах _read() и _write(). Правда там был минус.
 
 ### Ошибки
 

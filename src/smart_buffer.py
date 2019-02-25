@@ -76,6 +76,15 @@ class SmartBuffer(object):
 
 
     def show_progress(self, delay):
+        """
+        # идея для дизайна
+
+        ```
+        Filename
+        Down ↓ 1021444 / 2200000002 (70%) 1.4MB/s
+        Up   ↑  900023 / 2200000002 (62%) 700KB/s
+        ```
+        """
         while self.prog:
             # по хорошему нужно выводить имя файла
             self.down_percent = int(self.alr_wrote / self.file_size * 100)
