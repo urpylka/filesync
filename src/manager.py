@@ -230,7 +230,7 @@ def create_threads(count, function, *args):
         t.start()
 
 
-def main():
+def main_manual():
     logger = get_logger("filesync", "./temp/filesync.log", "DEBUG")
     logger_silent = get_logger("filesync2", "./temp/filesync2.log", "INFO")
 
@@ -266,6 +266,60 @@ def main():
             time.sleep(10)
     except KeyboardInterrupt:
         del db
+        # smart_buffer.dump()
+        return 0
+
+
+def main():
+
+    config_path = "./config.json"
+
+    config = {}
+    if os.path.exists(os.path.dirname(config_path)):
+        try:
+            import json
+            with open(config_path, 'r') as infile:
+                config = json.load(infile)
+
+        except IOError as ex:
+            if ex.errno == 2:
+                print("Error 1. Config file doesn't exixst")
+                exit(1)
+
+        except ValueError as ex:
+            print("Error 2. Incorrect Json in config file: " + str(ex))
+            exit(1)
+    else:
+        print("Error 3. Config file doesn't exixst")
+        exit(1)
+
+
+    if config["workers"].count() < 1:
+        print("Error 4. Count of worker less then 1")
+        exit(1)
+    else:
+        for worker in config["workers"].items():
+            logger = get_logger(worker["logger"]["name"], worker["logger"]["log_path"], worker["logger"]["log_level"])
+
+            db = JsonArray(worker["db"]["db_path"], worker["db"]["autosave_interval"], logger)
+            wq = Queue()
+            for record in db:
+                if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+
+            m1 = __import__(worker["source"]["module_path"])
+            source = getattr(m1, worker["source"]["device_class"])(worker["source"]["args"], logger=logger)
+
+            m2 = __import__(worker["target"]["module_path"])
+            target = getattr(m2, worker["target"]["device_class"])(worker["target"]["args"], logger=logger)
+
+            create_threads(worker["finder"]["count"], finder, db, source, worker["finder"]["finder_interval"], wq, worker["finder"]["extentions"], logger)
+            create_threads(worker["count"], worker, target, source, wq, logger)
+
+    try:
+        while True:
+            time.sleep(10)
+    except KeyboardInterrupt:
+        # del db
         # smart_buffer.dump()
         return 0
 

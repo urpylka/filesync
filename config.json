@@ -3,39 +3,60 @@
     "workers": [
         {
             "source": {
+                "module_path": "device_disk",
                 "device_class": "DISK",
-                "login": "test-1",
-                "passwd": "passwd"
+                "dontused----uuid-flir": "66F8-E5D9",
+                "args": {
+                    "uuid": "0313-D11F",
+                    "mount_point": "/mnt"
+                }
             },
-            "rules": {},
+            "dontused----rules": {},
             "target": {
+                "module_path": "device_ftp",
                 "device_class": "FTP",
-                "disk_uuid": "66F8-E5D9",
-                "mount_dir": "/mnt"
+                "args": {
+                    "host": "192.168.0.10",
+                    "user": "test-1",
+                    "passwd": "passwd"
+                }
             },
-            "count": 5
-        },
-        {
-            "source": {
-                "device_class": "DISK",
-                "login": "test-1",
-                "passwd": "passwd"
+            "count": 5,
+            "logger": {
+                "name": "filesync",
+                "log_path": "./temp/filesync.log",
+                "log_level": "DEBUG",
+                "dontused----default_record": {
+                    "source_path": "",
+                    "downloaded": false,
+                    "local_path": "",
+                    "uploaded": false,
+                    "target_path": ""
+                },
+                "dontused----key": "source_path"
             },
-            "rules": {},
-            "target": {
-                "device_class": "LOCAL",
+            "db": {
+                "db_path": "./temp/db.json",
+                "autosave_interval": 5
+            },
+            "finder": {
+                "count": 1,
+                "finder_interval": 10,
+                "extensions": ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"]
+            }
+        }
+    ],
+    "deprecated": {
+        "source": {
+            "device_class": "LOCAL",
+            "args": {
                 "dir": "/home/pi/worker1"
-            },
-            "count": 5
+            }
         },
-        {
-            "source": {
-                "device_class": "LOCAL",
-                "dir": "/home/pi/worker1"
-            },
-            "rules": {},
-            "target": {
-                "device_class": "POST",
+        "rules": {},
+        "target": {
+            "device_class": "POST",
+            "args": {
                 "uploader_url": "https://logs.px4.io/upload",
                 "values": {
                     "description": "",
@@ -44,101 +65,8 @@
                     "allow_for_analysis": false,
                     "obfuscated": false
                 }
-            },
-            "count": 5
-        }
-    ],
-    "task-1-FlirDuo": {
-        "source": {
-            "device_class": "DISK",
-            "login": "test-1",
-            "passwd": "passwd"
-        },
-        "downloader": {
-            "count": 5,
-            "download_dir": "/home/pi/flir",
-            "target_device": "LOCAL"
-        },
-        "local": {
-            "localdir": "/home/pi/flir"
-        },
-        "uploader": {
-            "count": 3
-        },
-        "finder": {
-            "count": 1,
-            "interval": 10,
-            "extensions": ["JPG", "MP4"]
-        },
-        "target": {
-            "device_class": "FTP",
-            "disk_uuid": "66F8-E5D9",
-            "mount_dir": "/mnt"
-        },
-        "logs": {
-            "path": "/home/pi/flir/filesync.log",
-            "logger_name": "filesync",
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            "loglevel": "INFO"
-        },
-        "db": {
-            "path": "/home/pi/flir/db.json",
-            "interval": 5,
-            "default_record": {
-                "source_path": "",
-                "downloaded": false,
-                "local_path": "",
-                "uploaded": false,
-                "target_path": ""
-            },
-            "key": "source_path"
-        }
-    },
-    "task-2-PX4-logs": {
-        "source": {
-            "device_class": "MAVFTP",
-            "mount_dir": "/fs/microsd/log"
-        },
-        "extensions": [],
-        "default_record": {
-            "source_path": "",
-            "downloaded": false,
-            "local_path": "",
-            "uploaded": false,
-            "target_path": ""
-        },
-        "key": "source_path",
-        "downloader": {
-            "count": 5,
-            "download_dir": "/home/pi/px4logs"
-        },
-        "uploader": {
-            "count": 3
-        },
-        "finder": {
-            "count": 1,
-            "interval": 10
-        },
-        "target": {
-            "device_class": "POST",
-            "uploader_url": "https://logs.px4.io/upload",
-            "values": {
-                "description": "",
-                "additional_feedback": "",
-                "email": "i@smirart.ru",
-                "allow_for_analysis": false,
-                "obfuscated": false
             }
         },
-        "logs": {
-            "path": "/home/pi/px4logs/filesync.log",
-            "logger_name": "filesync",
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            "loglevel": "INFO"
-        },
-        "db": {
-            "path": "/home/pi/px4logs/db.json",
-            "interval": 5
-        }
+        "count": 5
     }
 }
