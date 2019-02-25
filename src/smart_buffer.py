@@ -138,9 +138,8 @@ class SmartBuffer(object):
         self.can_read = False
         self.can_write = True
 
-        self.measure_progress()
-
-        self.show_stat()
+        # self.measure_progress()
+        # self.show_stat()
 
 
     def _get_left(self):
