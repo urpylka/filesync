@@ -45,6 +45,8 @@ class DISK(Device):
                     # или, как сделал я, сначала вызвать umount
                     a0, b0, c0 = bash_command("/bin/umount " + self.kwargs["mount_point"], self.kwargs["logger"])
                     a, b, c = bash_command("/bin/mount /dev/disk/by-uuid/" + self.kwargs["uuid"] + " " + self.kwargs["mount_point"], self.kwargs["logger"])
+                    if a == 32 and c == b"mount: unknown filesystem type 'exfat'\n":
+                        self.kwargs["logger"].error(self._prefix + "OS doesn't support exfat filesystem.\nExecute: sudo apt-get install exfat-fuse exfat-utils")
             else:
                 if self.is_remote_available.is_set():
                     self.is_remote_available.clear()
