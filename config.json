@@ -8,7 +8,7 @@
                 "device_class": "DISK",
                 "dontused----uuid-flir": "66F8-E5D9",
                 "args": {
-                    "uuid": "0313-D11F",
+                    "uuid": "D1C6-0146",
                     "mount_point": "/mnt"
                 }
             },
@@ -17,7 +17,7 @@
                 "module_path": "device_ftp",
                 "device_class": "FTP",
                 "args": {
-                    "host": "192.168.0.10",
+                    "host": "192.168.20.172",
                     "user": "test-1",
                     "passwd": "passwd"
                 }
