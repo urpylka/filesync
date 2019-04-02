@@ -234,7 +234,7 @@ def create_threads(count, function, *args):
 
 def main():
 
-    if len(sys.argv) != 1:
+    if len(sys.argv) != 2:
         print("Error 4. Doesn't have config-file argument")
         exit(1)
     else:
