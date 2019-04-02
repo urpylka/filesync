@@ -501,7 +501,7 @@ class SmartBuffer(object):
                 # offset = left = alr_w = alr_r => pos_w = pos_h => возникает блокировка
                 self.can_write = True
 
-            self.show_stat()
+            if self.debug: self.show_stat()
 
 
     def tell(self):
