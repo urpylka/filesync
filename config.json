@@ -24,7 +24,7 @@
             },
             "count": 5,
             "logger": {
-                "log_path": "./temp/worker_1-filesync.log",
+                "log_path": "/home/pi/filesync/temp/worker_1-filesync.log",
                 "log_level": "INFO",
                 "dontused----default_record": {
                     "source_path": "",
@@ -36,7 +36,7 @@
                 "dontused----key": "source_path"
             },
             "db": {
-                "db_path": "./temp/worker_1-db.json",
+                "db_path": "/home/pi/filesync/temp/worker_1-db.json",
                 "autosave_interval": 5
             },
             "finder": {
