@@ -157,6 +157,14 @@ class FTP(Device):
                         self.is_remote_available.set()
                         self.kwargs["logger"].info(self._prefix + "FTP is availble. All operations is unlock")
 
+                except ftplib.error_perm as ex_perm:
+                    retry = True
+
+                    self.kwargs["logger"].error(self._prefix + "_connect(): " + str(ex_perm))
+                    if self.is_remote_available.is_set():
+                        self.is_remote_available.clear()
+                        self.kwargs["logger"].info(self._prefix + "FTP is unavailble. All operations is lock")
+
                 except IOError as ex:
                     retry = True
                     # self.kwargs["logger"].info("TARGET: Time disconnected - " + str(time.time() - starttime))
