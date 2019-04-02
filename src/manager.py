@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import os.path
 import time
 from threading import Thread
@@ -233,59 +234,63 @@ def create_threads(count, function, *args):
 
 def main():
 
-    config_path = "./config.json"
+    if len(sys.argv) != 1:
+        print("Error 4. Doesn't have config-file argument")
+        exit(1)
+    else:
 
-    config = {}
-    if os.path.exists(os.path.dirname(config_path)):
-        try:
-            import json
-            with open(config_path, 'r') as infile:
-                config = json.load(infile)
+        config_path = sys.argv[1]
+        config = {}
+        if os.path.exists(os.path.dirname(config_path)):
+            try:
+                import json
+                with open(config_path, 'r') as infile:
+                    config = json.load(infile)
 
-        except IOError as ex:
-            if ex.errno == 2:
-                print("Error 1. Config file doesn't exixst")
+            except IOError as ex:
+                if ex.errno == 2:
+                    print("Error 1. Config file doesn't exixst")
+                    exit(1)
+
+            except ValueError as ex:
+                print("Error 2. Incorrect Json in config file: " + str(ex))
                 exit(1)
-
-        except ValueError as ex:
-            print("Error 2. Incorrect Json in config file: " + str(ex))
+        else:
+            print("Error 3. Config file doesn't exixst")
             exit(1)
-    else:
-        print("Error 3. Config file doesn't exixst")
-        exit(1)
 
 
-    if len(config["workers"]) < 1:
-        print("Error 4. Count of worker less then 1")
-        exit(1)
-    else:
-        for worker_data in config["workers"]:
-            if not worker_data["disable"]:
-                logger = get_logger(worker_data["name"], worker_data["logger"]["log_path"], worker_data["logger"]["log_level"])
+        if len(config["workers"]) < 1:
+            print("Error 4. Count of worker less then 1")
+            exit(1)
+        else:
+            for worker_data in config["workers"]:
+                if not worker_data["disable"]:
+                    logger = get_logger(worker_data["name"], worker_data["logger"]["log_path"], worker_data["logger"]["log_level"])
 
-                db = JsonArray(worker_data["db"]["db_path"], worker_data["db"]["autosave_interval"], logger)
-                wq = Queue()
-                for record in db:
-                    if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+                    db = JsonArray(worker_data["db"]["db_path"], worker_data["db"]["autosave_interval"], logger)
+                    wq = Queue()
+                    for record in db:
+                        if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
 
-                m1 = __import__(worker_data["source"]["module_path"])
-                worker_data["source"]["args"]["logger"] = logger
-                source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
+                    m1 = __import__(worker_data["source"]["module_path"])
+                    worker_data["source"]["args"]["logger"] = logger
+                    source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
 
-                m2 = __import__(worker_data["target"]["module_path"])
-                worker_data["target"]["args"]["logger"] = logger
-                target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
+                    m2 = __import__(worker_data["target"]["module_path"])
+                    worker_data["target"]["args"]["logger"] = logger
+                    target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
 
-                create_threads(worker_data["finder"]["count"], finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
-                create_threads(worker_data["count"], worker, target, source, wq, logger)
+                    create_threads(worker_data["finder"]["count"], finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
+                    create_threads(worker_data["count"], worker, target, source, wq, logger)
 
-    try:
-        while True:
-            time.sleep(10)
-    except KeyboardInterrupt:
-        # del db
-        # smart_buffer.dump()
-        return 0
+        try:
+            while True:
+                time.sleep(10)
+        except KeyboardInterrupt:
+            # del db
+            # smart_buffer.dump()
+            return 0
 
 
 if __name__ == '__main__':

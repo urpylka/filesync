@@ -24,7 +24,7 @@ For start filesync manager use:
 git clone https://github.com/urpylka/filesync
 cd filesync
 mkdir temp
-sudo ./src/manager.py
+sudo ./src/manager.py config.json
 ```
 
 ## Logic model
