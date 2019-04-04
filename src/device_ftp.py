@@ -287,7 +287,7 @@ class FTP(Device):
 
         with self._internal_lock:
             self.is_remote_available.wait()
-            self.kwargs["logger"].debug(self._prefix + "Renaming " + str(old_path) + " to "+ str(new_path))
+            self.kwargs["logger"].info(self._prefix + "Renaming " + str(old_path) + " to "+ str(new_path))
             while 1:
                 self.is_remote_available.wait()
                 try:
