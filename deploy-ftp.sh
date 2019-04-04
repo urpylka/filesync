@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 #
-# deploy.sh – script for deploy filesync to linux services
+# deploy-ftp.sh – script for deploy filesync to linux services
 # Copyright 2019 Artem B. Smirnov
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,12 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cat <<EOF | sudo tee /lib/systemd/system/filesync.service > /dev/null
+cat <<EOF | sudo tee /lib/systemd/system/ftp_server.service > /dev/null
 [Unit]
-Description=Filesync
+Description=FTP server
 
 [Service]
-ExecStart=$(pwd)/src/manager.py $(pwd)/config.json
+ExecStart=$(pwd)/src/ftp_server.py
 Restart=always
 RestartSec=3
 
@@ -29,5 +29,5 @@ RestartSec=3
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl enable filesync
-sudo systemctl start filesync
+sudo systemctl enable ftp_server
+sudo systemctl start ftp_server
