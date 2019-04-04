@@ -17,7 +17,7 @@
                 "module_path": "device_ftp",
                 "device_class": "FTP",
                 "args": {
-                    "host": "192.168.20.186",
+                    "host": "192.168.20.131",
                     "user": "test-1",
                     "passwd": "passwd"
                 }
