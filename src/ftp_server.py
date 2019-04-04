@@ -2,11 +2,13 @@
 
 from os import environ
 
-# pip install pyftpdlib
-
-from pyftpdlib.authorizers import DummyAuthorizer
-from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
+try:
+    from pyftpdlib.authorizers import DummyAuthorizer
+    from pyftpdlib.handlers import FTPHandler
+    from pyftpdlib.servers import FTPServer
+except Exception as ex:
+    print("Error! Please execute: pip install pyftpdlib")
+    exit(1)
 
 def main():
     """
