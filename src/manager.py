@@ -141,7 +141,7 @@ def worker(number, args):
                 time.sleep(2)
 
         wq.task_done()
-        # del(buffer_stream)
+        del(buffer_stream)
         logger.info("Worker-" + str(number) + ": File " + source_path + " was downloaded to " + target_path)
 
 
