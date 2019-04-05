@@ -22,7 +22,7 @@
                     "passwd": "passwd"
                 }
             },
-            "count": 5,
+            "count": 1,
             "logger": {
                 "log_path": "/home/pi/filesync/temp/worker_1-filesync.log",
                 "log_level": "INFO",
