@@ -22,7 +22,7 @@ Description=Filesync
 
 [Service]
 ExecStart=$(pwd)/src/manager.py $(pwd)/config.json
-Restart=always
+Restart=on-failure
 RestartSec=3
 
 [Install]
