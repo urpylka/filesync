@@ -104,13 +104,13 @@ class DISK(Device):
         https://python-scripts.com/threading
         """
         self.is_remote_available.wait()
-        self.kwargs["logger"].info(self._prefix + "Downloading " + str(device_path))
+        self.kwargs["logger"].debug(self._prefix + "Downloading " + str(device_path))
         while 1:
             self.is_remote_available.wait()
             try:
 
                 already_sent = target_stream.tell() #  already upload wo errors
-                self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
+                self.kwargs["logger"].info(self._prefix + "Downloading " + str(device_path) + " Started w " + str(already_sent))
 
                 with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
                     stream.seek(already_sent)

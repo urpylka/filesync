@@ -453,7 +453,7 @@ class SmartBuffer(object):
         + справа и + слева, то смещаем pos_r и pos_h,
         иначе raise CriticalException
         """
-        self.logger.info(self._prefix + "seek() to:\t" + str(offset))
+        self.logger.debug(self._prefix + "seek() to:\t" + str(offset))
 
         if whence != 0:
             raise NotImplementedError("seek() doesn't support relative offset")

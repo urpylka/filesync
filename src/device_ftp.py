@@ -194,7 +194,7 @@ class FTP(Device):
                     # если файла еще нет, нужно продолжить с длиной в ноль
                     exc = str(ex)
                     if exc.startswith("550"):
-                        self.kwargs["logger"].info(self._prefix + "File was not uploaded to server yet: " + exc)
+                        self.kwargs["logger"].debug(self._prefix + "File was not uploaded to server yet: " + exc)
                         return 0
                     else:
                         raise Exception(self._prefix + "Can't get file size on ftp server: " + exc)
@@ -227,7 +227,7 @@ class FTP(Device):
 
         with self._internal_lock:
             self.is_remote_available.wait()
-            self.kwargs["logger"].info(self._prefix + "Uploading " + str(device_path))
+            self.kwargs["logger"].debug(self._prefix + "Uploading " + str(device_path))
             while 1:
                 self.is_remote_available.wait()
                 try:
@@ -235,7 +235,7 @@ class FTP(Device):
                     self._ftp.cwd(os.path.dirname(device_path))
 
                     already_sent = self.get_size(device_path) #  already upload wo errors
-                    self.kwargs["logger"].info(self._prefix + "Started w " + str(already_sent))
+                    self.kwargs["logger"].info(self._prefix + "Uploading " + str(device_path) + " Started w " + str(already_sent))
                     source_stream.seek(already_sent)
 
                     self.is_remote_available.wait()
