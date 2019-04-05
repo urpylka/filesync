@@ -7,7 +7,7 @@ try:
     from pyftpdlib.handlers import FTPHandler
     from pyftpdlib.servers import FTPServer
 except Exception as ex:
-    print("Error! Please execute: pip install pyftpdlib")
+    print("Error! Please execute: 'pip install pyftpdlib' or 'sudo apt install pyftpdlib'")
     exit(1)
 
 def main():
