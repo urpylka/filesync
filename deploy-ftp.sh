@@ -16,9 +16,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cat <<EOF | sudo tee /lib/systemd/system/ftp_server.service > /dev/null
+cat <<EOF | sudo tee /lib/systemd/system/ftpserver.service > /dev/null
 [Unit]
-Description=FTP server
+Description=FTP-server
 
 [Service]
 ExecStart=$(pwd)/src/ftp_server.py
@@ -29,5 +29,5 @@ RestartSec=3
 WantedBy=multi-user.target
 EOF
 
-sudo systemctl enable ftp_server
-sudo systemctl start ftp_server
+sudo systemctl enable ftpserver
+sudo systemctl start ftpserver
