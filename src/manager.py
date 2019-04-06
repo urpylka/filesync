@@ -122,6 +122,10 @@ def worker(number, args):
                     u.join()
                     logger.debug("Worker-" + str(number) + ": uploader")
                     buffer_stream.show_stat()
+                    while not buffer_stream.is_read_all():
+                        time.sleep(1)
+                    buffer_stream.show_stat()
+
                     if buffer_stream.is_read_all():
                         record["uploaded"] = True
                         logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
