@@ -127,8 +127,7 @@ class JsonArray:
                 self._logger.debug("load_json: File of DB was created")
 
         except ValueError as ex:
-            self._logger.critical("load_json: Incorrect Json in file of DB: " + str(ex))
-            exit(1)
+            self._logger.error("load_json: Incorrect Json in file of DB: " + str(ex))
 
         return records
 
