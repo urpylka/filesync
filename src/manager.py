@@ -99,32 +99,52 @@ def worker(number, args):
             iter += 1
 
             # не делать wq.done()
-            # if iter == 10:
-            #     break
+            if iter == 10:
+                logger.error("Worker-" + str(number) + ": Couldn't correct execute worker with file " + source_path)
+                break
 
             try:
                 logger.info("Worker-" + str(number) + ": " + str(source_path) + " starting worker. Iteration: " + str(iter))
 
+                # buffer_stream.show_stat()
+
+                d = None
+                u = None
+
+                if not record["downloaded"] or not buffer_stream.is_wrote_all():
+                # может вообще убрать эту проверку
+                    d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
+
                 if not record["uploaded"]:
+
+                    # timeout test
+                    for times in range(20):
+                        if buffer_stream.av_r() < 1:
+                            time.sleep(0.1)
+                        if times == 20:
+                            raise Exception("Uploading 2 sec timeout. Smart buffer is empty.")
+
                     u = in_thread(target.upload, buffer_stream, temp_target_path, 400000)        # сосёт
-
-                    if not record["downloaded"] or not buffer_stream.is_wrote_all():
-                    # может вообще убрать эту проверку
-                        d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
-
-                        d.join()
-                        logger.debug("Worker-" + str(number) + ": downloader")
-                        if buffer_stream.is_wrote_all():
-                            record["downloaded"] = True
-                            # record["local_path"] = local_path
-                            logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
-
                     u.join()
                     logger.debug("Worker-" + str(number) + ": uploader")
-                    buffer_stream.show_stat()
-                    # while not buffer_stream.is_read_all():
-                    #     time.sleep(1)
-                    # buffer_stream.show_stat()
+
+                    if buffer_stream.is_read_all():
+                        record["uploaded"] = True
+                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
+
+
+                if not record["downloaded"] or not buffer_stream.is_wrote_all():
+                # может вообще убрать эту проверку
+                    d.join()
+                    logger.debug("Worker-" + str(number) + ": downloader")
+                    if buffer_stream.is_wrote_all():
+                        record["downloaded"] = True
+                        # record["local_path"] = local_path
+                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was downloaded")
+
+                if not record["uploaded"]:
+                    u.join()
+                    logger.debug("Worker-" + str(number) + ": uploader")
 
                     if buffer_stream.is_read_all():
                         record["uploaded"] = True
@@ -147,7 +167,7 @@ def worker(number, args):
 
         wq.task_done()
         del(buffer_stream)
-        logger.info("Worker-" + str(number) + ": File " + source_path + " was downloaded to " + target_path)
+        logger.info("Worker-" + str(number) + ": File " + source_path + " was moved to " + target_path)
 
 
 def in_thread(function, *args):
