@@ -239,7 +239,23 @@ class FTP(Device):
                     source_stream.seek(already_sent)
 
                     self.is_remote_available.wait()
-                    res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)
+                    # res = self._ftp.storbinary("STOR " + device_path, source_stream, blocksize=chunk_size, rest=already_sent)
+
+                    self._ftp.voidcmd('TYPE I')
+                    with self._ftp.transfercmd("STOR " + device_path, already_sent) as conn:
+                        while 1:
+                            # source_stream.show_stat()
+                            buf = source_stream.read(chunk_size)
+                            if not buf:
+                                break
+                            conn.sendall(buf)
+                            # shutdown ssl layer
+                            # if _SSLSocket is not None and isinstance(conn, _SSLSocket):
+                            # conn.unwrap()
+                            self.kwargs["logger"].debug(self._prefix + "Wrote to server: " + str(len(buf)))
+                            # source_stream.show_stat()
+
+                    res = self._ftp.voidresp()
 
                     if not res.startswith("200 I successfully done nothin"):
                         if not res.startswith("226 Transfer complete"):
