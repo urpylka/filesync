@@ -261,8 +261,7 @@ class FTP(Device):
                         if not res.startswith("226 Transfer complete"):
                             raise Exception("File was not uploaded successful: " + res)
 
-                    self.kwargs["logger"].error(self._prefix + "Wait 1 sec and release the stream")
-                    time.sleep(1)
+                    self.kwargs["logger"].debug(self._prefix + "End of the uploading")
                     break
 
                 except Exception as ex:
