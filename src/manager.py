@@ -159,7 +159,7 @@ def worker(number, args):
 
         wq.task_done()
         del(buffer_stream)
-        logger.info("Worker-" + str(number) + ": File " + source_path + " was moved to " + target_path)
+        logger.info("Worker-" + str(number) + ": 🍺 File " + source_path + " was moved to " + target_path)
 
 
 def in_thread(function, *args):
