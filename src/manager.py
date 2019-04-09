@@ -100,6 +100,7 @@ def worker(number, args):
 
             # не делать wq.done()
             if iter == 10:
+                # critical
                 logger.error("Worker-" + str(number) + ": Couldn't correct execute worker with file " + source_path)
                 break
 
@@ -113,10 +114,9 @@ def worker(number, args):
 
                 if not record["downloaded"] or not buffer_stream.is_wrote_all():
                 # может вообще убрать эту проверку
-                    d = in_thread(source.download, source_path, buffer_stream, 1000000) # вставляет
+                    d = in_thread(source.download, source_path, buffer_stream, 1000000)   # вставляет
 
                 if not record["uploaded"]:
-
                     # timeout test
                     for times in range(20):
                         if buffer_stream.av_r() < 1:
@@ -124,14 +124,7 @@ def worker(number, args):
                         if times == 20:
                             raise Exception("Uploading 2 sec timeout. Smart buffer is empty.")
 
-                    u = in_thread(target.upload, buffer_stream, temp_target_path, 400000)        # сосёт
-                    u.join()
-                    logger.debug("Worker-" + str(number) + ": uploader")
-
-                    if buffer_stream.is_read_all():
-                        record["uploaded"] = True
-                        logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
-
+                    u = in_thread(target.upload, buffer_stream, temp_target_path, 400000) # сосёт
 
                 if not record["downloaded"] or not buffer_stream.is_wrote_all():
                 # может вообще убрать эту проверку
@@ -149,7 +142,6 @@ def worker(number, args):
                     if buffer_stream.is_read_all():
                         record["uploaded"] = True
                         logger.info("Worker-" + str(number) + ": " + str(source_path) + " was uploaded")
-
 
                 if record["downloaded"] and record["uploaded"]:
                     target.rename(temp_target_path, target_path)
