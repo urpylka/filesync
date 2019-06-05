@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os, time
+import os, time, csv
 from threading import Thread, Lock
 
 class CsvList:
@@ -46,6 +46,10 @@ class CsvList:
         self._csv_path = csv_path
         self._logger = logger
         self._records = self._load_csv()
+        self._fieldnames = []
+        self._data = ["first_name,last_name,city".split(","),
+            "Dedric,Medhurst,Stiedemannberg".split(",")
+            ]
 
         t = Thread(target = self._autosaver, args = (autosaver_delay,))
         t.daemon = True
@@ -120,7 +124,7 @@ class CsvList:
         try:
             with self._file_lock:
                 with open(self._csv_path, 'r') as infile:
-                    records = csv.load(infile)
+                    records = csv.DictReader(infile, delimiter=',')
 
         except IOError as ex:
             if ex.errno == 2:
@@ -148,8 +152,15 @@ class CsvList:
                         raise
 
             with self._internal_lock:
-                with open(self._csv_path, 'w') as outfile:
-                    csv.dump(self._records, outfile)
+                with open(self._csv_path, 'w', newline='') as outfile:
+                    writer = csv.DictWriter(outfile, delimiter=',', fieldnames=self._fieldnames)
+                    writer.writeheader()
+
+                    self._records
+
+                    for row in data:
+                        writer.writerow(row)
+
                     self._logger.debug("dump_csv: File of the DB was updated successful!")
 
 
