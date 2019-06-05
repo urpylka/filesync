@@ -149,7 +149,7 @@ class JsonArray:
             with self._internal_lock:
                 with open(self._json_path, 'w') as outfile:
                     json.dump(self._records, outfile)
-                    self._logger.debug("dump_json: File of the DB was updated successful!")
+                    # self._logger.debug("dump_json: File of the DB was updated successful!")
 
 
     def __del__(self):
