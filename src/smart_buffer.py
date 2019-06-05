@@ -118,6 +118,11 @@ class SmartBuffer(object):
         self._prefix = "SB: "
         self.logger = logger
 
+        # https://dmitry.miramik.ru/2010/08/03/proverka-na-tip-v-python/
+        # http://python.su/forum/topic/23459/
+        if not isinstance(file_size, int):
+            raise Exception("Wrong format of file size in DB: " + file_size)
+
         self.file_size = file_size
         self.buf_type = buf_type
         self.hist_size = 1000000 if file_size > 1000000 else file_size # min(1MB, file_size)
