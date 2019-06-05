@@ -16,60 +16,172 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import os, time
 from device_abstract import Device
-from bash_commands import *
 
 class LOCAL(Device):
     """
-    LOCAL(root_dir="/")
+    Use: LOCAL(mount_point="/")
+    > mount_point is like root path for LOCAL device or DISK
+
     """
 
     def _connect(self):
         """
         Не нужно выполнять никаких действий
-
         Мб только создать папку, если ее не существует
+    
         """
-        pass
+
+        self.is_remote_available.clear()
+        self._prefix = "LOCAL: " + self.kwargs["mount_point"] + ": "
+
+        self.logger = self.kwargs.get("logger")
+        if self.logger == None:
+            from logger import get_logger
+            self.logger = get_logger("LOCAL", "device_local.log", "DEBUG")
+
+        self.logger.info(self._prefix + "Local is available. All operations is unlock")
+
+        self.is_remote_available.set()
+
+
+    def download(self, device_path, target_stream, chunk_size=1000000):
+        """
+        https://docs.python.org/3/library/io.html
+        https://docs.python.org/3/library/asyncio-stream.html
+        https://python-scripts.com/threading
+
+        # Если делать через smart_buffer
+        # target_stream.ram_to_flash(device_path)
+        # типа надо как-то подтвердить что файл сохранен
+        # а потом здесь нужен нормальный такой rename =D
+
+        """
+
+        self.is_remote_available.wait()
+        self.logger.debug(self._prefix + "Downloading " + str(device_path))
+        while 1:
+            self.is_remote_available.wait()
+            try:
+
+                already_sent = target_stream.tell() #  already upload wo errors
+                self.logger.info(self._prefix + "Downloading " + str(device_path) + " Started w " + str(already_sent))
+
+                with open(self.kwargs["mount_point"] + device_path, 'rb') as stream:
+                    stream.seek(already_sent)
+
+                    while 1:
+                        chunk = stream.read(chunk_size)
+                        if not chunk: break
+                        target_stream.write(chunk)
+                break
+
+            except Exception as ex:
+                self.logger.error(self._prefix + "Downloading was interrupted: " + str(ex))
+                time.sleep(1)
+
+
+    def upload(self, source_stream, device_path, chunk_size=1000000):
+        """
+        with open("file_name", 'rb') as source_stream:
+            target.upload(source_stream, "device_path")
+
+        # Если делать через smart_buffer
+        # source_stream.ram_to_flash(device_path)
+        # типа надо как-то подтвердить что файл сохранен
+
+        """
+
+        self.is_remote_available.wait()
+        self.logger.info(self._prefix + "Uploading " + str(device_path))
+        while 1:
+            self.is_remote_available.wait()
+            try:
+
+                already_sent = self.get_size(device_path) #  already upload wo errors
+                self.logger.info(self._prefix + "Started w " + str(already_sent))
+                source_stream.seek(already_sent)
+
+                with open(self.kwargs["mount_point"] + device_path, 'wb') as stream:
+                    while 1:
+                        chunk = source_stream.read(chunk_size)
+                        if not chunk: break
+                        stream.write(chunk)
+                break
+
+            except Exception as ex:
+                self.logger.error(self._prefix + "Uploading was interrupted: " + str(ex))
+                time.sleep(1)
 
 
     def get_list(self):
-        """
-        Get list of files
-        """
+
         self.is_remote_available.wait()
         my_list = []
-        for rootdir, dirs, files in os.walk(self.kwargs["root_path"]):
+        for rootdir, dirs, files in os.walk(self.kwargs["mount_point"]):
             for file in files:
-                my_list.append(os.path.join(rootdir.replace(self.kwargs["root_path"], '', 1), file))
+
+                _path = os.path.join(rootdir, file)
+                device_path = _path.replace(self.kwargs["mount_point"], '', 1)
+                size = os.stat(_path).st_size
+
+                my_list.append({"path": device_path, "size": size, "hash": ""})
+
         return my_list
 
 
-    def download(self, device_path, target_stream):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        target_stream.ram_to_flash(device_path)
-        #???? типа надо как-то подтвердить что файл сохранен
+    def get_size(self, device_path):
+
+        while 1:
+            self.is_remote_available.wait()
+            try:
+
+                response = os.path.getsize(self.kwargs["mount_point"] + device_path)
+                if not response is None: return response
+                else: raise Exception("Can't get file size: response is None")
+
+            except OSError as ex:
+                if ex.errno == 2:
+                    # No such file or directory
+                    self.logger.info(self._prefix + "File was not uploaded yet: " + str(ex))
+                    return 0
+                else:
+                    self.logger.error(self._prefix + "Can't get file size: " + str(ex))
+            except Exception as ex:
+                self.logger.error(self._prefix + "" + str(ex))
+
+            time.sleep(1)
 
 
-    def upload(self, source_stream, device_path):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        source_stream.ram_to_flash(device_path)
-        #???? типа надо как-то подтвердить что файл сохранен
+    def rename(self, old_name, new_name):
+
+        self.is_remote_available.wait()
+        self.logger.info(self._prefix + "Renaming " + str(old_name) + " to " + str(new_name))
+
+        try:
+            if os.path.isfile(self.kwargs["mount_point"] + old_name):
+                os.rename(self.kwargs["mount_point"] + old_name, self.kwargs["mount_point"] + new_name)
+                self.logger.info(self._prefix + "New name " + str(new_name))
+            else:
+                raise Exception("File doesn't exist: " + str(old_name))
+        except OSError as e:  ## if failed, report it back to the user ##
+            self.logger.error("TARGET: %s - %s." % (e.filename, e.strerror))
+        except Exception as ex:  ## if failed, report it back to the user ##
+            self.logger.error("TARGET: " + str(ex))
 
 
-    def delete(self, remote_path):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать True или, если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
-        """
-        delete(remote_path)
+    def delete(self, device_path):
+
+        self.is_remote_available.wait()
+        self.logger.info(self._prefix + "Deleting " + str(device_path))
+
+        try:
+            if os.path.isfile(self.kwargs["mount_point"] + device_path):
+                os.remove(self.kwargs["mount_point"] + device_path)
+            else:
+                raise Exception("File doesn't exist: " + str(device_path))
+        except OSError as e:  ## if failed, report it back to the user ##
+            self.logger.error("TARGET: %s - %s." % (e.filename, e.strerror))
+        except Exception as ex:  ## if failed, report it back to the user ##
+            self.logger.error("TARGET: " + str(ex))
