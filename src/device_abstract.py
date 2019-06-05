@@ -44,6 +44,7 @@ class Device(object):
     """
 
     def __init__(self, **kwargs):
+
         self.kwargs = kwargs
 
         self.is_remote_available = Event()
@@ -54,18 +55,8 @@ class Device(object):
 
 
     def _connect(self):
+
         raise NotImplementedError("Not implemented method '_connect()'")
-
-
-    def get_list(self):
-        """
-        1. Функция исполняется в вызывающем потоке
-        2. Функция должна возвращать список файлов (пустой список, если файлов нет)
-        или, если что-то пошло не так, выбрасывать исключение
-
-        3. Функция должна возвращать список словарей {"path":"", "size":"", "hash":""}
-        """
-        raise NotImplementedError("Not implemented method 'get_list()'")
 
 
     def download(self, device_path, target_stream, chunk_size=1024, offset=0):
@@ -75,6 +66,7 @@ class Device(object):
         2. Если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
+
         raise NotImplementedError("Not implemented method 'download()'")
 
 
@@ -85,16 +77,27 @@ class Device(object):
         2. Если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
+
         raise NotImplementedError("Not implemented method 'upload()'")
 
 
-    def delete(self, remote_path):
+    def get_list(self):
         """
         1. Функция исполняется в вызывающем потоке
-        2. Если что-то пошло не так, выбрасывать исключение
-        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        2. Функция должна возвращать список файлов (пустой список, если файлов нет)
+        или, если что-то пошло не так, выбрасывать исключение
+
+        3. Функция должна возвращать список словарей {"path":"", "size":"", "hash":""}
         """
-        raise NotImplementedError("Not implemented method 'delete()'")
+
+        raise NotImplementedError("Not implemented method 'get_list()'")
+
+
+    def get_size(self):
+        """
+        """
+
+        raise NotImplementedError("Not implemented method 'get_size()'")
 
 
     def rename(self, old_path, new_path):
@@ -103,4 +106,15 @@ class Device(object):
         2. Если что-то пошло не так, выбрасывать исключение
         3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
         """
+
+        raise NotImplementedError("Not implemented method 'rename()'")
+
+
+    def delete(self, remote_path):
+        """
+        1. Функция исполняется в вызывающем потоке
+        2. Если что-то пошло не так, выбрасывать исключение
+        3. Если функция возвращает какие-то значения, их нужно передавать по ссылке через аргуемент
+        """
+
         raise NotImplementedError("Not implemented method 'delete()'")
