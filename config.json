@@ -1,7 +1,7 @@
 {
     "workers": [
         {
-            "disable": false,
+            "enable": false,
             "name": "worker_1",
             "source": {
                 "module_path": "device_disk",
@@ -46,7 +46,7 @@
             }
         },
         {
-            "disable": true,
+            "enable": false,
             "name": "worker_2",
             "source": {
                 "device_class": "LOCAL",
