@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Filesync</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>80</y>
+      <width>114</width>
+      <height>32</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>PushButton</string>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_Source">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>430</width>
+      <height>400</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_Target">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>140</y>
+      <width>430</width>
+      <height>400</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_Source">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>91</width>
+      <height>32</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_Source">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>30</y>
+      <width>59</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SOURCE</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_Target">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>30</y>
+      <width>59</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TARGET</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_Target">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>50</y>
+      <width>91</width>
+      <height>32</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>900</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
