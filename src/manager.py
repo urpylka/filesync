@@ -83,38 +83,60 @@ def is_filtered(filename, include=[], exclude=[]):
 
 
 def finder(number, args):
+    """
+    Смысла в нескольких finder нет, если только не запросы паралельного листинга,
+    что в случае с текущим алгоритмом исключено.
 
-    db, source, search_interval, dq, files_extensions, logger = args
+    Или, возможно, это будет полезно для запрашивания инфы
+    """
+
+    db, source, target, search_interval, mkdir_interval, wq, include, exclude, logger, db_key, db_def_record = args
     logger.debug("Finder-" + str(number) + " was created.")
 
     while True:
         try:
-            for item in source.get_list():
-                # Check extension
-                if files_extensions.count(item["path"].split('.')[-1]) == 1:
+            dirs = Queue()
+            dirs.put('/')
 
-                    if not db.in_records("source_path", item["path"]):
-                        logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(item["path"])))
+            while True:
 
-                        # prepare the new object
-                        record = {}.copy()
-                        record["source_path"] = item["path"]
-                        record["source_size"] = item["size"]
-                        record["source_hash"] = item["hash"]
-                        record["downloaded"] = False
-                        record["dropped"] = False
-                        record["uploaded"] = False
-                        record["target_path"] = ""
+                # For waiting if had smthn in db_backup
+                # and for waiting worker on cur_dir
+                while not wq.empty():
+                    time.sleep(1)
 
-                        record["local_path"] = ""
+                if not dirs.empty():
+                    cur_dir = dirs.get()
 
-                        # save the new object
-                        db.append(record)
-                        dq.put(record)
+                    # Creating directory on target if it doesn't exist
+                    try_again(0, mkdir_interval, logger.info, target.mkdir, cur_dir)
+
+                    # Searching for files & dirs
+                    for file in source.ls(cur_dir):
+                        file = os.path.join(cur_dir, file)
+                        
+                        if is_filtered(file, include, exclude):
+                            logger.debug("Filtred: " + str(file))
+                        else:
+                            if source.is_dir(file):
+                                dirs.put(file)
+                            else:
+                                
+                                if not db.in_records(db_key, file):
+
+                                    # Prepare new object
+                                    record = db_def_record.copy()
+                                    record[db_key] = file
+
+                                    # Save the object
+                                    db.append(record)
+                                    wq.put(record)
+                                    logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(file)))
+
+                    dirs.task_done()
 
         except Exception as ex:
             logger.error("Finder-" + str(number) + ": " + str(ex))
-
         time.sleep(search_interval)
 
 
@@ -123,12 +145,18 @@ def worker(number, args):
     target, source, wq, logger = args
 
     while True:
-        # объект из очереди передается по ссылке,
-        # поэтому изменение record приведет к изменению record в JsonArray
-
+        # Object from queue takes by link
+        # therefore changes the record gives changes in JsonArray
         element = wq.get()
+
+        # Assigment filesize to db
+        # element['size'] = source.get_size(element['source_path'])
+        def f(elem_p): element['size'] = source.get_size(elem_p)            
+        try_again(0, 1, logger.info, f, element['source_path'])
+
         m = Mover(logger, source, target, element, number)
         m.move()
+
         wq.task_done()
 
 
@@ -168,7 +196,7 @@ def main():
                 if worker_data["enable"]:
                     logger = get_logger(worker_data["name"], worker_data["logger"]["log_path"], worker_data["logger"]["log_level"])
 
-                    db = JsonArray(worker_data["db"]["db_path"], worker_data["db"]["autosave_interval"], logger)
+                    db = JsonArray(worker_data["db_backup"]["db_path"], worker_data["db_backup"]["autosave_interval"], logger)
                     wq = Queue()
                     for record in db:
                         if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
@@ -187,7 +215,7 @@ def main():
                             t.daemon = True
                             t.start()
 
-                    create_threads(worker_data["finder"]["count"], finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
+                    create_threads(1, finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
                     create_threads(worker_data["count"], worker, target, source, wq, logger)
 
         try:

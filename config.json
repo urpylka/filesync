@@ -3,72 +3,51 @@
         {
             "enable": false,
             "name": "worker_1",
-            "source": {
-                "module_path": "device_disk",
-                "device_class": "DISK",
-                "dontused----uuid-flir": "66F8-E5D9",
-                "args": {
-                    "uuid": "D1C6-0146",
-                    "mount_point": "/mnt"
-                }
-            },
-            "dontused----rules": {},
-            "target": {
-                "module_path": "device_ftp",
-                "device_class": "FTP",
-                "args": {
-                    "host": "192.168.20.131",
-                    "user": "test-1",
-                    "passwd": "passwd"
-                }
-            },
             "count": 1,
             "logger": {
-                "log_path": "/home/pi/filesync/temp/worker_1-filesync.log",
-                "log_level": "INFO",
-                "dontused----default_record": {
-                    "source_path": "",
-                    "downloaded": false,
-                    "local_path": "",
-                    "uploaded": false,
-                    "target_path": ""
-                },
-                "dontused----key": "source_path"
-            },
-            "db": {
-                "db_path": "/home/pi/filesync/temp/worker_1-db.json",
-                "autosave_interval": 5
+                "log_path": "./temp/worker_1.log",
+                "log_level": "INFO"
             },
             "finder": {
-                "count": 1,
-                "finder_interval": 10,
-                "extensions": ["JPG", "jpg", "MOV", "mov", "TIFF", "tiff", "avi", "AVI", "mp4", "MP4", "mkv"]
-            }
-        },
-        {
-            "enable": false,
-            "name": "worker_2",
+                "finder_interval": 10
+            },
+            "db_backup": {
+                "db_path": "./temp/worker_1.json",
+                "autosave_interval": 5
+            },
+            "db": {
+                "default_record": {
+                    "source_path": "",
+                    "local_path": "",
+                    "target_path": "",
+                    "size": -1,
+                    "created": "",
+                    "modified": "",
+                    "hash": "",
+                    "downloaded": false,
+                    "dropped": false,
+                    "uploaded": false
+                },
+                "key": "source_path"
+            },
+            "rules": {
+                "include": ["*.jpg","*.png"],
+                "exclude": []
+            },
             "source": {
+                "module_path": "device_local",
                 "device_class": "LOCAL",
                 "args": {
-                    "dir": "/home/pi/worker1"
+                    "dir": "./temp/source"
                 }
             },
-            "rules": {},
             "target": {
-                "device_class": "POST",
+                "module_path": "device_local",
+                "device_class": "LOCAL",
                 "args": {
-                    "uploader_url": "https://logs.px4.io/upload",
-                    "values": {
-                        "description": "",
-                        "additional_feedback": "",
-                        "email": "i@smirart.ru",
-                        "allow_for_analysis": false,
-                        "obfuscated": false
-                    }
+                    "dir": "./temp/target"
                 }
-            },
-            "count": 5
+            }
         }
     ]
 }
