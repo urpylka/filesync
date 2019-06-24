@@ -154,6 +154,35 @@ class LOCAL(Device):
             time.sleep(1)
 
 
+    def mkdir(self, path):
+
+        self.is_remote_available.wait()
+        self.logger.info(self._prefix + "Creating dir: " + str(path))
+
+        if not os.path.exists(self.kwargs["mount_point"] + path):
+            os.mkdir(self.kwargs["mount_point"] + path)
+            self.logger.info(self._prefix + "Dir " + str(path) + " is created")
+        else:
+            if os.path.isfile(self.kwargs["mount_point"] + path):
+                raise Exception("Path already used by file: " + str(path))
+            else:
+                self.logger.info("TARGET: Dir already exist: " + str(path))
+
+
+    def ls(self, dir_path):
+
+        self.is_remote_available.wait()
+        cur_dir = self.kwargs["mount_point"] + dir_path
+        return os.listdir(cur_dir)
+
+
+    def is_dir(self, dir_path):
+
+        self.is_remote_available.wait()
+        cur_dir = self.kwargs["mount_point"] + dir_path
+        return os.path.isdir(cur_dir)
+
+
     def rename(self, old_name, new_name):
 
         self.is_remote_available.wait()
