@@ -134,4 +134,4 @@ class Mover(object):
             self.logger.error("Mover-" + str(self.number) + ": Couldn't correct execute mover with file " + self.element['source_path'])
         else:
             # https://docs.python.org/2/library/logging.html
-            self.logger.log(41, "Mover-" + str(self.number) + ": 🍺 File " + self.element['source_path'] + " moved to " + self.target_path)
+            self.logger.log(41, "Mover-" + str(self.number) + ": 🍺 File '" + self.element['source_path'] + "' has been moved")
