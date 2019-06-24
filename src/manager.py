@@ -16,10 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# For debug
-# rm -f flir/db.json && clear && sudo ./src/manager.py
-# while :; do sleep 1; clear; ls -l Sherlock.s03e01.avi; done
-
 import sys
 import os.path
 import time

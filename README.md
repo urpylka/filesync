@@ -27,6 +27,13 @@ mkdir temp
 sudo ./src/manager.py config.json
 ```
 
+## For debug
+
+```bash
+rm -f flir/db.json && clear && sudo ./src/manager.py
+while :; do sleep 1; clear; ls -l Sherlock.s03e01.avi; done
+```
+
 ## Config file
 
 Some devices:
