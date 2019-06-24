@@ -31,6 +31,32 @@ from smart_buffer import SmartBuffer
 from mover import Mover
 from logger import get_logger
 
+
+def try_again(times, interval, error_message_func, func, *args):
+    """
+    The function is for trying to execute smthn
+    """
+
+    if times < 0:
+        raise Exception("Times argument must be positive or zero")
+    elif times > 0:
+        for iter in range(times):
+            try:
+                func(*args)
+                return
+            except Exception as ex:
+                error_message_func(ex)
+                time.sleep(interval)
+        raise Exception("Max iteration exceeding")
+    else:
+        while True:
+            try:
+                func(*args)
+                return
+            except Exception as ex:
+                error_message_func(ex)
+                time.sleep(interval)
+
 def finder(number, args):
 
     db, source, search_interval, dq, files_extensions, logger = args
