@@ -24,7 +24,7 @@
                     "size": -1,
                     "created": "",
                     "modified": "",
-                    "hash": "",
+                    "hash_md5": "",
                     "downloaded": false,
                     "dropped": false,
                     "uploaded": false
@@ -32,8 +32,8 @@
                 "key": "source_path"
             },
             "rules": {
-                "include": ["*.jpg","*.png"],
-                "exclude": []
+                "include": ["*"],
+                "exclude": ["/files/*", "*.tiff"]
             },
             "source": {
                 "module_path": "device_local",

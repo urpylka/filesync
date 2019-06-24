@@ -105,7 +105,9 @@ def finder(number, args):
                 while not wq.empty():
                     time.sleep(1)
 
-                if not dirs.empty():
+                if dirs.empty():
+                    break
+                else:
                     cur_dir = dirs.get()
 
                     # Creating directory on target if it doesn't exist
@@ -114,15 +116,19 @@ def finder(number, args):
                     # Searching for files & dirs
                     for file in source.ls(cur_dir):
                         file = os.path.join(cur_dir, file)
-                        
-                        if is_filtered(file, include, exclude):
-                            logger.debug("Filtred: " + str(file))
+                        #
+                        # Сюда можно добавить проверку по маске
+                        # (только нужно сделать чтобы маска вроде *.jpg не выбивала папку /dir)
+                        #
+                        # сейчас имя файла игнорится только со звездочками.DS_Store
+                        # а папка например temp, не игнорится
+                        #
+                        if source.is_dir(file):
+                            logger.info("Finder-{0}: Found a new dir: {1}".format(str(number), str(file)))
+                            dirs.put(file)
                         else:
-                            if source.is_dir(file):
-                                dirs.put(file)
-                            else:
-                                
-                                if not db.in_records(db_key, file):
+                            if is_filtered(file, include, exclude): logger.debug("Filtred: " + str(file))
+                            elif not db.in_records(db_key, file):
 
                                     # Prepare new object
                                     record = db_def_record.copy()

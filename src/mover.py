@@ -42,13 +42,16 @@ class Mover(object):
         # self.local_path = self.local_directory + '/' + os.path.basename(os.path.dirname(self.element['source_path'])).replace('-', '') + '_' + os.path.basename(self.element['source_path']).replace('_', '')
         self.local_path = self.local_directory + '/' + os.path.basename(self.element['source_path'])
         # self.local_path = self.element['local_path']
-        self.target_path = '/' + os.path.basename(self.local_path)
+        self.local_path_temp = os.path.basename(self.local_path) + ".temp"
+        # self.target_path = '/' + os.path.basename(self.local_path)
+
+        self.target_path = self.element['source_path']
         self.temp_target_path = self.target_path + ".part"
 
 
         self.logger.debug("Mover-" + str(self.number) + ": source_path " + self.element['source_path'] + " local_path " + self.local_path)
 
-        self.buffer_stream = SmartBuffer(self.element['source_size'], self.logger, 0, None, os.path.basename(self.local_path) + ".temp")
+        self.buffer_stream = SmartBuffer(self.element['size'], self.logger, 0, None, self.local_path_temp)
         # если задать размер буффера меньше,
         # перезапустить программу с большим буффером (в файл),
         # то не знаю будет ли перезаписываться или какие-то еще глюки
@@ -99,6 +102,7 @@ class Mover(object):
                     self.logger.debug("Mover-" + str(self.number) + ": downloader")
                     if self.buffer_stream.is_wrote_all():
                         self.element["downloaded"] = True
+                        self.element["hash_md5"] = self.buffer_stream.hash_md5.hexdigest()
                         # self.element["self.local_path"] = self.local_path
                         self.logger.info("Mover-" + str(self.number) + ": " + str(self.element['source_path']) + " was downloaded")
 
