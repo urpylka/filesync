@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>600</height>
+    <width>1029</width>
+    <height>648</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,14 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>390</x>
       <y>80</y>
       <width>114</width>
       <height>32</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Swap</string>
     </property>
    </widget>
    <widget class="QListWidget" name="listWidget_Source">
@@ -32,7 +32,7 @@
      <rect>
       <x>10</x>
       <y>140</y>
-      <width>430</width>
+      <width>330</width>
       <height>400</height>
      </rect>
     </property>
@@ -40,9 +40,9 @@
    <widget class="QListWidget" name="listWidget_Target">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>690</x>
       <y>140</y>
-      <width>430</width>
+      <width>330</width>
       <height>400</height>
      </rect>
     </property>
@@ -51,7 +51,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>100</y>
       <width>91</width>
       <height>32</height>
      </rect>
@@ -61,7 +61,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>30</y>
+      <y>80</y>
       <width>59</width>
       <height>16</height>
      </rect>
@@ -73,8 +73,8 @@
    <widget class="QLabel" name="label_Target">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>30</y>
+      <x>700</x>
+      <y>80</y>
       <width>59</width>
       <height>16</height>
      </rect>
@@ -86,10 +86,56 @@
    <widget class="QComboBox" name="comboBox_Target">
     <property name="geometry">
      <rect>
-      <x>450</x>
-      <y>50</y>
+      <x>690</x>
+      <y>100</y>
       <width>91</width>
       <height>32</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>570</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>already equals</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="checkBox_2">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>570</y>
+      <width>87</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>not before</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>100</y>
+      <width>113</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_2">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>100</y>
+      <width>113</width>
+      <height>21</height>
      </rect>
     </property>
    </widget>
@@ -99,7 +145,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>1029</width>
      <height>22</height>
     </rect>
    </property>
