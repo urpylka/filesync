@@ -93,6 +93,32 @@ class Device(object):
         raise NotImplementedError("Not implemented method 'get_list()'")
 
 
+    def ls(self):
+        """
+        1. Функция исполняется в вызывающем потоке
+        2. Функция должна возвращать список файлов (пустой список, если файлов нет)
+        или, если что-то пошло не так, выбрасывать исключение
+
+        3. Функция должна возвращать список путей
+        """
+
+        raise NotImplementedError("Not implemented method 'ls()'")
+
+
+    def is_dir(self):
+        """
+        """
+
+        raise NotImplementedError("Not implemented method 'isdir()'")
+
+
+    def mkdir(self):
+        """
+        """
+
+        raise NotImplementedError("Not implemented method 'isdir()'")
+
+
     def get_size(self):
         """
         """
