@@ -270,7 +270,6 @@ https://pypi.org/project/webdavclient/
 https://tproger.ru/translations/python-gui-pyqt/
 
 
-
 https://pythonworld.ru/gui/pyqt5-firstprograms.html
 https://pythonworld.ru/gui/pyqt5-menustoolbars.html
 https://pythonworld.ru/gui/pyqt5-layout.html
@@ -284,7 +283,7 @@ https://pythonworld.ru/gui/pyqt5-customwidgets.html
 https://pythonworld.ru/gui/pyqt5-tetris.html
 
 
-
+```python
 import my_webdav.urn as ur
 
 path = "/dasfa/пывп/вф"
@@ -295,9 +294,9 @@ u = ur.Urn(path, dir)
 print(u)
 
 print(u.filename())
+```
 
-
-
+```python
 import my_webdav.urn as ur
 
 path = "/dasfa/пывп/вф"
@@ -306,9 +305,8 @@ dir = True
 u = ur.Urn(path, dir)
 
 print(u)
-
 print(u.filename())
-
+```
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
