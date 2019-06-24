@@ -25,6 +25,7 @@ import os.path
 import time
 from threading import Thread
 from queue import Queue
+from fnmatch import fnmatch 
 
 from json_array import JsonArray
 from smart_buffer import SmartBuffer
@@ -56,6 +57,34 @@ def try_again(times, interval, error_message_func, func, *args):
             except Exception as ex:
                 error_message_func(ex)
                 time.sleep(interval)
+
+
+def is_filtered(filename, include=[], exclude=[]):
+    """
+    Use times = 0 for execute until it will be works!
+
+    The function based on article:
+    https://ru.stackoverflow.com/questions/463862/Найти-файлы-по-части-пути-не-только-по-имени-c-python
+
+    Вообще можно фильтровать в теории
+    (если решить вопрос с запросом всех данных сразу)
+    по след. критериям:
+    - min_filesize
+    - max_filesize
+    - created_interval (start, end)
+    - modified_interval (start, end)
+
+    или может прям добавить алгоритм, типа:
+    min_filesize = 120 && begin_created = 20190520 || end_modified = 20150811
+    """
+    for excl in exclude:
+        if fnmatch(filename, excl):
+            return True
+    for incl in include:
+        if fnmatch(filename, incl):
+            return False
+    return True
+
 
 def finder(number, args):
 
