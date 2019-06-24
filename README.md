@@ -188,7 +188,7 @@ ERROR: 'Video_Tuner_WP_20151216_004_110904.mp4' points to invalid cluster 0.
 
 20190403_122533_785_R.jpg.part
 
-"target_path": "", "downloaded": true, "source_path": "/20190403_122014/20190403_122537_816_R.jpg", "uploaded": false, "dropped": false, "source_size": 196048
+"target_path": "", "downloaded": true, "source_path": "/20190403_122014/20190403_122537_816_R.jpg", "uploaded": false, "dropped": false, "size": 196048
 
 
 Apr 04 08:14:11 raspberrypi manager.py[314]: 2019-04-04 08:14:11,213 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
