@@ -58,6 +58,7 @@ class SmartBuffer(object):
     up_percent = 0
     prog = 1
 
+    # https://docs.python.org/3/library/hashlib.html
     # https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
     hash_md5 = hashlib.md5()
 
