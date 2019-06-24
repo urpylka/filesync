@@ -6,7 +6,7 @@
             "count": 1,
             "logger": {
                 "log_path": "./temp/worker_1.log",
-                "log_level": "DEBUG"
+                "log_level": "ERROR"
             },
             "finder": {
                 "search_interval": 10,

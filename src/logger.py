@@ -35,6 +35,8 @@ def get_logger(name, path, level):
     elif level == "ERROR":
         logger.setLevel(logging.ERROR)
 
+    # https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility
+    logging.addLevelName(41, "SUCCESS")
 
     # create the logging file handler
     file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
