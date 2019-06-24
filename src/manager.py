@@ -90,7 +90,7 @@ def finder(number, args):
     Или, возможно, это будет полезно для запрашивания инфы
     """
 
-    db, source, target, search_interval, mkdir_interval, wq, include, exclude, logger, db_key, db_def_record = args
+    db, source, target, search_interval, mkdir_interval, wq, include, exclude, db_key, db_def_record, logger = args
     logger.debug("Finder-" + str(number) + " was created.")
 
     while True:
@@ -215,7 +215,7 @@ def main():
                             t.daemon = True
                             t.start()
 
-                    create_threads(1, finder, db, source, worker_data["finder"]["finder_interval"], wq, worker_data["finder"]["extensions"], logger)
+                    create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
                     create_threads(worker_data["count"], worker, target, source, wq, logger)
 
         try:

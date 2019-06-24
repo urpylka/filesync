@@ -1,15 +1,16 @@
 {
     "workers": [
         {
-            "enable": false,
+            "enable": true,
             "name": "worker_1",
             "count": 1,
             "logger": {
                 "log_path": "./temp/worker_1.log",
-                "log_level": "INFO"
+                "log_level": "DEBUG"
             },
             "finder": {
-                "finder_interval": 10
+                "search_interval": 10,
+                "mkdir_interval": 1
             },
             "db_backup": {
                 "db_path": "./temp/worker_1.json",
@@ -38,14 +39,14 @@
                 "module_path": "device_local",
                 "device_class": "LOCAL",
                 "args": {
-                    "dir": "./temp/source"
+                    "mount_point": "./temp/source"
                 }
             },
             "target": {
                 "module_path": "device_local",
                 "device_class": "LOCAL",
                 "args": {
-                    "dir": "./temp/target"
+                    "mount_point": "./temp/target"
                 }
             }
         }
