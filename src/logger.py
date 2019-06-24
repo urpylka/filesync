@@ -35,19 +35,16 @@ def get_logger(name, path, level):
     elif level == "ERROR":
         logger.setLevel(logging.ERROR)
 
-    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    console_formatter = logging.Formatter("%(levelname)s - %(message)s")
 
     # create the logging file handler
+    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     file_handle = logging.FileHandler(path, "w", "UTF-8")
     file_handle.setFormatter(file_formatter)
+    logger.addHandler(file_handle)
 
+    console_formatter = logging.Formatter("%(levelname)s - %(message)s")
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(console_formatter)
-
-    # add handler to logger object
-    logger.addHandler(file_handle)
     logger.addHandler(console_handler)
 
     return logger
