@@ -163,7 +163,7 @@ def worker(number, args):
 def main():
 
     if len(sys.argv) != 2:
-        print("Error 4. Doesn't have config-file argument")
+        print("Error 4. Doesn't have path to the config-file as argument")
         exit(1)
     else:
 
@@ -177,19 +177,19 @@ def main():
 
             except IOError as ex:
                 if ex.errno == 2:
-                    print("Error 1. Config file doesn't exixst")
+                    print("Error 1. The config file doesn't exist")
                     exit(1)
 
             except ValueError as ex:
-                print("Error 2. Incorrect Json in config file: " + str(ex))
+                print("Error 2. Incorrect Json in the config file: " + str(ex))
                 exit(1)
         else:
-            print("Error 3. Config file doesn't exixst")
+            print("Error 3. The config file doesn't exist")
             exit(1)
 
 
         if len(config["workers"]) < 1:
-            print("Error 4. Count of worker less then 1")
+            print("Error 4. Count of the worker less then 1")
             exit(1)
         else:
             for worker_data in config["workers"]:
