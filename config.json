@@ -3,7 +3,7 @@
         {
             "enable": true,
             "name": "worker_1",
-            "count": 1,
+            "count": 4,
             "logger": {
                 "log_path": "./temp/worker_1.log",
                 "log_level": "ERROR"
