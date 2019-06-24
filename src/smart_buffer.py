@@ -19,6 +19,7 @@
 import io
 import time
 import sys
+import hashlib
 from threading import Lock
 from threading import Thread
 
@@ -56,6 +57,14 @@ class SmartBuffer(object):
     down_percent = 0
     up_percent = 0
     prog = 1
+
+    # https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
+    hash_md5 = hashlib.md5()
+
+
+    def get_hash(self):
+        return self.hash_md5.hexdigest()
+
 
     def measure_down_speed(self, delay):
         diff = 0
@@ -190,10 +199,16 @@ class SmartBuffer(object):
 
 
     def _write(self, chunk):
+        """
+        The function is writing chunk to SB,
+        calculating hash_md5,
+        and change pos_w, al_wrote positions
+        """
         chunk_size = len(chunk)
         self.logger.debug(self._prefix + "_w: " + str(chunk_size))
         self.buffer.seek(self.pos_w)
         self.buffer.write(chunk)
+        self.hash_md5.update(chunk)
         self.pos_w += chunk_size
         if self.pos_w == self.buf_size:
             self.pos_w = 0
