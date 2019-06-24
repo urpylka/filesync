@@ -27,6 +27,72 @@ mkdir temp
 sudo ./src/manager.py config.json
 ```
 
+## Config file
+
+Some devices:
+
+```json
+"source": {
+    "device_class": "DISK",
+    "module_path": "device_disk",
+    "args": {
+        "uuid": "D1C6-0146",
+        "mount_point": "/mnt"
+    }
+},
+```
+
+```json
+"target": {
+    "device_class": "FTP",
+    "module_path": "device_ftp",
+    "args": {
+        "host": "192.168.20.131",
+        "user": "test-1",
+        "passwd": "passwd"
+    }
+},
+```
+
+```json
+"source": {
+    "device_class": "LOCAL",
+    "module_path": "device_local",
+    "args": {
+        "dir": "/home/pi/worker1"
+    }
+},
+```
+
+```json
+"target": {
+    "device_class": "POST",
+    "module_path": "device_post",
+    "args": {
+        "uploader_url": "https://logs.px4.io/upload",
+        "values": {
+            "description": "",
+            "additional_feedback": "",
+            "email": "email@test.com",
+            "allow_for_analysis": false,
+            "obfuscated": false
+        }
+    }
+},
+```
+
+```json
+"target": {
+    "device_class": "WEBDAV",
+    "module_path": "device_webdav",
+    "args": {
+        "host": "https://webdav.yandex.ru",
+        "user": "login",
+        "passwd": "passwd"
+    }
+},
+```
+
 ## Logic model
 
 ### Model of devices
