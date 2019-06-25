@@ -102,7 +102,7 @@ class Mover(object):
                     self.logger.debug("Mover-" + str(self.number) + ": downloader")
                     if self.buffer_stream.is_wrote_all():
                         self.element["downloaded"] = True
-                        self.element["hash"] = self.buffer_stream.hash.hexdigest()
+                        self.element["hash"] = self.buffer_stream.get_hash()
                         # self.element["self.local_path"] = self.local_path
                         self.logger.info("Mover-" + str(self.number) + ": " + str(self.element['source_path']) + " was downloaded")
 
