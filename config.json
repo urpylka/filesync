@@ -2,6 +2,7 @@
     "workers": [
         {
             "enable": true,
+            "gui": true,
             "name": "worker_1",
             "count": 4,
             "logger": {

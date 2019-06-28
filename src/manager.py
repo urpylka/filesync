@@ -27,7 +27,7 @@ from json_array import JsonArray
 from smart_buffer import SmartBuffer
 from mover import Mover
 from logger import get_logger
-
+from MainWindow_logic import QtWidgets, MainWindowApp
 
 def try_again(times, interval, error_message_func, func, *args):
     """
@@ -156,6 +156,8 @@ def worker(number, args):
         element = wq.get()
 
         # Assigment filesize to db
+        # Нет смысла включать это в цикл finder смысла нет,
+        # тк все равно везде это делается отдельной операцией
         # element['size'] = source.get_size(element['source_path'])
         def f(elem_p): element['size'] = source.get_size(elem_p)            
         try_again(0, 1, logger.info, f, element['source_path'])
@@ -224,6 +226,18 @@ def main():
                     create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
                     create_threads(worker_data["count"], worker, target, source, wq, logger)
 
+                    if worker_data["gui"]:
+                        # больше одного worker как отдельного процесса вроде как не запустить!
+
+                        # https://pythonworld.ru/osnovy/instrukciya-if-elif-else-proverka-istinnosti-trexmestnoe-vyrazhenie-ifelse.html
+                        # A = Y if X else Z
+                        app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+                        window = MainWindowApp()  # Создаём объект класса ExampleApp
+                        window.show()  # Показываем окно
+                        app.exec_()  # и запускаем приложение
+
+                        # не запускаем больше ничего
+                        return 0
         try:
             while True:
                 time.sleep(10)
@@ -231,7 +245,6 @@ def main():
             # del db
             # smart_buffer.dump()
             return 0
-
 
 if __name__ == '__main__':
     main()
