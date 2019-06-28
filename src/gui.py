@@ -29,23 +29,57 @@
 # https://doc.qt.io/qtcreator/creator-targets.html
 
 import os
+import time
 import sys  # sys нужен для передачи argv в QApplication
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication
 
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..')) #up a level to get to the settings file
 #sys.path.append(os.path.join(ROOT_PATH, '../..')) #up 2 levels to get to the settings file
 import ui.MainWindow  # Это наш конвертированный файл дизайна
+import ui.DevicesWindow
 
 # open -a Designer
 # pyuic5 ./ui/mainwindow.ui -o ./ui/MainWindow.py
+# pyuic5 ./ui/deviceswindow.ui -o ./ui/DevicesWindow.py
+
+
+class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+        time.sleep(3)
+        self.close()
+        # закрыть окно
+        # self.b_back.clicked.connect(self.close)
+        # self.send_to_main.clicked.connect(self.some_method)
+  
+
+    def some_method(self):
+        # Передача цифры 10 в главное окно
+        pass
 
 
 class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
 
-    labels = ["source_path", "size", "hash", "progress", "checkbox", "uploaded", "dropped"]
+    labels = ["source_path", "size", "hash", "uploaded"]
     key = "source_path"
+
+    def open_devices(self):
+        # https://python-scripts.com/question/7159
+        # в скобках self -> передаем ссылку на родителя, чтобы окно можно было сделать модальным
+        self.window_devices = DevicesWindow(self)
+
+        # делаем окно модальным
+        # self.window_devices.setWindowModality(QtCore.Qt.WindowModal)
+
+        # не совсем понимаю зачем
+        # self.window_devices.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.window_devices.show()
+
 
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
@@ -55,14 +89,25 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         self.swapButton.clicked.connect(self.swap_devices)
         self.init_table()
 
-        # http://cppstudio.ru/?p=291
-        # self.menubar.addMenu("Devices")
-        # self.menubar.addMenu("Loging")
-        # self.menubar.addMenu("Rules")
-        # self.menubar.addMenu("DB")
- 
-        self.statusbar.showMessage("urpylka")
+        # self.statusbar()
+        self.statusbar.showMessage("Ready")
 
+        menubar = self.menuBar()
+        settingsMenu = menubar.addMenu("&Settings")
+
+        self.devicesAction = QAction("Devices")
+        self.devicesAction.setShortcut("Ctrl+D")
+        self.devicesAction.setStatusTip("Manage devices")
+        self.devicesAction.triggered.connect(self.open_devices)
+
+        settingsMenu.addAction(self.devicesAction)
+        settingsMenu.addAction("Logging")
+        settingsMenu.addAction("Rules")
+        settingsMenu.addAction("DB")
+
+        # http://cppstudio.ru/?p=291
+        # https://stackoverflow.com/questions/44281357/pyqt-connect-qaction-to-function
+        # https://pythonworld.ru/gui/pyqt5-menustoolbars.html
         # https://stackoverflow.com/questions/17065053/how-do-i-use-qss-in-pyqt4
         # https://stackoverflow.com/questions/10024525/howto-draw-correct-css-border-in-header
         try:
@@ -137,14 +182,22 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
     def init_source(self, classname, args):
         self.comboBox_Source.clear()
         # http://cppstudio.ru/?p=347
-        self.comboBox_Source.addItem(classname)
-        if args['mount_point'] != "": self.lineEdit_Source.setText(str(args['mount_point']))
+        # https://pythonworld.ru/gui/pyqt5-widgets2.html
+        self.comboBox_Source.addItems(["LOCAL: ./temp/source", "DISK: ./temp/source", "FTP", "WEBDAV", "POST"])
+        self.comboBox_Source.activated[str].connect(self.onActivated_Source)
+        self.comboBox_Source.addItem("classname", 1000)
+        # if args['mount_point'] != "": self.lineEdit_Source.setText(str(args['mount_point']))
 
+    def onActivated_Source(self, text):
+        pass
+        # self.lbl.setText(text)
+        # self.lbl.adjustSize()
 
     def init_target(self, classname, args):
         self.comboBox_Target.clear()
-        self.comboBox_Target.addItem(classname)
-        if args['mount_point'] != "": self.lineEdit_Target.setText(str(args['mount_point']))
+        self.comboBox_Target.addItems(["DISK: /flir", "DISK: ./temp/source", "FTP", "WEBDAV", "POST"])
+
+        # if args['mount_point'] != "": self.lineEdit_Target.setText(str(args['mount_point']))
 
 
     def swap_devices(self):

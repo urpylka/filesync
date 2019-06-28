@@ -27,7 +27,7 @@ from json_array import JsonArray
 from smart_buffer import SmartBuffer
 from mover import Mover
 from logger import get_logger
-from MainWindow_logic import QtWidgets, MainWindowApp
+from gui import QtWidgets, MainWindowApp
 
 def try_again(times, interval, error_message_func, func, *args):
     """

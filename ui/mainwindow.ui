@@ -30,57 +30,33 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_Source">
-            <property name="text">
-             <string>SOURCE</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_Source"/>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_Source"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
+       <widget class="QComboBox" name="comboBox_Source">
+        <property name="currentText">
+         <string extracomment="tcomment"/>
+        </property>
+       </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item alignment="Qt::AlignBottom">
-         <widget class="QPushButton" name="swapButton">
-          <property name="text">
-           <string>⇆</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QPushButton" name="swapButton">
+        <property name="minimumSize">
+         <size>
+          <width>45</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>45</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>⇆</string>
+        </property>
+       </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_Target">
-            <property name="text">
-             <string>TARGET</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_Target"/>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_Target"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
+       <widget class="QComboBox" name="comboBox_Target"/>
       </item>
      </layout>
     </item>
