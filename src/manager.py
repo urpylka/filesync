@@ -138,6 +138,7 @@ def finder(number, args):
                                     db.append(record)
                                     wq.put(record)
                                     logger.info("Finder-{0}: Found a new file: {1}".format(str(number), str(file)))
+                                    if 'window' in globals(): window.add_records([record])
 
                     dirs.task_done()
 
@@ -161,9 +162,11 @@ def worker(number, args):
         # element['size'] = source.get_size(element['source_path'])
         def f(elem_p): element['size'] = source.get_size(elem_p)            
         try_again(0, 1, logger.info, f, element['source_path'])
+        if 'window' in globals(): window.update_record(element)
 
         m = Mover(logger, source, target, element, number)
         m.move()
+        if 'window' in globals(): window.update_record(element)
 
         wq.task_done()
 
