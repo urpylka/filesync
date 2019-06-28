@@ -7,7 +7,7 @@
             "count": 4,
             "logger": {
                 "log_path": "./temp/worker_1.log",
-                "log_level": "INFO",
+                "log_level": "ERROR",
                 "console_output": true
             },
             "finder": {
