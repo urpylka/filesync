@@ -43,14 +43,25 @@ import ui.MainWindow  # Это наш конвертированный файл 
 
 
 class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
+
+    labels = ["source_path", "size", "hash", "progress", "checkbox", "uploaded", "dropped"]
+    key = "source_path"
+
     def __init__(self):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле MainWindow.py
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
-        self.pushButton.clicked.connect(self.add_elem)
+        self.swapButton.clicked.connect(self.swap_devices)
         self.init_table()
-        self.add_elem()
+
+        # http://cppstudio.ru/?p=291
+        # self.menubar.addMenu("Devices")
+        # self.menubar.addMenu("Loging")
+        # self.menubar.addMenu("Rules")
+        # self.menubar.addMenu("DB")
+ 
+        self.statusbar.showMessage("urpylka")
 
         # https://stackoverflow.com/questions/17065053/how-do-i-use-qss-in-pyqt4
         # https://stackoverflow.com/questions/10024525/howto-draw-correct-css-border-in-header
@@ -59,64 +70,84 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         except Exception as ex:
             print(str(ex))
 
-    def add_elem(self):
+
+    def add_records(self, records):
+
         # https://doc.qt.io/qtforpython/PySide2/QtWidgets/QTableWidget.html#PySide2.QtWidgets.PySide2.QtWidgets.QTableWidget.insertRow
         # https://evileg.com/en/post/78/
         # https://secretsilent.ru/добавление-данных-в-таблицу-qtablewidget-очистк/
-        for file_name in os.listdir('.'):  # для каждого файла в директории
-            newItem = QtWidgets.QTableWidgetItem(1)
-            newItem.setText(file_name)
-            font = QFont("TypeWriter", pointSize=11, weight=QFont.Medium)
-            newItem.setFont(font)
 
+        for file in records:
+            # for label, item in file.iteritems():
+            #     # https://pythonworld.ru/tipy-dannyx-v-python/slovari-dict-funkcii-i-metody-slovarej.html
+            #     # https://stackoverflow.com/questions/10458437/what-is-the-difference-between-dict-items-and-dict-iteritems
+            
             new_row_index = self.tableFiles.rowCount()
             self.tableFiles.insertRow(new_row_index)
-            self.tableFiles.setItem(new_row_index, 0, newItem)
-        
+
+            for column_num in range(len(self.labels)):
+
+                newItem = QtWidgets.QTableWidgetItem(1)
+                newItem.setText(str(file.get(self.labels[column_num])))
+
+                self.tableFiles.setItem(new_row_index, column_num, newItem)
+
         self.tableFiles.resizeColumnsToContents()
 
-    def browse_folder(self):
-        self.listWidget_Source.clear()  # На случай, если в списке уже есть элементы
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
-        # открыть диалог выбора директории и установить значение переменной
-        # равной пути к выбранной директории
 
-        if directory:  # не продолжать выполнение, если пользователь не выбрал директорию
-            for file_name in os.listdir(directory):  # для каждого файла в директории
-                self.listWidget_Source.addItem(file_name)   # добавить файл в listWidget
+    def update_record(self, record):
+        # check existing of the key & get position of column
+        column_num = -1
+        for column_num in range(len(self.labels)):
+            if self.labels[column_num] == self.key: break
+        if column_num < 0: return
+        else:
+            # search the key in the table
+            for row_num in range(self.tableFiles.rowCount()):
+                if self.tableFiles.item(row_num, column_num).text() == record[self.key]:
+
+                    # update fields
+                    for column_num in range(len(self.labels)):
+                        self.tableFiles.item(row_num, column_num).setText(str(record.get(self.labels[column_num])))
+                    # resize table
+                    self.tableFiles.resizeColumnsToContents()
+
+                    # searching just first occurrence
+                    return
 
 
     def init_table(self):
         self.tableFiles.clear()  # На случай, если в списке уже есть элементы
-        self.tableFiles.setColumnCount(5)
+        self.tableFiles.setColumnCount(len(self.labels))
         self.tableFiles.setRowCount(0)
         self.tableFiles.setWordWrap(False) # запрет на перенос строк
         self.tableFiles.verticalHeader().setDefaultSectionSize(0)
-        self.tableFiles.setHorizontalHeaderLabels(["source_path","size","hash","progress","checkbox"])
+        self.tableFiles.setHorizontalHeaderLabels(self.labels)
+
+        # https://stackoverflow.com/questions/15686501/qt-qtablewidget-column-resizing
+        # from PyQt5.QtWidgets import QHeaderView
+        # self.tableFiles.horizontalHeader().setResizeMode(0, QHeaderView.Stretch)
+
         self.tableFiles.resizeColumnsToContents()
-        self.tableFiles
+
+        font = QFont("TypeWriter", pointSize=11, weight=QFont.Medium)
+        self.tableFiles.setFont(font)
 
 
-        # newItem = QtWidgets.QTableWidgetItem(1)
-        # newItem.setText("urpylka")
-        # # newItem.setTextAlignment(QtWidgets.Qt) #Qt::AlignCenter
-        # self.tableFiles.setItem(1, 2, newItem)
+    def init_source(self, classname, args):
+        self.comboBox_Source.clear()
+        # http://cppstudio.ru/?p=347
+        self.comboBox_Source.addItem(classname)
+        if args['mount_point'] != "": self.lineEdit_Source.setText(str(args['mount_point']))
 
 
-        # // выделяем память под все ячейки таблицы
-        # for row = 0; row < tableWidget->rowCount(); row++:
-        # for(int column = 0; column < tableWidget->columnCount(); column++)
-        # {
-        #     QTableWidgetItem *item = new QTableWidgetItem(); // выделяем память под ячейку
-        #     item->setText(QString("%1_%2").arg(row).arg(column)); // вставляем текст
-    
-        #     tableWidget->setItem(row, column, item); // вставляем ячейку
-        # }
+    def init_target(self, classname, args):
+        self.comboBox_Target.clear()
+        self.comboBox_Target.addItem(classname)
+        if args['mount_point'] != "": self.lineEdit_Target.setText(str(args['mount_point']))
 
-        # directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
-        # # открыть диалог выбора директории и установить значение переменной
-        # # равной пути к выбранной директории
 
-        # if directory:  # не продолжать выполнение, если пользователь не выбрал директорию
-        #     for file_name in os.listdir(directory):  # для каждого файла в директории
-        #         self.listWidget_Source.addItem(file_name)   # добавить файл в listWidget
+    def swap_devices(self):
+        pass
+
+# directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
