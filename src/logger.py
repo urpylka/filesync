@@ -24,7 +24,7 @@ import logging
 # https://docs.python.org/3/howto/logging.html
 # https://aykutakin.wordpress.com/2013/08/06/logging-to-console-and-file-in-python/
 
-def get_logger(name, path, level):
+def get_logger(name, level, console_flag, path=None):
     # https://python-scripts.com/logging-python
     logger = logging.getLogger(name)
 
@@ -38,15 +38,18 @@ def get_logger(name, path, level):
     # https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility
     logging.addLevelName(41, "SUCCESS")
 
-    # create the logging file handler
-    file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    file_handle = logging.FileHandler(path, "w", "UTF-8")
-    file_handle.setFormatter(file_formatter)
-    logger.addHandler(file_handle)
+    if not path == "":
+        # Haven't any checks from oversize!!!
+        # create the logging file handler
+        file_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        file_handle = logging.FileHandler(path, "w", "UTF-8")
+        file_handle.setFormatter(file_formatter)
+        logger.addHandler(file_handle)
 
-    console_formatter = logging.Formatter("%(levelname)s - %(message)s")
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    if console_flag:
+        console_formatter = logging.Formatter(name + ": %(levelname)s - %(message)s")
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(console_formatter)
+        logger.addHandler(console_handler)
 
     return logger

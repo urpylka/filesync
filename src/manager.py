@@ -200,7 +200,7 @@ def main():
         else:
             for worker_data in config["workers"]:
                 if worker_data["enable"]:
-                    logger = get_logger(worker_data["name"], worker_data["logger"]["log_path"], worker_data["logger"]["log_level"])
+                    logger = get_logger(worker_data["name"], worker_data["logger"]["log_level"], worker_data["logger"]["console_output"], worker_data["logger"]["log_path"])
 
                     db = JsonArray(worker_data["db_backup"]["db_path"], worker_data["db_backup"]["autosave_interval"], logger)
                     wq = Queue()
