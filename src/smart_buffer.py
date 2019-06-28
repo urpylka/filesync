@@ -133,10 +133,8 @@ class SmartBuffer(object):
         self.buf_type = buf_type
         self.hist_size = 1000000 if file_size > 1000000 else file_size # min(1MB, file_size)
 
-        if buf_size is None:
-            self.buf_size = self.get_optimize_buf_size()
-        else:
-            self.buf_size = buf_size
+        if buf_size is None: self.buf_size = self.get_optimize_buf_size()
+        else: self.buf_size = buf_size
 
         # https://docs.python.org/3/library/hashlib.html
         # https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
@@ -146,10 +144,8 @@ class SmartBuffer(object):
         # а также значения для некоторых файлов сопадало))
         self.hash = hashlib.md5()
 
-        if buf_type == 0:
-            self.buffer = io.BytesIO()
-        elif buf_type == 1:
-            self.buffer = io.open(buf_name, "w+b")
+        if buf_type == 0: self.buffer = io.BytesIO()
+        elif buf_type == 1: self.buffer = io.open(buf_name, "w+b")
 
         self.pos_r = 0
         self.pos_w = 0
