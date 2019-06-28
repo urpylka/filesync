@@ -53,7 +53,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item alignment="Qt::AlignBottom">
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="swapButton">
           <property name="text">
            <string>⇆</string>
           </property>
