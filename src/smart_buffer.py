@@ -58,10 +58,6 @@ class SmartBuffer(object):
     up_percent = 0
     prog = 1
 
-    # https://docs.python.org/3/library/hashlib.html
-    # https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
-    hash = hashlib.md5()
-
 
     def get_hash(self):
         return self.hash.hexdigest()
@@ -141,6 +137,14 @@ class SmartBuffer(object):
             self.buf_size = self.get_optimize_buf_size()
         else:
             self.buf_size = buf_size
+
+        # https://docs.python.org/3/library/hashlib.html
+        # https://stackoverflow.com/questions/3431825/generating-an-md5-checksum-of-a-file
+        # была ошибка когда я просто определил переменную hash в теле класса
+        # (хеш суммы определялись неправильно
+        # (значение не совпадало с функцией md5 в консоле,
+        # а также значения для некоторых файлов сопадало))
+        self.hash = hashlib.md5()
 
         if buf_type == 0:
             self.buffer = io.BytesIO()
