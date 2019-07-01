@@ -26,18 +26,15 @@
      <height>50000</height>
     </size>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
-     <number>-1</number>
-    </property>
-    <property name="leftMargin">
-     <number>12</number>
-    </property>
-    <property name="bottomMargin">
-     <number>12</number>
+     <number>0</number>
     </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="spacing">
+       <number>12</number>
+      </property>
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -53,7 +50,7 @@
       <item>
        <widget class="QComboBox" name="comboBox_Source">
         <property name="currentText">
-         <string extracomment="tcomment"/>
+         <string/>
         </property>
        </widget>
       </item>
@@ -84,27 +81,14 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
-       <number>-1</number>
+       <number>12</number>
       </property>
       <property name="topMargin">
        <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>0</number>
+       <number>12</number>
       </property>
-      <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Sync</string>
-        </property>
-       </widget>
-      </item>
       <item>
        <widget class="QPushButton" name="pushButton_2">
         <property name="maximumSize">
@@ -115,6 +99,15 @@
         </property>
         <property name="text">
          <string>Scan</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -128,6 +121,22 @@
         </property>
         <property name="text">
          <string>Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Sync</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
