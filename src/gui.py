@@ -89,6 +89,8 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         self.swapButton.clicked.connect(self.swap_devices)
         self.init_table()
 
+        self.pushButton_2.setFocus()
+
         # self.statusbar()
         self.statusbar.showMessage("Ready")
 
