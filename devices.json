@@ -1,0 +1,16 @@
+[
+    {
+        "module_path": "device_local",
+        "device_class": "LOCAL",
+        "args": {
+            "mount_point": "./temp/source"
+        }
+    },
+    {
+        "module_path": "device_local",
+        "device_class": "LOCAL",
+        "args": {
+            "mount_point": "./temp/target"
+        }
+    }
+]

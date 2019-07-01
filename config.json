@@ -1,56 +1,54 @@
 {
-    "workers": [
-        {
-            "enable": true,
-            "gui": true,
-            "name": "worker_1",
-            "count": 4,
-            "logger": {
-                "log_path": "./temp/worker_1.log",
-                "log_level": "ERROR",
-                "console_output": true
-            },
-            "finder": {
-                "search_interval": 10,
-                "mkdir_interval": 1
-            },
-            "db_backup": {
-                "db_path": "./temp/worker_1.json",
-                "autosave_interval": 5
-            },
-            "db": {
-                "default_record": {
-                    "source_path": "",
-                    "local_path": "",
-                    "target_path": "",
-                    "size": -1,
-                    "created": "",
-                    "modified": "",
-                    "hash": "",
-                    "downloaded": false,
-                    "dropped": false,
-                    "uploaded": false
-                },
-                "key": "source_path"
-            },
-            "rules": {
-                "include": ["*"],
-                "exclude": ["/files/*", "*.tiff"]
-            },
-            "source": {
-                "module_path": "device_local",
-                "device_class": "LOCAL",
-                "args": {
-                    "mount_point": "./temp/source"
-                }
-            },
-            "target": {
-                "module_path": "device_local",
-                "device_class": "LOCAL",
-                "args": {
-                    "mount_point": "./temp/target"
-                }
-            }
+    "enable": true,
+    "gui": true,
+    "name": "worker_1",
+    "mover_count": 4,
+    "logger": {
+        "log_path": "./temp/worker_1.log",
+        "log_level": "ERROR",
+        "console_output": true
+    },
+    "finder": {
+        "searching_times": 0,
+        "search_interval": 10,
+        "mkdir_times": 0,
+        "mkdir_interval": 1
+    },
+    "db_backup": {
+        "db_path": "./temp/worker_1.json",
+        "autosave_interval": 5
+    },
+    "db": {
+        "default_record": {
+            "source_path": "",
+            "local_path": "",
+            "target_path": "",
+            "size": -1,
+            "created": "",
+            "modified": "",
+            "hash": "",
+            "downloaded": false,
+            "dropped": false,
+            "uploaded": false
+        },
+        "key": "source_path"
+    },
+    "rules": {
+        "include": ["*"],
+        "exclude": ["/files/*", "*.tiff"]
+    },
+    "source": {
+        "module_path": "device_local",
+        "device_class": "LOCAL",
+        "args": {
+            "mount_point": "./temp/source"
         }
-    ]
+    },
+    "target": {
+        "module_path": "device_local",
+        "device_class": "LOCAL",
+        "args": {
+            "mount_point": "./temp/target"
+        }
+    }
 }
