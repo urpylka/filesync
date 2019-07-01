@@ -39,28 +39,29 @@ from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..')) #up a level to get to the settings file
 #sys.path.append(os.path.join(ROOT_PATH, '../..')) #up 2 levels to get to the settings file
-import ui.MainWindow  # Это наш конвертированный файл дизайна
+
+import ui.MainWindow
 import ui.DevicesWindow
+import ui.RulesWindow
 
 # open -a Designer
 # pyuic5 ./ui/mainwindow.ui -o ./ui/MainWindow.py
 # pyuic5 ./ui/deviceswindow.ui -o ./ui/DevicesWindow.py
+# pyuic5 ./ui/ruleswindow.ui -o ./ui/RulesWindow.py
 
 
 class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
-        time.sleep(3)
-        self.close()
-        # закрыть окно
-        # self.b_back.clicked.connect(self.close)
-        # self.send_to_main.clicked.connect(self.some_method)
-  
+        self.pushButton_3.clicked.connect(self.close)
 
-    def some_method(self):
-        # Передача цифры 10 в главное окно
-        pass
+
+class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.setupUi(self)
+        self.pushButton_2.clicked.connect(self.close) #self.destroy()
 
 
 class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
@@ -68,13 +69,26 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
     labels = ["source_path", "size", "hash", "uploaded"]
     key = "source_path"
 
+    def open_rules(self):
+        # https://python-scripts.com/question/7159
+        # в скобках self -> передаем ссылку на родителя, чтобы окно можно было сделать модальным
+        self.window_rules = RulesWindow(self)
+
+        # делаем окно модальным
+        self.window_rules.setWindowModality(QtCore.Qt.WindowModal)
+
+        # не совсем понимаю зачем
+        # self.window_rules.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
+        self.window_rules.show()
+
+
     def open_devices(self):
         # https://python-scripts.com/question/7159
         # в скобках self -> передаем ссылку на родителя, чтобы окно можно было сделать модальным
         self.window_devices = DevicesWindow(self)
 
         # делаем окно модальным
-        # self.window_devices.setWindowModality(QtCore.Qt.WindowModal)
+        self.window_devices.setWindowModality(QtCore.Qt.WindowModal)
 
         # не совсем понимаю зачем
         # self.window_devices.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
@@ -87,6 +101,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         self.swapButton.clicked.connect(self.swap_devices)
+        self.pushButton_3.clicked.connect(self.open_rules)
         self.init_table()
 
         self.pushButton_2.setFocus()
@@ -104,7 +119,6 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
 
         settingsMenu.addAction(self.devicesAction)
         settingsMenu.addAction("Logging")
-        settingsMenu.addAction("Rules")
         settingsMenu.addAction("DB")
 
         # http://cppstudio.ru/?p=291

@@ -7,8 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>583</height>
+    <height>450</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>450</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Devices</string>
@@ -42,14 +48,14 @@
           <item>
            <widget class="QPushButton" name="pushButton_2">
             <property name="text">
-             <string>SaveButton</string>
+             <string>Save</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QPushButton" name="pushButton">
             <property name="text">
-             <string>DropButton</string>
+             <string>Drop</string>
             </property>
            </widget>
           </item>
@@ -94,6 +100,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_3">
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

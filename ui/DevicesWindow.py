@@ -12,7 +12,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_DevicesWindow(object):
     def setupUi(self, DevicesWindow):
         DevicesWindow.setObjectName("DevicesWindow")
-        DevicesWindow.resize(800, 583)
+        DevicesWindow.resize(800, 450)
+        DevicesWindow.setMinimumSize(QtCore.QSize(800, 450))
         DevicesWindow.setDockOptions(QtWidgets.QMainWindow.AllowTabbedDocks|QtWidgets.QMainWindow.AnimatedDocks)
         self.centralwidget = QtWidgets.QWidget(DevicesWindow)
         self.centralwidget.setMinimumSize(QtCore.QSize(800, 400))
@@ -65,6 +66,9 @@ class Ui_DevicesWindow(object):
         self.verticalLayout_2.addWidget(self.lineEdit)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem)
+        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_3.setObjectName("pushButton_3")
+        self.verticalLayout_2.addWidget(self.pushButton_3)
         self.horizontalLayout.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout)
         DevicesWindow.setCentralWidget(self.centralwidget)
@@ -82,7 +86,8 @@ class Ui_DevicesWindow(object):
     def retranslateUi(self, DevicesWindow):
         _translate = QtCore.QCoreApplication.translate
         DevicesWindow.setWindowTitle(_translate("DevicesWindow", "Devices"))
-        self.pushButton_2.setText(_translate("DevicesWindow", "SaveButton"))
-        self.pushButton.setText(_translate("DevicesWindow", "DropButton"))
+        self.pushButton_2.setText(_translate("DevicesWindow", "Save"))
+        self.pushButton.setText(_translate("DevicesWindow", "Drop"))
+        self.pushButton_3.setText(_translate("DevicesWindow", "Cancel"))
 
 

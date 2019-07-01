@@ -82,7 +82,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "Filesync"))
         self.swapButton.setText(_translate("MainWindow", "⇆"))
         self.pushButton_2.setText(_translate("MainWindow", "Scan"))
-        self.pushButton_3.setText(_translate("MainWindow", "Settings"))
+        self.pushButton_3.setText(_translate("MainWindow", "Rules"))
         self.pushButton.setText(_translate("MainWindow", "Sync"))
 
 
