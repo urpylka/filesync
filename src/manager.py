@@ -229,13 +229,13 @@ def main():
                 for record in db:
                     if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
 
-                m1 = __import__(worker_data["source"]["module_path"])
+                m1 = __import__(worker_data["source"]["device"])
                 worker_data["source"]["args"]["logger"] = logger
-                source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
+                source = getattr(m1, worker_data["source"]["device"])(**worker_data["source"]["args"])
 
-                m2 = __import__(worker_data["target"]["module_path"])
+                m2 = __import__(worker_data["target"]["device"])
                 worker_data["target"]["args"]["logger"] = logger
-                target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
+                target = getattr(m2, worker_data["target"]["device"])(**worker_data["target"]["args"])
 
                 def create_threads(count, function, *args):
                     for i in range(count):

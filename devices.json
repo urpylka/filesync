@@ -1,14 +1,12 @@
 [
     {
-        "module_path": "device_local",
-        "device_class": "LOCAL",
+        "device": "device_local",
         "args": {
             "mount_point": "./temp/source"
         }
     },
     {
-        "module_path": "device_local",
-        "device_class": "LOCAL",
+        "device": "device_local",
         "args": {
             "mount_point": "./temp/target"
         }
