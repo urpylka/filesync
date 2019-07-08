@@ -47,7 +47,8 @@ def get_logger(name, level, console_flag, path=None):
         logger.addHandler(file_handle)
 
     if console_flag:
-        console_formatter = logging.Formatter(name + ": %(levelname)s - %(message)s")
+        # console_formatter = logging.Formatter(name + ": %(levelname)s - %(message)s")
+        console_formatter = logging.Formatter("%(levelname)s - %(message)s")
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
