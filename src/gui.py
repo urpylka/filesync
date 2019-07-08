@@ -204,10 +204,12 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         self.comboBox_Source.addItem("classname", 1000)
         # if args['mount_point'] != "": self.lineEdit_Source.setText(str(args['mount_point']))
 
+
     def onActivated_Source(self, text):
         pass
         # self.lbl.setText(text)
         # self.lbl.adjustSize()
+
 
     def init_target(self, classname, args):
         self.comboBox_Target.clear()
