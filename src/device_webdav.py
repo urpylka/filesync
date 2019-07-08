@@ -41,17 +41,17 @@ from device_abstract import Device
 from bash_commands import *
 
 
-class WEBDAV(Device):
+class device_mavftp(Device):
     """
     В классе не поддерживается восстановление передачи с ее прерывания
 
-from device_webdav import WEBDAV
+from device_webdav import device_mavftp
 args = {
 'host': "https://webdav.yandex.ru",
 'user':    "",
 'passwd': ""}
 
-wd = WEBDAV(**args)
+wd = device_mavftp(**args)
 
 wd.get_list("/")
 
@@ -78,7 +78,7 @@ with open(filename, 'wb') as target_stream:
         self.logger = self.kwargs.get("logger")
         if self.logger == None:
             from logger import get_logger
-            self.logger = get_logger("WEBDAV", "device_webdav.log", "DEBUG")
+            self.logger = get_logger("device_mavftp", "device_webdav.log", "DEBUG")
 
         self.logger.info(self._prefix + "WEBDAV is unavailble. All operations is lock")
 

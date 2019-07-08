@@ -85,13 +85,13 @@ class ProgressBar:
 #         return os.path.normpath(os.path.join(pwd, path))
 
 
-class MAVFTP(Device):
+class device_mavftp(Device):
 
     _mavftp_lock = Lock()
 
     def _connect(self):
         self.is_remote_available.clear()
-        self._prefix = "MAVFTP: "
+        self._prefix = "device_mavftp: "
         rospy.loginfo('Init px4logs_manager')
         rospy.init_node("mavftp", anonymous=True)
         self.ftp_list = rospy.ServiceProxy("/mavros/ftp/list", FileList)

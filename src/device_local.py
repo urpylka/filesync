@@ -19,10 +19,10 @@
 import os, time
 from device_abstract import Device
 
-class LOCAL(Device):
+class device_local(Device):
     """
-    Use: LOCAL(mount_point="/")
-    > mount_point is like root path for LOCAL device or DISK
+    Use: device_local(mount_point="/")
+    > mount_point is like root path for device_local or device_disk
 
     """
 
@@ -34,12 +34,12 @@ class LOCAL(Device):
         """
 
         self.is_remote_available.clear()
-        self._prefix = "LOCAL: " + self.kwargs["mount_point"] + ": "
+        self._prefix = "device_local: " + self.kwargs["mount_point"] + ": "
 
         self.logger = self.kwargs.get("logger")
         if self.logger == None:
             from logger import get_logger
-            self.logger = get_logger("LOCAL", "device_local.log", "DEBUG")
+            self.logger = get_logger("device_local", "device_local.log", "DEBUG")
 
         self.logger.info(self._prefix + "Local is available. All operations is unlock")
 

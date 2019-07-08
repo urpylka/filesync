@@ -16,12 +16,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from device_local import LOCAL
+from device_local import device_local
 from bash_commands import *
 
 import os, time
 
-class DISK(LOCAL):
+class device_disk(device_local):
 
     def _connect(self):
         self.is_remote_available.clear()
@@ -30,7 +30,7 @@ class DISK(LOCAL):
         self.logger = self.kwargs.get("logger")
         if self.logger == None:
             from logger import get_logger
-            self.logger = get_logger("DISK", "device_disk.log", "DEBUG")
+            self.logger = get_logger("device_disk", "device_disk.log", "DEBUG")
 
         self.logger.info(self._prefix + "Partition is unavailable. All operations is lock")
         while True:

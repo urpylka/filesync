@@ -39,14 +39,14 @@
     },
     "source": {
         "module_path": "device_local",
-        "device_class": "LOCAL",
+        "device_class": "device_local",
         "args": {
             "mount_point": "./temp/source"
         }
     },
     "target": {
         "module_path": "device_local",
-        "device_class": "LOCAL",
+        "device_class": "device_local",
         "args": {
             "mount_point": "./temp/target"
         }
