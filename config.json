@@ -1,6 +1,6 @@
 {
-    "enable": true,
     "gui": true,
+    "enable": true,
     "name": "worker_1",
     "mover_count": 4,
     "logger": {
