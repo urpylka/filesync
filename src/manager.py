@@ -198,60 +198,61 @@ def main():
             print("Error 3. The config file doesn't exist")
             exit(1)
 
-        if worker_data["enable"]:
-            logger = get_logger(worker_data["name"], worker_data["logger"]["log_level"], worker_data["logger"]["console_output"], worker_data["logger"]["log_path"])
+        if worker_data["gui"]:
 
-            db = JsonArray(worker_data["db_backup"]["db_path"], worker_data["db_backup"]["autosave_interval"], logger)
-            wq = Queue()
-            for record in db:
-                if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+            # больше одного worker как отдельного процесса вроде как не запустить!
 
-            m1 = __import__(worker_data["source"]["module_path"])
-            worker_data["source"]["args"]["logger"] = logger
-            source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
+            # https://pythonworld.ru/osnovy/instrukciya-if-elif-else-proverka-istinnosti-trexmestnoe-vyrazhenie-ifelse.html
+            # A = Y if X else Z
+            app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
+            global window
+            window = MainWindowApp()  # Создаём объект класса ExampleApp
 
-            m2 = __import__(worker_data["target"]["module_path"])
-            worker_data["target"]["args"]["logger"] = logger
-            target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
+            window.init_source(worker_data["source"]["device_class"], worker_data["source"]["args"])
+            window.init_target(worker_data["target"]["device_class"], worker_data["target"]["args"])
 
-            def create_threads(count, function, *args):
-                for i in range(count):
-                    t = Thread(target=function, args=(i+1, args,))
-                    t.daemon = True
-                    t.start()
+            window.show()  # Показываем окно
 
-            if worker_data["gui"]:
+            # create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
+            # create_threads(worker_data["mover_count"], mover, target, source, wq, logger)
 
-                # больше одного worker как отдельного процесса вроде как не запустить!
+            app.exec_()  # и запускаем приложение
 
-                # https://pythonworld.ru/osnovy/instrukciya-if-elif-else-proverka-istinnosti-trexmestnoe-vyrazhenie-ifelse.html
-                # A = Y if X else Z
-                app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-                global window
-                window = MainWindowApp()  # Создаём объект класса ExampleApp
+            return 0
 
-                window.init_source(worker_data["source"]["device_class"], worker_data["source"]["args"])
-                window.init_target(worker_data["target"]["device_class"], worker_data["target"]["args"])
+        else:
+            if worker_data["enable"]:
+                logger = get_logger(worker_data["name"], worker_data["logger"]["log_level"], worker_data["logger"]["console_output"], worker_data["logger"]["log_path"])
 
-                window.show()  # Показываем окно
+                db = JsonArray(worker_data["db_backup"]["db_path"], worker_data["db_backup"]["autosave_interval"], logger)
+                wq = Queue()
+                for record in db:
+                    if not record['downloaded'] or not record['uploaded'] or not record['dropped']: wq.put(record)
+
+                m1 = __import__(worker_data["source"]["module_path"])
+                worker_data["source"]["args"]["logger"] = logger
+                source = getattr(m1, worker_data["source"]["device_class"])(**worker_data["source"]["args"])
+
+                m2 = __import__(worker_data["target"]["module_path"])
+                worker_data["target"]["args"]["logger"] = logger
+                target = getattr(m2, worker_data["target"]["device_class"])(**worker_data["target"]["args"])
+
+                def create_threads(count, function, *args):
+                    for i in range(count):
+                        t = Thread(target=function, args=(i+1, args,))
+                        t.daemon = True
+                        t.start()
 
                 create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
                 create_threads(worker_data["mover_count"], mover, target, source, wq, logger)
 
-                app.exec_()  # и запускаем приложение
-
+            try:
+                while True:
+                    time.sleep(10)
+            except KeyboardInterrupt:
+                # del db
+                # smart_buffer.dump()
                 return 0
-            else:
-                create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
-                create_threads(worker_data["mover_count"], mover, target, source, wq, logger)
-
-                try:
-                    while True:
-                        time.sleep(10)
-                except KeyboardInterrupt:
-                    # del db
-                    # smart_buffer.dump()
-                    return 0
 
 
 if __name__ == '__main__':
