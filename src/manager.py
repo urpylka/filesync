@@ -208,8 +208,8 @@ def main():
             global window
             window = MainWindowApp()  # Создаём объект класса ExampleApp
 
-            window.init_source(worker_data["source"]["device_class"], worker_data["source"]["args"])
-            window.init_target(worker_data["target"]["device_class"], worker_data["target"]["args"])
+            window.init_source(worker_data["source"]["device"], worker_data["source"]["args"])
+            window.init_target(worker_data["target"]["device"], worker_data["target"]["args"])
 
             window.show()  # Показываем окно
 
