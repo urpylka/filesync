@@ -44,6 +44,9 @@ import ui.MainWindow
 import ui.DevicesWindow
 import ui.RulesWindow
 
+from logger import get_logger
+from json_array import JsonArray
+
 # open -a Designer
 # pyuic5 ./ui/mainwindow.ui -o ./ui/MainWindow.py
 # pyuic5 ./ui/deviceswindow.ui -o ./ui/DevicesWindow.py
@@ -56,6 +59,57 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
         self.setupUi(self)
         self.pushButton_3.clicked.connect(self.close)
 
+        logger = get_logger("devices", "INFO", True, "")
+        devices_config = "./devices.json"
+        devices_autosave_int = 2
+        self.devices_array = JsonArray(devices_config, devices_autosave_int, logger)
+
+        # self.devices = []
+
+        self.update_combobox_devices()
+        self.update_devices_list()
+
+        def selectItem(Item):
+
+            print(Item.text())
+        self.listWidget.itemClicked.connect(selectItem)
+
+        def itemPosition(item): self.update_fields()
+        self.comboBox.activated.connect(itemPosition)
+
+
+    def update_fields(self):
+        dev = self.comboBox.currentText()
+        try:
+            m = __import__(dev)
+            source = getattr(m, dev).get_fields()
+            print(source)
+        except Exception as ex:
+            print(ex)
+
+
+    def update_devices_list(self):
+        my_list = []
+        for dev in self.devices_array:
+
+            cl = dev["device"]
+            try:
+                d_cl = getattr(__import__(cl), cl).to_string(dev["args"])
+                my_list.append(getattr(__import__(cl), cl).to_string(dev["args"]))
+            except Exception as ex:
+                print(ex)
+
+        self.listWidget.addItems(my_list)
+
+
+    def update_combobox_devices(self):
+        my_list = []
+        devices_path = "./src"
+        for rootdir, dirs, files in os.walk(devices_path):
+            for file in files:
+                if file.startswith("device_") and file.endswith(".py"): my_list.append(file[:-3])
+        self.comboBox.addItems(my_list)
+        
 
 class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
     def __init__(self, parent=None):
