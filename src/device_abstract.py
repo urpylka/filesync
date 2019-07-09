@@ -19,7 +19,8 @@
 from threading import Thread
 from threading import Event
 
-class Device(object):
+
+class device_abstract(object):
     """
     1. Как описать общий механизм работы функции,
     если разные ее исполенения возвращают разный результат?
@@ -42,6 +43,16 @@ class Device(object):
     6. Надо добавить в вывод "Not implemented method"
     наименование класса в котором это все вызывается
     """
+
+
+    @staticmethod
+    def to_string(dic): return "device_abstract://"
+
+
+    @staticmethod
+    def get_fields():
+        return []
+
 
     def __init__(self, **kwargs):
 

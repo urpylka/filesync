@@ -21,7 +21,22 @@ from bash_commands import *
 
 import os, time
 
+
 class device_disk(device_local):
+
+
+    @staticmethod
+    def to_string(dic): return "device_disk://" + dic["uuid"] + ":" + dic["mount_point"]
+
+
+    @staticmethod
+    def get_fields():
+        list = []
+        list.append("logger")
+        list.append("uuid")
+        list.append("mount_point")
+        return list
+
 
     def _connect(self):
         self.is_remote_available.clear()

@@ -17,14 +17,26 @@
 # limitations under the License.
 
 import os, time
-from device_abstract import Device
+from device_abstract import device_abstract
 
-class device_local(Device):
+
+class device_local(device_abstract):
     """
     Use: device_local(mount_point="/")
     > mount_point is like root path for device_local or device_disk
 
     """
+
+    @staticmethod
+    def to_string(dic): return "device_local://" + dic["mount_point"]
+
+
+    @staticmethod
+    def get_fields():
+        list = []
+        list.append("logger")
+        list.append("mount_point")
+        return list
 
     def _connect(self):
         """

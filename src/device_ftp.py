@@ -24,7 +24,7 @@ import time
 import ftplib
 from threading import RLock
 
-from device_abstract import Device
+from device_abstract import device_abstract
 
 
 # class my_ftp(ftplib.FTP):
@@ -110,7 +110,7 @@ from device_abstract import Device
 #             return self.voidresp()
 
 
-class device_ftp(Device):
+class device_ftp(device_abstract):
     """
     target = device_ftp("192.168.0.10", "test-1", "passwd", logging)
     with open("/home/pi/flir/20181113_205519_20181113212352517.JPG", 'rb') as source_stream:
@@ -127,6 +127,21 @@ class device_ftp(Device):
 
     _internal_lock = RLock()
     _ftp = ftplib.FTP()
+
+
+    @staticmethod
+    def to_string(dic): return "device_ftp://" + dic["user"] + "@" + dic["host"] + ":~"
+
+
+    @staticmethod
+    def get_fields():
+        list = []
+        list.append("logger")
+        list.append("host")
+        list.append("user")
+        list.append("passwd")
+        return list
+
 
     def __del__(self):
         self._ftp.abort()

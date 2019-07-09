@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from device_abstract import Device
+from device_abstract import device_abstract
 
 import time, sys, os
 from threading import Lock
@@ -85,9 +85,21 @@ class ProgressBar:
 #         return os.path.normpath(os.path.join(pwd, path))
 
 
-class device_mavftp(Device):
+class device_mavftp(device_abstract):
 
     _mavftp_lock = Lock()
+
+
+    @staticmethod
+    def to_string(dic): return "device_mavftp://"
+
+
+    @staticmethod
+    def get_fields():
+        list = []
+        list.append("logger")
+        return list
+
 
     def _connect(self):
         self.is_remote_available.clear()

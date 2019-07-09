@@ -37,11 +37,11 @@ from webdav.urn import Urn
 from webdav.connection import *
 from webdav.exceptions import *
 
-from device_abstract import Device
+from device_abstract import device_abstract
 from bash_commands import *
 
 
-class device_mavftp(Device):
+class device_webdav(device_abstract):
     """
     В классе не поддерживается восстановление передачи с ее прерывания
 
@@ -68,6 +68,20 @@ with open(filename, 'wb') as target_stream:
     _internal_lock2 = RLock()
     _wc = None
     _webdav_timeout = 0.5
+
+
+    @staticmethod
+    def to_string(dic): return "device_webdav://" + dic["user"] + "@" + dic["host"] + ":~"
+
+
+    @staticmethod
+    def get_fields():
+        list = []
+        list.append("logger")
+        list.append("host")
+        list.append("user")
+        list.append("passwd")
+        return list
 
 
     def _connect(self):
