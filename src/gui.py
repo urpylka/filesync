@@ -30,11 +30,13 @@
 
 import os
 import time
+import json
 import sys  # sys нужен для передачи argv в QApplication
+
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication
+from PyQt5.QtWidgets import QMainWindow, QAction, qApp, QApplication, QMessageBox, QWidget
 
 ROOT_PATH = os.path.dirname(__file__)
 sys.path.append(os.path.join(ROOT_PATH, '..')) #up a level to get to the settings file
@@ -45,7 +47,6 @@ import ui.DevicesWindow
 import ui.RulesWindow
 
 from logger import get_logger
-from json_array import JsonArray
 
 # open -a Designer
 # pyuic5 ./ui/mainwindow.ui -o ./ui/MainWindow.py
@@ -57,38 +58,60 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
     def __init__(self, parent=None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
-        self.pushButton_3.clicked.connect(self.close)
+        self.b_Cancel.clicked.connect(self.close)
+        self.b_Cancel.clicked.connect(self.saveDevice)
+
+        self.deviceArgs.textChanged.connect(self.argsChanged)
 
         logger = get_logger("devices", "INFO", True, "")
-        devices_config = "./devices.json"
+        self.devices_config = "./devices.json"
         devices_autosave_int = 2
-        self.devices_array = JsonArray(devices_config, devices_autosave_int, logger)
+        self.devices_array = self._load_json(self.devices_config)
 
-        # self.devices = []
+        self.changed_device = {}
 
-        self.update_combobox_devices()
-        self.update_devices_list()
+        self.loadDevicesCombo() # must be loaded before devicesList
+        self.loadDevicesList()
 
-        def selectItem(Item):
+        self.devicesList.currentRowChanged.connect(self.selectDeviceInList)
+        self.devicesCombo.currentIndexChanged.connect(self.selectDeviceInCombo)
 
-            print(Item.text())
-        self.listWidget.itemClicked.connect(selectItem)
+    @staticmethod
+    def _load_json(json_path):
+        """
+        Функция для загрузки словаря из json-файла.
+        """
 
-        def itemPosition(item): self.update_fields()
-        self.comboBox.activated.connect(itemPosition)
-
-
-    def update_fields(self):
-        dev = self.comboBox.currentText()
+        records = []
         try:
-            m = __import__(dev)
-            source = getattr(m, dev).get_fields()
-            print(source)
-        except Exception as ex:
-            print(ex)
+            with open(json_path, 'r') as infile:
+                records = json.load(infile)
+
+        except IOError as ex:
+            if ex.errno == 2:
+                print("load_json: File of DB was created")
+
+        except ValueError as ex:
+            print("load_json: Incorrect Json in file of DB: " + str(ex))
+
+        return records
 
 
-    def update_devices_list(self):
+    @staticmethod
+    def _dump_json(json_path, records):
+        if not os.path.exists(os.path.dirname(json_path)):
+            try:
+                os.makedirs(os.path.dirname(json_path))
+            except OSError as exc:  # Guard against race condition
+                if exc.errno != errno.EEXIST:
+                    raise
+
+        with open(json_path, 'w') as outfile:
+            json.dump(records, outfile)
+            # self._logger.debug("dump_json: File of the DB was updated successful!")
+
+
+    def loadDevicesList(self):
         my_list = []
         for dev in self.devices_array:
 
@@ -99,17 +122,94 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
             except Exception as ex:
                 print(ex)
 
-        self.listWidget.addItems(my_list)
+        self.devicesList.addItems(my_list)
+
+        # Select Row #0 by default
+        self.devicesList.setCurrentRow(0)
+        self.selectDeviceInList(0)
 
 
-    def update_combobox_devices(self):
-        my_list = []
+    def selectDeviceInList(self, index_of_device):
+        name_of_device = self.devices_array[index_of_device]["device"]
+
+        index = self.devicesCombo.findText(name_of_device, QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.devicesCombo.setCurrentIndex(index)
+
+        self.updateParams()
+
+
+    def loadDevicesCombo(self):
+        self.devices_combo = []
         devices_path = "./src"
         for rootdir, dirs, files in os.walk(devices_path):
             for file in files:
-                if file.startswith("device_") and file.endswith(".py"): my_list.append(file[:-3])
-        self.comboBox.addItems(my_list)
-        
+                if file.startswith("device_") and file.endswith(".py"): self.devices_combo.append(file[:-3])
+        self.devicesCombo.addItems(self.devices_combo)
+
+
+    def selectDeviceInCombo(self, index_item):
+        # print(index_item)
+        self.updateParams()
+
+
+    def updateParams(self):
+        device_t = self.devicesCombo.currentText()
+        device_c = self.devices_array[self.devicesList.currentRow()]
+
+        try:
+            m = __import__(device_t)
+            source = getattr(m, device_t).get_fields()
+
+            device_r = {}
+            if device_t == device_c["device"]:
+                for field in source:
+                    if field is not "logger":
+                        device_r[field] = "" if device_c["args"][field] is None else device_c["args"][field]
+            else:
+                for field in source:
+                    if field is not "logger": device_r[field] = ""
+
+            # https://python-scripts.com/json
+            self.deviceArgs.setPlainText(json.dumps(device_r))
+            self.deviceArgs.setReadOnly(False)
+
+            my_device = {}
+            my_device["device"] = device_t
+            my_device["args"] = device_r
+
+            if my_device != device_c:
+                self.changed_device = my_device
+                self.b_Save.setEnabled(True)
+            else:
+                self.b_Save.setEnabled(False)
+
+        except Exception as ex:
+            self.deviceArgs.setPlainText("ERROR\n"+str(ex))
+            self.deviceArgs.setReadOnly(True)
+            # QMessageBox.critical(QWidget(), "ERROR", ex)
+
+
+    def argsChanged(self):
+        device_t = self.devicesCombo.currentText()
+        device_c = self.devices_array[self.devicesList.currentRow()]
+
+        my_device = {}
+        my_device["device"] = device_t
+        my_device["args"] = self.deviceArgs.toPlainText()
+
+        if my_device != device_c:
+            self.changed_device = my_device
+            self.b_Save.setEnabled(True)
+        else:
+            self.b_Save.setEnabled(False)
+
+
+    def saveDevice(self):
+        self.devices_array[self.devicesList.currentRow()] = self.changed_device
+        self._dump_json(self.devices_config, self.devices_array)
+        self.b_Save.setEnabled(False)
+
 
 class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
     def __init__(self, parent=None):
