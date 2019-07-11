@@ -112,6 +112,7 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
 
 
     def loadDevicesList(self):
+        self.devicesList.clear()
         my_list = []
         for dev in self.devices_array:
 
@@ -196,7 +197,7 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
 
         my_device = {}
         my_device["device"] = device_t
-        my_device["args"] = self.deviceArgs.toPlainText()
+        my_device["args"] = json.loads(self.deviceArgs.toPlainText())
 
         if my_device != device_c:
             self.changed_device = my_device
@@ -209,6 +210,7 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
         self.devices_array[self.devicesList.currentRow()] = self.changed_device
         self._dump_json(self.devices_config, self.devices_array)
         self.b_Save.setEnabled(False)
+        self.loadDevicesList()
 
 
 class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
