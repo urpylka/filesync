@@ -59,7 +59,7 @@ class DevicesWindow(QtWidgets.QMainWindow, ui.DevicesWindow.Ui_DevicesWindow):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.setupUi(self)
         self.b_Cancel.clicked.connect(self.close)
-        self.b_Cancel.clicked.connect(self.saveDevice)
+        self.b_Save.clicked.connect(self.saveDevice)
 
         self.deviceArgs.textChanged.connect(self.argsChanged)
 
