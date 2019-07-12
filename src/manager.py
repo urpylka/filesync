@@ -68,9 +68,6 @@ def main():
             global window
             window = MainWindowApp()  # Создаём объект класса ExampleApp
 
-            window.init_source(worker_data["source"]["device"], worker_data["source"]["args"])
-            window.init_target(worker_data["target"]["device"], worker_data["target"]["args"])
-
             window.show()  # Показываем окно
 
             # create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
