@@ -102,9 +102,9 @@ def main():
                         t = Thread(target=function, args=(i+1, args,))
                         t.daemon = True
                         t.start()
-
-                create_threads(1, finder, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
-                create_threads(worker_data["mover_count"], mover, target, source, wq, logger)
+                window = None
+                create_threads(1, finder, window, db, source, target, worker_data["finder"]["search_interval"], worker_data["finder"]["mkdir_interval"], wq, worker_data["rules"]["include"], worker_data["rules"]["exclude"], worker_data["db"]["key"], worker_data["db"]["default_record"], logger)
+                create_threads(worker_data["mover_count"], mover, window, target, source, wq, logger)
 
             try:
                 while True:
