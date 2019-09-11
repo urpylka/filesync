@@ -285,6 +285,10 @@ class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
         self.setupUi(self)
         self.pushButton_2.clicked.connect(self.close) #self.destroy()
 
+        self.main_config = "./config.json"
+        self.main_array = load_json(self.main_config)
+
+
 
 class LogsWindow(QtWidgets.QMainWindow, ui.LogsWindow.Ui_LogsWindow):
     def __init__(self, parent=None):
@@ -352,7 +356,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         #     self.setStyleSheet(open("./ui/MainWindow.qss", 'r').read())
         # except Exception as ex:
         #     print(str(ex))
-        
+
         self.statusbar.showMessage("Ready")
 
 
@@ -446,7 +450,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
             # for label, item in file.iteritems():
             #     # https://pythonworld.ru/tipy-dannyx-v-python/slovari-dict-funkcii-i-metody-slovarej.html
             #     # https://stackoverflow.com/questions/10458437/what-is-the-difference-between-dict-items-and-dict-iteritems
-            
+
             new_row_index = self.tableFiles.rowCount()
             self.tableFiles.insertRow(new_row_index)
 
@@ -516,7 +520,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
                 my_list.append(getattr(__import__(cl), cl).to_string(dev["args"]))
             except Exception as ex:
                 print(ex)
-        
+
         self.comboBox_Source.addItems(my_list)
         self.comboBox_Target.addItems(my_list)
 
@@ -531,7 +535,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
                 iter += 1
 
             return flag, iter
-        
+
         s_f, s_i = getPos(self.devices_array, self.main_array["source"])
         if s_f: self.comboBox_Source.setCurrentIndex(s_i)
         else:
