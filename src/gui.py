@@ -285,8 +285,8 @@ class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
         self.setupUi(self)
         self.pushButton_2.clicked.connect(self.close) #self.destroy()
 
-        self.main_config = "./config.json"
-        self.main_array = load_json(self.main_config)
+        self.rules_config = "./config.json"
+        self.rules_array = load_json(self.rules_config)
 
 
 
