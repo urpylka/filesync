@@ -285,8 +285,15 @@ class RulesWindow(QtWidgets.QMainWindow, ui.RulesWindow.Ui_RulesWindow):
         self.setupUi(self)
         self.pushButton_2.clicked.connect(self.close) #self.destroy()
 
+        #open config.json
         self.rules_config = "./config.json"
         self.rules_array = load_json(self.rules_config)
+        # field Include:
+        for i in range(len(rules_array["rules"]["include"])):
+            self.plainTextEdit.appendPlainText(rules_array["rules"]["include"][i])
+        #field Exclude:
+        for i in range(len(rules_array["rules"]["exclude"])):
+            self.plainTextEdit_2.appendPlainText(rules_array["rules"]["exclude"][i])
 
 
 
