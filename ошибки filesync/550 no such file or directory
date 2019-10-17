@@ -1,0 +1,1180 @@
+Last login: Thu Apr  4 10:17:20 on ttys001
+smirnov_mbp:filesync smirart$ ping 192.168.20.172
+PING 192.168.20.172 (192.168.20.172): 56 data bytes
+Request timeout for icmp_seq 0
+Request timeout for icmp_seq 1
+64 bytes from 192.168.20.172: icmp_seq=0 ttl=64 time=2512.790 ms
+64 bytes from 192.168.20.172: icmp_seq=1 ttl=64 time=1512.948 ms
+64 bytes from 192.168.20.172: icmp_seq=2 ttl=64 time=653.630 ms
+64 bytes from 192.168.20.172: icmp_seq=3 ttl=64 time=32.544 ms
+64 bytes from 192.168.20.172: icmp_seq=4 ttl=64 time=275.355 ms
+64 bytes from 192.168.20.172: icmp_seq=5 ttl=64 time=11.445 ms
+^C
+--- 192.168.20.172 ping statistics ---
+6 packets transmitted, 6 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 11.445/833.119/2512.790/907.639 ms
+smirnov_mbp:filesync smirart$ ssh pi@192.168.20.131
+^C
+smirnov_mbp:filesync smirart$ ssh pi@192.168.20.172
+Linux raspberrypi 4.14.98-v7+ #1200 SMP Tue Feb 12 20:27:48 GMT 2019 armv7l
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Apr  3 10:28:21 2019 from 192.168.20.186
+
+SSH is enabled and the default password for the 'pi' user has not been changed.
+This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password.
+
+
+Wi-Fi is disabled because the country is not set.
+Use raspi-config to set the country before use.
+
+pi@raspberrypi:~ $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 03 12:42:38 raspberrypi systemd[1]: Started Filesync.
+Apr 03 12:42:39 raspberrypi manager.py[330]: 2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Unit entered failed state.
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+
+^C
+pi@raspberrypi:~ $ cat filesync/temp/worker_1-db.json 
+[]pi@raspberrypi:~ ls -l filesync/temp/
+total 8
+-rw-r--r-- 1 root root   2 Apr  3 12:42 worker_1-db.json
+-rw-r--r-- 1 root root 120 Apr  3 12:42 worker_1-filesync.log
+pi@raspberrypi:~ $ cat filesync/temp/worker_1-db.json 
+[]pi@raspberrypi:~ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 03 12:42:38 raspberrypi systemd[1]: Started Filesync.
+Apr 03 12:42:39 raspberrypi manager.py[330]: 2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Unit entered failed state.
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+^C
+pi@raspberrypi:~ $ tail -n100 filesync/temp/worker_1-
+worker_1-db.json       worker_1-filesync.log  
+pi@raspberrypi:~ $ tail -n100 filesync/temp/worker_1-filesync.log 
+2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+pi@raspberrypi:~ $ sudo journalctl -fu filesync -n 100
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 03 12:42:38 raspberrypi systemd[1]: Started Filesync.
+Apr 03 12:42:39 raspberrypi manager.py[330]: 2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Unit entered failed state.
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+^[[A^C
+pi@raspberrypi:~ $ sudo journalctl -u filesync -n 100
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:05 UTC. --
+Apr 03 12:42:38 raspberrypi systemd[1]: Started Filesync.
+Apr 03 12:42:39 raspberrypi manager.py[330]: 2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Unit entered failed state.
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+pi@raspberrypi:~ $ sudo journalctl -u filesync -n 1
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:07 UTC. --
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+pi@raspberrypi:~ $ sudo journalctl -u filesync -n 100
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:10 UTC. --
+Apr 03 12:42:38 raspberrypi systemd[1]: Started Filesync.
+Apr 03 12:42:39 raspberrypi manager.py[330]: 2019-04-03 12:42:39,797 - CRITICAL - load_json: Incorrect Json in file of DB: Expecting value: line 1 column 1 (char 0)
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Main process exited, code=exited, status=1/FAILURE
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Unit entered failed state.
+Apr 03 12:42:39 raspberrypi systemd[1]: filesync.service: Failed with result 'exit-code'.
+pi@raspberrypi:~ $ sudo journalctl
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+lines 1-27...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+lines 1-28...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+lines 1-32...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+lines 1-36...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+lines 1-37...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+Nov 03 17:16:42 raspberrypi kernel: arch_timer: cp15 timer(s) running at 19.20MHz (phys).
+lines 1-38...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+Nov 03 17:16:42 raspberrypi kernel: arch_timer: cp15 timer(s) running at 19.20MHz (phys).
+Nov 03 17:16:42 raspberrypi kernel: clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+lines 1-39...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+Nov 03 17:16:42 raspberrypi kernel: arch_timer: cp15 timer(s) running at 19.20MHz (phys).
+Nov 03 17:16:42 raspberrypi kernel: clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+Nov 03 17:16:42 raspberrypi kernel: sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+lines 1-40...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+Nov 03 17:16:42 raspberrypi kernel: arch_timer: cp15 timer(s) running at 19.20MHz (phys).
+Nov 03 17:16:42 raspberrypi kernel: clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+Nov 03 17:16:42 raspberrypi kernel: sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+Nov 03 17:16:42 raspberrypi kernel: Switching to timer-based delay loop, resolution 52ns
+lines 1-41...skipping...
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC, end at Thu 2019-04-04 07:21:31 UTC. --
+Nov 03 17:16:42 raspberrypi kernel: Booting Linux on physical CPU 0x0
+Nov 03 17:16:42 raspberrypi kernel: Linux version 4.14.98-v7+ (dom@dom-XPS-13-9370) (gcc version 4.9.3 (crosstool-NG crosstool-ng-1.22.0-88-g8460611)) #1200 SMP Tue Feb
+Nov 03 17:16:42 raspberrypi kernel: CPU: ARMv7 Processor [410fd034] revision 4 (ARMv7), cr=10c5383d
+Nov 03 17:16:42 raspberrypi kernel: CPU: div instructions available: patching division code
+Nov 03 17:16:42 raspberrypi kernel: CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+Nov 03 17:16:42 raspberrypi kernel: OF: fdt: Machine model: Raspberry Pi 3 Model B Plus Rev 1.3
+Nov 03 17:16:42 raspberrypi kernel: Memory policy: Data cache writealloc
+Nov 03 17:16:42 raspberrypi kernel: cma: Reserved 8 MiB at 0x37800000
+Nov 03 17:16:42 raspberrypi kernel: On node 0 totalpages: 229376
+Nov 03 17:16:42 raspberrypi kernel: free_area_init_node: node 0, pgdat 80c85780, node_mem_map b7014000
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 2016 pages used for memmap
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 0 pages reserved
+Nov 03 17:16:42 raspberrypi kernel:   Normal zone: 229376 pages, LIFO batch:31
+Nov 03 17:16:42 raspberrypi kernel: percpu: Embedded 17 pages/cpu @b6fbd000 s38720 r8192 d22720 u69632
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: s38720 r8192 d22720 u69632 alloc=17*4096
+Nov 03 17:16:42 raspberrypi kernel: pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+Nov 03 17:16:42 raspberrypi kernel: Built 1 zonelists, mobility grouping on.  Total pages: 227360
+Nov 03 17:16:42 raspberrypi kernel: Kernel command line: 8250.nr_uarts=1 bcm2708_fb.fbwidth=656 bcm2708_fb.fbheight=416 bcm2708_fb.fbswap=1 vc_mem.mem_base=0x3ec00000 v
+Nov 03 17:16:42 raspberrypi kernel: PID hash table entries: 4096 (order: 2, 16384 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Dentry cache hash table entries: 131072 (order: 7, 524288 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Inode-cache hash table entries: 65536 (order: 6, 262144 bytes)
+Nov 03 17:16:42 raspberrypi kernel: Memory: 887452K/917504K available (7168K kernel code, 577K rwdata, 2080K rodata, 1024K init, 698K bss, 21860K reserved, 8192K cma-re
+Nov 03 17:16:42 raspberrypi kernel: Virtual kernel memory layout:
+                                        vector  : 0xffff0000 - 0xffff1000   (   4 kB)
+                                        fixmap  : 0xffc00000 - 0xfff00000   (3072 kB)
+                                        vmalloc : 0xb8800000 - 0xff800000   (1136 MB)
+                                        lowmem  : 0x80000000 - 0xb8000000   ( 896 MB)
+                                        modules : 0x7f000000 - 0x80000000   (  16 MB)
+                                          .text : 0x80008000 - 0x80800000   (8160 kB)
+                                          .init : 0x80b00000 - 0x80c00000   (1024 kB)
+                                          .data : 0x80c00000 - 0x80c906d4   ( 578 kB)
+                                           .bss : 0x80c97ef8 - 0x80d468f0   ( 699 kB)
+Nov 03 17:16:42 raspberrypi kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+Nov 03 17:16:42 raspberrypi kernel: ftrace: allocating 25298 entries in 75 pages
+Nov 03 17:16:42 raspberrypi kernel: Hierarchical RCU implementation.
+Nov 03 17:16:42 raspberrypi kernel: NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+Nov 03 17:16:42 raspberrypi kernel: arch_timer: cp15 timer(s) running at 19.20MHz (phys).
+Nov 03 17:16:42 raspberrypi kernel: clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x46d987e47, max_idle_ns: 440795202767 ns
+Nov 03 17:16:42 raspberrypi kernel: sched_clock: 56 bits at 19MHz, resolution 52ns, wraps every 4398046511078ns
+Nov 03 17:16:42 raspberrypi kernel: Switching to timer-based delay loop, resolution 52ns
+Nov 03 17:16:42 raspberrypi kernel: Console: colour dummy device 80x30
+pi@raspberrypi:~ $ ls -l 
+total 16
+drwxr-xr-x  5 pi pi 4096 Jan 24 21:33 catkin_ws
+drwxr-xr-x  2 pi pi 4096 Apr  2 07:54 exfat-deb-pckgs
+drwxr-xr-x  6 pi pi 4096 Apr  2 09:03 filesync
+drwxr-xr-x 10 pi pi 4096 Mar 28 20:06 rtl8812AU_8821AU_linux
+pi@raspberrypi:~ $ ls -l /home/
+total 8
+drwxr-xr-x 2 mjpg_streamer video 4096 Jan 24 21:21 mjpg_streamer
+drwxr-xr-x 8 pi            pi    4096 Apr  2 16:28 pi
+pi@raspberrypi:~ $ ls -l /home/mjpg_streamer/
+total 0
+pi@raspberrypi:~ $ sudo !!
+sudo ls -l /home/mjpg_streamer/
+total 0
+pi@raspberrypi:~ $ sudo systemctl restart filesync
+pi@raspberrypi:~ $ sudo journalctl -fu filesync 
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,348 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162243_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,351 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162244_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,354 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162245_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,357 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162246_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,359 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162247_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,362 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162248_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,365 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162249_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,368 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162250_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,370 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162251_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,373 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162252_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,375 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162253_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,378 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162254_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,381 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162255_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,384 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162256_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,387 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162257_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,389 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162258_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,392 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162259_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,394 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162300_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,396 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162301_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,399 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162302_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,401 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162303_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,404 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162304_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,406 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162305_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,408 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162306_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,411 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162307_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,413 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162308_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,415 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162309_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,418 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162310_629_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,420 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162311_628_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,423 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162312_649_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,425 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162313_649_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,427 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162314_649_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,431 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162315_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,433 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162316_658_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,436 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162317_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,438 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162318_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,441 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162319_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,443 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162320_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,446 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162321_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,448 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162322_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,450 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162323_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,453 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162324_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,455 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162325_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,457 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162326_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,460 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162327_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,462 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162328_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,465 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162329_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,467 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162330_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,470 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162331_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,473 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162332_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,475 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162333_659_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,477 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162334_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,480 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162335_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,482 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162336_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,484 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162337_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,487 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162338_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,490 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162339_679_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,492 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162340_689_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,495 - INFO - Finder-1: Found a new file: /20190403_154845/20190403_162341_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,497 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162342_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,499 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162343_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,502 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162344_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,504 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162345_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,507 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162346_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,509 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162347_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,512 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162348_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,514 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162349_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,516 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162350_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,519 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162351_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,521 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162352_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,524 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162353_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,526 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162354_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,528 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162355_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,531 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162356_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,533 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162357_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,536 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162358_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,538 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162359_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,541 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162400_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,543 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162401_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,545 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162402_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,548 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162403_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,550 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162404_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,553 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162405_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,555 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162406_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,557 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162407_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,560 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162408_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,562 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162409_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,565 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162410_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,567 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162411_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,569 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162412_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,572 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162413_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,574 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162414_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,577 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162415_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,579 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162416_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,582 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162417_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,584 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162418_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,586 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162419_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,589 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162420_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,591 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162421_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,594 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162422_699_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,596 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162423_701_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,598 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162424_719_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,601 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162425_719_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,603 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162426_719_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,606 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162427_719_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,608 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162428_740_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,611 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162429_740_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,613 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162430_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,615 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162431_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,618 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162432_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,620 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162433_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,623 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162434_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,625 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162435_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,628 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162436_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,630 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162437_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,633 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162438_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,635 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162439_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,638 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162440_739_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,640 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162441_749_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,643 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162442_759_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,645 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162443_759_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,647 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162444_769_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,650 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162445_779_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,652 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162446_779_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,655 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162447_779_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,657 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162448_779_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,660 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162449_789_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,662 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162450_790_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,664 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162451_799_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,667 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162452_799_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,669 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162453_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,672 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162454_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,674 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162455_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,677 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162456_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,679 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162457_820_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,682 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162458_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,686 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162459_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,689 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162500_819_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,692 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162501_830_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,695 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162502_839_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,697 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162503_839_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,700 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162504_859_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,702 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162505_859_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,706 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162506_870_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,708 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162507_879_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,711 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162508_879_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,714 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162509_879_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,717 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162510_879_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,720 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162511_879_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,722 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162512_899_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,726 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162513_909_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,728 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162514_911_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,731 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162515_920_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,733 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162516_929_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,736 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162517_939_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,738 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162518_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,741 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162519_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,743 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162520_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,746 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162521_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,748 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162522_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,751 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162523_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,753 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162524_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,756 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162525_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,758 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162526_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,761 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162527_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,763 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162528_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,766 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162529_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,768 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162530_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,771 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162531_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,773 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162532_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,776 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162533_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,778 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162534_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,780 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162535_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,783 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162536_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,785 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162537_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,788 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162538_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,790 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162539_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,793 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162540_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,796 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162541_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,798 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162542_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,801 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162543_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,803 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162544_949_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,806 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162545_959_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,808 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162546_969_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,811 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162547_969_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,813 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162548_969_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,816 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162549_969_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,818 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162550_969_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,821 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162551_981_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,823 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162552_989_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,826 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162553_990_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,828 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162554_989_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,831 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162555_999_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,833 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162556_999_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,836 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162557_999_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,838 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162559_009_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,841 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162600_019_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,844 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162601_019_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,846 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162602_019_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,848 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162603_030_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,851 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162604_039_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,854 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162605_039_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,856 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162606_059_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,859 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162607_059_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,861 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162608_070_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,864 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162609_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,866 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162610_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,869 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162611_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,871 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162612_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,874 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162613_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,876 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162614_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,879 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162615_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,881 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162616_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,884 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162617_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,886 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162618_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,889 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162619_079_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,892 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162620_089_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,894 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162621_099_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,897 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162622_099_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,899 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162623_099_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,902 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162624_099_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,904 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162625_099_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,907 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162626_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,910 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162627_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,912 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162628_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,915 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162629_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,917 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162630_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,920 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162631_119_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,922 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162632_129_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,925 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162633_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,927 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162634_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,930 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162635_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,933 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162636_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,937 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162637_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,940 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162638_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,942 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162639_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,945 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162640_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,948 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162641_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,951 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162642_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,953 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162643_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,956 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162644_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,958 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162645_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,961 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162646_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,963 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162647_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,966 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162648_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,969 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162649_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,971 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162650_139_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,974 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162651_151_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,976 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162652_159_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,979 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162653_159_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,982 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162654_159_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,984 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162655_159_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,987 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162656_159_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,989 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162657_179_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,992 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162658_179_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,995 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162659_179_R.jpg
+Apr 04 07:22:49 raspberrypi manager.py[1992]: 2019-04-04 07:22:49,997 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162700_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,000 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162701_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,002 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162702_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,005 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162703_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,008 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162704_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,010 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162705_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,013 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162706_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,015 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162707_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,018 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162708_179_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,021 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162709_183_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,023 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162710_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,026 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162711_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,028 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162712_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,031 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162713_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,033 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162714_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,036 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162715_199_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,039 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162716_209_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,041 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162717_219_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,044 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162718_219_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,047 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162719_219_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,049 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162720_219_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,052 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162721_229_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,054 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162722_230_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,057 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162723_239_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,060 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162724_239_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,062 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162725_259_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,065 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162726_262_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,068 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162727_271_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,070 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162728_279_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,073 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162729_279_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,075 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162730_279_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,078 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162731_289_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,081 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162732_299_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,083 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162733_299_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,086 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162734_309_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,088 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162735_311_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,091 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162736_330_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,094 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162737_332_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,096 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162738_339_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,099 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162739_349_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,102 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162740_349_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,104 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162741_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,107 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162742_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,110 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162743_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,112 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162744_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,115 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162745_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,118 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162746_360_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,120 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162747_362_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,123 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162748_390_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,125 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162749_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,128 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162750_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,131 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162751_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,133 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162752_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,136 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162753_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,139 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162754_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,142 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162755_389_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,144 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162756_400_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,147 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162757_420_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,150 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162758_429_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,152 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162759_429_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,155 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162800_429_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,158 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162801_429_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,160 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162802_450_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,163 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162803_449_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,166 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162804_462_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,168 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162805_469_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,171 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162806_479_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,174 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162807_479_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,176 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162808_489_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,179 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162809_501_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,182 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162810_520_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,184 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162811_523_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,188 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162812_529_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,191 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162813_550_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,195 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162814_550_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,199 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162815_559_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,202 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162816_559_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,204 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162817_569_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,207 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162818_579_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,210 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162819_589_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,212 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162820_599_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,215 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162821_599_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,218 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162822_609_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,220 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162823_620_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,223 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162824_621_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,226 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162825_630_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,228 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162826_630_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,231 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162827_630_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,234 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162828_630_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,237 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162829_649_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,240 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162830_649_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,243 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162831_659_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,246 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162832_669_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,248 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162833_669_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,251 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162834_689_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,254 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162835_689_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,256 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162836_689_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,259 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162837_701_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,262 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162838_709_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,264 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162839_732_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,267 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162840_749_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,270 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162841_749_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,273 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162842_749_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,275 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162843_759_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,278 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162844_770_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,281 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162845_779_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,283 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162846_779_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,286 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162847_781_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,289 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162848_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,291 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162849_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,294 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162850_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,297 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162851_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,300 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162852_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,302 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162853_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,305 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162854_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,308 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162855_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,310 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162856_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,313 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162857_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,316 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162858_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,322 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162859_799_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,326 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162900_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,329 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162901_800_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,332 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162902_809_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,335 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162903_809_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,338 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162904_830_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,341 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162905_830_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,344 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162906_830_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,346 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162907_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,349 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162908_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,352 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162909_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,354 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162910_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,357 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162911_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,360 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162912_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,363 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162913_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,365 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162914_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,368 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162915_849_R.jpg
+Apr 04 07:48:35 raspberrypi manager.py[1992]: 2019-04-04 07:48:35,280 - INFO - test-1@192.168.20.186: FTP is unavailble. All operations is lock
+Apr 04 07:48:43 raspberrypi manager.py[1992]: 2019-04-04 07:48:43,544 - INFO - test-1@192.168.20.186: FTP is availble. All operations is unlock
+^C
+pi@raspberrypi:~ $ sudo journalctl -fu filesync 
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,349 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162908_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,352 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162909_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,354 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162910_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,357 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162911_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,360 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162912_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,363 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162913_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,365 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162914_849_R.jpg
+Apr 04 07:22:50 raspberrypi manager.py[1992]: 2019-04-04 07:22:50,368 - INFO - Finder-1: Found a new file: /20190403_162342/20190403_162915_849_R.jpg
+Apr 04 07:48:35 raspberrypi manager.py[1992]: 2019-04-04 07:48:35,280 - INFO - test-1@192.168.20.186: FTP is unavailble. All operations is lock
+Apr 04 07:48:43 raspberrypi manager.py[1992]: 2019-04-04 07:48:43,544 - INFO - test-1@192.168.20.186: FTP is availble. All operations is unlock
+^C
+pi@raspberrypi:~ $ sudo systemctl restart filesync
+pi@raspberrypi:~ $ sudo journalctl -аu filesync
+journalctl: invalid option -- '?'
+pi@raspberrypi:~ $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,701 - INFO - Worker-1: /20190403_122014/20190403_122512_725_R.jpg was deleted
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,703 - INFO - Worker-1: File /20190403_122014/20190403_122512_725_R.jpg was downloaded to /20190403_122512_725_R.jpg
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,703 - INFO - Worker-1: /20190403_122014/20190403_122517_725_R.jpg starting worker. Iteration: 1
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,705 - INFO - D1C6-0146: Downloading /20190403_122014/20190403_122517_725_R.jpg
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,706 - INFO - D1C6-0146: Started w 0
+Apr 04 07:51:15 raspberrypi manager.py[5384]: 2019-04-04 07:51:15,741 - INFO - Worker-1: /20190403_122014/20190403_122517_725_R.jpg was downloaded
+Apr 04 07:51:19 raspberrypi manager.py[5384]: 2019-04-04 07:51:19,634 - INFO - test-1@192.168.20.186: Started w 616664
+Apr 04 07:51:19 raspberrypi manager.py[5384]: 2019-04-04 07:51:19,637 - INFO - SB: seek() to:        616664
+Apr 04 07:51:24 raspberrypi manager.py[5384]: 2019-04-04 07:51:24,112 - INFO - Worker-2: /20190403_122014/20190403_122513_725_R.jpg was uploaded
+Apr 04 07:51:24 raspberrypi manager.py[5384]: 2019-04-04 07:51:24,112 - INFO - test-1@192.168.20.186: Uploading /20190403_122514_725_R.jpg.part
+Apr 04 07:51:53 raspberrypi manager.py[5384]: 2019-04-04 07:51:53,775 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:51:53 raspberrypi manager.py[5384]: 2019-04-04 07:51:53,776 - INFO - SB: seek() to:        0
+Apr 04 07:51:55 raspberrypi manager.py[5384]: 2019-04-04 07:51:55,207 - ERROR - test-1@192.168.20.186: Uploading was interrupted: 200 I successfully done nothin'.
+Apr 04 07:51:59 raspberrypi manager.py[5384]: 2019-04-04 07:51:59,152 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:51:59 raspberrypi manager.py[5384]: 2019-04-04 07:51:59,153 - INFO - SB: seek() to:        0
+Apr 04 07:52:03 raspberrypi manager.py[5384]: 2019-04-04 07:52:03,580 - ERROR - test-1@192.168.20.186: Uploading was interrupted: 200 I successfully done nothin'.
+Apr 04 07:52:20 raspberrypi manager.py[5384]: 2019-04-04 07:52:20,979 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:52:20 raspberrypi manager.py[5384]: 2019-04-04 07:52:20,980 - INFO - SB: seek() to:        0
+Apr 04 07:52:23 raspberrypi manager.py[5384]: 2019-04-04 07:52:23,525 - ERROR - test-1@192.168.20.186: Uploading was interrupted: 200 I successfully done nothin'.
+Apr 04 07:52:25 raspberrypi manager.py[5384]: 2019-04-04 07:52:25,716 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:52:25 raspberrypi manager.py[5384]: 2019-04-04 07:52:25,717 - INFO - SB: seek() to:        0
+Apr 04 07:52:26 raspberrypi manager.py[5384]: 2019-04-04 07:52:26,856 - ERROR - test-1@192.168.20.186: Uploading was interrupted: 200 I successfully done nothin'.
+Apr 04 07:52:34 raspberrypi manager.py[5384]: 2019-04-04 07:52:34,204 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:52:34 raspberrypi manager.py[5384]: 2019-04-04 07:52:34,206 - INFO - SB: seek() to:        0
+Apr 04 07:52:35 raspberrypi manager.py[5384]: 2019-04-04 07:52:35,226 - ERROR - test-1@192.168.20.186: Uploading was interrupted: 200 I successfully done nothin'.
+Apr 04 07:53:04 raspberrypi manager.py[5384]: 2019-04-04 07:53:04,372 - ERROR - test-1@192.168.20.186: Uploading was interrupted: test-1@192.168.20.186: Can't get file size on ftp server: 421 Passive data channel timed out.
+Apr 04 07:53:05 raspberrypi manager.py[5384]: 2019-04-04 07:53:05,574 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:53:05 raspberrypi manager.py[5384]: 2019-04-04 07:53:05,575 - INFO - SB: seek() to:        0
+Apr 04 07:53:41 raspberrypi manager.py[5384]: 2019-04-04 07:53:41,916 - INFO - test-1@192.168.20.186: Uploading /20190403_122515_725_R.jpg.part
+Apr 04 07:53:41 raspberrypi manager.py[5384]: 2019-04-04 07:53:41,917 - INFO - Worker-3: /20190403_122014/20190403_122514_725_R.jpg was uploaded
+Apr 04 07:53:42 raspberrypi manager.py[5384]: 2019-04-04 07:53:42,118 - INFO - test-1@192.168.20.186: File was not uploaded to server yet: 550 /20190403_122515_725_R.jpg.part is not retrievable.
+Apr 04 07:53:42 raspberrypi manager.py[5384]: 2019-04-04 07:53:42,130 - INFO - test-1@192.168.20.186: Started w 0
+Apr 04 07:53:42 raspberrypi manager.py[5384]: 2019-04-04 07:53:42,131 - INFO - SB: seek() to:        0
+^C
+pi@raspberrypi:~ $ ls -l 
+total 16
+drwxr-xr-x  5 pi pi 4096 Jan 24 21:33 catkin_ws
+drwxr-xr-x  2 pi pi 4096 Apr  2 07:54 exfat-deb-pckgs
+drwxr-xr-x  6 pi pi 4096 Apr  2 09:03 filesync
+drwxr-xr-x 10 pi pi 4096 Mar 28 20:06 rtl8812AU_8821AU_linux
+pi@raspberrypi:~ $ ls -l 
+total 16
+drwxr-xr-x  5 pi pi 4096 Jan 24 21:33 catkin_ws
+drwxr-xr-x  2 pi pi 4096 Apr  2 07:54 exfat-deb-pckgs
+drwxr-xr-x  6 pi pi 4096 Apr  2 09:03 filesync
+drwxr-xr-x 10 pi pi 4096 Mar 28 20:06 rtl8812AU_8821AU_linux
+pi@raspberrypi:~ $ sudo systemctl stop filesync
+pi@raspberrypi:~ $ sudo systemctl disable filesync
+Removed /etc/systemd/system/multi-user.target.wants/filesync.service.
+pi@raspberrypi:~ $ cd filesync/
+pi@raspberrypi:~/filesync $ git reset --hard HEAD^
+HEAD is now at 799205c Update config for realdata
+pi@raspberrypi:~/filesync $ git pull
+remote: Enumerating objects: 14, done.
+remote: Counting objects: 100% (14/14), done.
+remote: Compressing objects: 100% (11/11), done.
+remote: Total 14 (delta 5), reused 9 (delta 3), pack-reused 0
+Unpacking objects: 100% (14/14), done.
+From https://github.com/urpylka/filesync
+   4d92196..f998955  master     -> origin/master
+Updating 799205c..f998955
+Fast-forward
+ config.json         | 6 +++---
+ src/device_ftp.py   | 8 ++++++++
+ src/manager.py      | 2 +-
+ src/smart_buffer.py | 2 +-
+ 4 files changed, 13 insertions(+), 5 deletions(-)
+pi@raspberrypi:~/filesync $ ды -д 
+-bash: ды: command not found
+pi@raspberrypi:~/filesync $ ls-l  
+-bash: ls-l: command not found
+pi@raspberrypi:~/filesync $ ls -l 
+total 36
+-rw-r--r-- 1 pi pi 11357 Apr  2 08:26 LICENSE
+-rw-r--r-- 1 pi pi  4523 Apr  4 07:59 README.md
+-rw-r--r-- 1 pi pi  2370 Apr  4 07:59 config.json
+-rwxr-xr-x 1 pi pi   947 Apr  2 09:03 deploy.sh
+drwxr-xr-x 3 pi pi  4096 Apr  4 07:59 src
+drwxr-xr-x 2 pi pi  4096 Apr  3 08:21 temp
+pi@raspberrypi:~/filesync $ sudo ./deploy.sh 
+Created symlink /etc/systemd/system/multi-user.target.wants/filesync.service → /lib/systemd/system/filesync.service.
+pi@raspberrypi:~/filesync $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 08:03:35 raspberrypi manager.py[6273]: 2019-04-04 08:03:35,001 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:35 raspberrypi manager.py[6273]: 2019-04-04 08:03:35,826 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:35 raspberrypi manager.py[6273]: 2019-04-04 08:03:35,827 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:36 raspberrypi manager.py[6273]: 2019-04-04 08:03:36,060 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:36 raspberrypi manager.py[6273]: 2019-04-04 08:03:36,829 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:36 raspberrypi manager.py[6273]: 2019-04-04 08:03:36,839 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:37 raspberrypi manager.py[6273]: 2019-04-04 08:03:37,075 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:37 raspberrypi manager.py[6273]: 2019-04-04 08:03:37,842 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:37 raspberrypi manager.py[6273]: 2019-04-04 08:03:37,843 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:38 raspberrypi manager.py[6273]: 2019-04-04 08:03:38,122 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:38 raspberrypi manager.py[6273]: 2019-04-04 08:03:38,845 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:38 raspberrypi manager.py[6273]: 2019-04-04 08:03:38,846 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:39 raspberrypi manager.py[6273]: 2019-04-04 08:03:39,141 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:39 raspberrypi manager.py[6273]: 2019-04-04 08:03:39,848 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:39 raspberrypi manager.py[6273]: 2019-04-04 08:03:39,849 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:40 raspberrypi manager.py[6273]: 2019-04-04 08:03:40,286 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:40 raspberrypi manager.py[6273]: 2019-04-04 08:03:40,851 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:40 raspberrypi manager.py[6273]: 2019-04-04 08:03:40,853 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:41 raspberrypi manager.py[6273]: 2019-04-04 08:03:41,302 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:41 raspberrypi manager.py[6273]: 2019-04-04 08:03:41,855 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:41 raspberrypi manager.py[6273]: 2019-04-04 08:03:41,857 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:42 raspberrypi manager.py[6273]: 2019-04-04 08:03:42,317 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:42 raspberrypi manager.py[6273]: 2019-04-04 08:03:42,863 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:42 raspberrypi manager.py[6273]: 2019-04-04 08:03:42,864 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:43 raspberrypi manager.py[6273]: 2019-04-04 08:03:43,328 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:43 raspberrypi manager.py[6273]: 2019-04-04 08:03:43,866 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:43 raspberrypi manager.py[6273]: 2019-04-04 08:03:43,868 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:44 raspberrypi manager.py[6273]: 2019-04-04 08:03:44,341 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:44 raspberrypi manager.py[6273]: 2019-04-04 08:03:44,871 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:44 raspberrypi manager.py[6273]: 2019-04-04 08:03:44,873 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:45 raspberrypi manager.py[6273]: 2019-04-04 08:03:45,377 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:45 raspberrypi manager.py[6273]: 2019-04-04 08:03:45,880 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:45 raspberrypi manager.py[6273]: 2019-04-04 08:03:45,897 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:46 raspberrypi manager.py[6273]: 2019-04-04 08:03:46,415 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:46 raspberrypi manager.py[6273]: 2019-04-04 08:03:46,909 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:46 raspberrypi manager.py[6273]: 2019-04-04 08:03:46,910 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:47 raspberrypi manager.py[6273]: 2019-04-04 08:03:47,434 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:47 raspberrypi manager.py[6273]: 2019-04-04 08:03:47,916 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:47 raspberrypi manager.py[6273]: 2019-04-04 08:03:47,917 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:48 raspberrypi manager.py[6273]: 2019-04-04 08:03:48,442 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:48 raspberrypi manager.py[6273]: 2019-04-04 08:03:48,920 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:48 raspberrypi manager.py[6273]: 2019-04-04 08:03:48,933 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:49 raspberrypi manager.py[6273]: 2019-04-04 08:03:49,463 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+^C
+pi@raspberrypi:~/filesync $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 08:03:48 raspberrypi manager.py[6273]: 2019-04-04 08:03:48,933 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:49 raspberrypi manager.py[6273]: 2019-04-04 08:03:49,463 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:49 raspberrypi manager.py[6273]: 2019-04-04 08:03:49,942 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:49 raspberrypi manager.py[6273]: 2019-04-04 08:03:49,943 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:50 raspberrypi manager.py[6273]: 2019-04-04 08:03:50,495 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:50 raspberrypi manager.py[6273]: 2019-04-04 08:03:50,946 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:50 raspberrypi manager.py[6273]: 2019-04-04 08:03:50,947 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:51 raspberrypi manager.py[6273]: 2019-04-04 08:03:51,507 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:51 raspberrypi manager.py[6273]: 2019-04-04 08:03:51,949 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:51 raspberrypi manager.py[6273]: 2019-04-04 08:03:51,951 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:52 raspberrypi manager.py[6273]: 2019-04-04 08:03:52,659 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:52 raspberrypi manager.py[6273]: 2019-04-04 08:03:52,953 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:52 raspberrypi manager.py[6273]: 2019-04-04 08:03:52,955 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:03:53 raspberrypi manager.py[6273]: 2019-04-04 08:03:53,760 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:03:53 raspberrypi manager.py[6273]: 2019-04-04 08:03:53,957 - INFO - D1C6-0146: Started w 0
+Apr 04 08:03:53 raspberrypi manager.py[6273]: 2019-04-04 08:03:53,958 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+^C
+pi@raspberrypi:~/filesync $ sudo systemctl restart filesync
+pi@raspberrypi:~/filesync $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 08:04:02 raspberrypi systemd[1]: Stopping Filesync...
+Apr 04 08:04:02 raspberrypi systemd[1]: Stopped Filesync.
+Apr 04 08:04:02 raspberrypi systemd[1]: Started Filesync.
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,542 - INFO - D1C6-0146: Partition is unavailable. All operations is lock
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,549 - INFO - test-1@192.168.20.186: FTP is unavailble. All operations is lock
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,574 - INFO - Worker-1: /20190403_122014/20190403_122533_785_R.jpg starting worker. Iteration: 1
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,580 - INFO - Worker-2: /20190403_122014/20190403_122534_789_R.jpg starting worker. Iteration: 1
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,584 - INFO - Worker-3: /20190403_122014/20190403_122535_805_R.jpg starting worker. Iteration: 1
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,590 - INFO - Worker-4: /20190403_122014/20190403_122536_805_R.jpg starting worker. Iteration: 1
+Apr 04 08:04:02 raspberrypi manager.py[6370]: 2019-04-04 08:04:02,595 - INFO - Worker-5: /20190403_122014/20190403_122537_816_R.jpg starting worker. Iteration: 1
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,573 - INFO - D1C6-0146: Partition is available. All operations is unlock
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,573 - INFO - D1C6-0146: Downloading /20190403_122014/20190403_122537_816_R.jpg
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,574 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,575 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,590 - INFO - test-1@192.168.20.186: FTP is availble. All operations is unlock
+Apr 04 08:04:03 raspberrypi manager.py[6370]: 2019-04-04 08:04:03,601 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:04:04 raspberrypi manager.py[6370]: 2019-04-04 08:04:04,581 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:04 raspberrypi manager.py[6370]: 2019-04-04 08:04:04,581 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:04 raspberrypi manager.py[6370]: 2019-04-04 08:04:04,917 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:04:05 raspberrypi manager.py[6370]: 2019-04-04 08:04:05,586 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:05 raspberrypi manager.py[6370]: 2019-04-04 08:04:05,587 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:05 raspberrypi manager.py[6370]: 2019-04-04 08:04:05,932 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:04:06 raspberrypi manager.py[6370]: 2019-04-04 08:04:06,589 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:06 raspberrypi manager.py[6370]: 2019-04-04 08:04:06,591 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:06 raspberrypi manager.py[6370]: 2019-04-04 08:04:06,946 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+^C
+pi@raspberrypi:~/filesync $ ^C
+pi@raspberrypi:~/filesync $ sudo systemctl stop filesync
+pi@raspberrypi:~/filesync $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 08:04:50 raspberrypi manager.py[6370]: 2019-04-04 08:04:50,988 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:50 raspberrypi manager.py[6370]: 2019-04-04 08:04:50,990 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:51 raspberrypi manager.py[6370]: 2019-04-04 08:04:51,505 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:04:51 raspberrypi manager.py[6370]: 2019-04-04 08:04:51,992 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:51 raspberrypi manager.py[6370]: 2019-04-04 08:04:51,994 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:52 raspberrypi manager.py[6370]: 2019-04-04 08:04:52,517 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:04:52 raspberrypi manager.py[6370]: 2019-04-04 08:04:52,996 - INFO - D1C6-0146: Started w 0
+Apr 04 08:04:53 raspberrypi manager.py[6370]: 2019-04-04 08:04:52,998 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:04:53 raspberrypi systemd[1]: Stopping Filesync...
+Apr 04 08:04:53 raspberrypi systemd[1]: Stopped Filesync.
+^C
+pi@raspberrypi:~/filesync $ sudo systemctl start filesync
+pi@raspberrypi:~/filesync $ sudo journalctl -fu filesync
+-- Logs begin at Thu 2016-11-03 17:16:42 UTC. --
+Apr 04 08:04:53 raspberrypi systemd[1]: Stopping Filesync...
+Apr 04 08:04:53 raspberrypi systemd[1]: Stopped Filesync.
+Apr 04 08:05:05 raspberrypi systemd[1]: Started Filesync.
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,697 - INFO - D1C6-0146: Partition is unavailable. All operations is lock
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,706 - INFO - test-1@192.168.20.186: FTP is unavailble. All operations is lock
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,735 - INFO - Worker-1: /20190403_122014/20190403_122533_785_R.jpg starting worker. Iteration: 1
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,743 - INFO - Worker-2: /20190403_122014/20190403_122534_789_R.jpg starting worker. Iteration: 1
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,764 - INFO - Worker-3: /20190403_122014/20190403_122535_805_R.jpg starting worker. Iteration: 1
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,772 - INFO - Worker-4: /20190403_122014/20190403_122536_805_R.jpg starting worker. Iteration: 1
+Apr 04 08:05:05 raspberrypi manager.py[6516]: 2019-04-04 08:05:05,781 - INFO - Worker-5: /20190403_122014/20190403_122537_816_R.jpg starting worker. Iteration: 1
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,738 - INFO - D1C6-0146: Partition is available. All operations is unlock
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,739 - INFO - D1C6-0146: Downloading /20190403_122014/20190403_122537_816_R.jpg
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,752 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,754 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,770 - INFO - test-1@192.168.20.186: FTP is availble. All operations is unlock
+Apr 04 08:05:06 raspberrypi manager.py[6516]: 2019-04-04 08:05:06,779 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:07 raspberrypi manager.py[6516]: 2019-04-04 08:05:07,758 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:07 raspberrypi manager.py[6516]: 2019-04-04 08:05:07,769 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:07 raspberrypi manager.py[6516]: 2019-04-04 08:05:07,824 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:08 raspberrypi manager.py[6516]: 2019-04-04 08:05:08,776 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:08 raspberrypi manager.py[6516]: 2019-04-04 08:05:08,777 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:08 raspberrypi manager.py[6516]: 2019-04-04 08:05:08,932 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:09 raspberrypi manager.py[6516]: 2019-04-04 08:05:09,780 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:09 raspberrypi manager.py[6516]: 2019-04-04 08:05:09,781 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:10 raspberrypi manager.py[6516]: 2019-04-04 08:05:10,069 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:10 raspberrypi manager.py[6516]: 2019-04-04 08:05:10,783 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:10 raspberrypi manager.py[6516]: 2019-04-04 08:05:10,785 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:11 raspberrypi manager.py[6516]: 2019-04-04 08:05:11,091 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:11 raspberrypi manager.py[6516]: 2019-04-04 08:05:11,787 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:11 raspberrypi manager.py[6516]: 2019-04-04 08:05:11,788 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:12 raspberrypi manager.py[6516]: 2019-04-04 08:05:12,184 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:12 raspberrypi manager.py[6516]: 2019-04-04 08:05:12,798 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:12 raspberrypi manager.py[6516]: 2019-04-04 08:05:12,800 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:13 raspberrypi manager.py[6516]: 2019-04-04 08:05:13,211 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:13 raspberrypi manager.py[6516]: 2019-04-04 08:05:13,802 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:13 raspberrypi manager.py[6516]: 2019-04-04 08:05:13,804 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:14 raspberrypi manager.py[6516]: 2019-04-04 08:05:14,269 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:14 raspberrypi manager.py[6516]: 2019-04-04 08:05:14,806 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:14 raspberrypi manager.py[6516]: 2019-04-04 08:05:14,807 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:15 raspberrypi manager.py[6516]: 2019-04-04 08:05:15,360 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:15 raspberrypi manager.py[6516]: 2019-04-04 08:05:15,809 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:15 raspberrypi manager.py[6516]: 2019-04-04 08:05:15,811 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:16 raspberrypi manager.py[6516]: 2019-04-04 08:05:16,381 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:16 raspberrypi manager.py[6516]: 2019-04-04 08:05:16,813 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:16 raspberrypi manager.py[6516]: 2019-04-04 08:05:16,814 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:17 raspberrypi manager.py[6516]: 2019-04-04 08:05:17,408 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:17 raspberrypi manager.py[6516]: 2019-04-04 08:05:17,821 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:17 raspberrypi manager.py[6516]: 2019-04-04 08:05:17,823 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:18 raspberrypi manager.py[6516]: 2019-04-04 08:05:18,442 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:18 raspberrypi manager.py[6516]: 2019-04-04 08:05:18,830 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:18 raspberrypi manager.py[6516]: 2019-04-04 08:05:18,846 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:19 raspberrypi manager.py[6516]: 2019-04-04 08:05:19,482 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:19 raspberrypi manager.py[6516]: 2019-04-04 08:05:19,859 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:19 raspberrypi manager.py[6516]: 2019-04-04 08:05:19,859 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:20 raspberrypi manager.py[6516]: 2019-04-04 08:05:20,503 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:20 raspberrypi manager.py[6516]: 2019-04-04 08:05:20,861 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:20 raspberrypi manager.py[6516]: 2019-04-04 08:05:20,863 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:21 raspberrypi manager.py[6516]: 2019-04-04 08:05:21,512 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:21 raspberrypi manager.py[6516]: 2019-04-04 08:05:21,868 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:21 raspberrypi manager.py[6516]: 2019-04-04 08:05:21,869 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:22 raspberrypi manager.py[6516]: 2019-04-04 08:05:22,532 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:22 raspberrypi manager.py[6516]: 2019-04-04 08:05:22,871 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:22 raspberrypi manager.py[6516]: 2019-04-04 08:05:22,874 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:23 raspberrypi manager.py[6516]: 2019-04-04 08:05:23,590 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:23 raspberrypi manager.py[6516]: 2019-04-04 08:05:23,877 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:23 raspberrypi manager.py[6516]: 2019-04-04 08:05:23,879 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:24 raspberrypi manager.py[6516]: 2019-04-04 08:05:24,682 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:24 raspberrypi manager.py[6516]: 2019-04-04 08:05:24,881 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:24 raspberrypi manager.py[6516]: 2019-04-04 08:05:24,882 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:25 raspberrypi manager.py[6516]: 2019-04-04 08:05:25,713 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:25 raspberrypi manager.py[6516]: 2019-04-04 08:05:25,885 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:25 raspberrypi manager.py[6516]: 2019-04-04 08:05:25,886 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:26 raspberrypi manager.py[6516]: 2019-04-04 08:05:26,732 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:26 raspberrypi manager.py[6516]: 2019-04-04 08:05:26,887 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:26 raspberrypi manager.py[6516]: 2019-04-04 08:05:26,889 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:27 raspberrypi manager.py[6516]: 2019-04-04 08:05:27,863 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:27 raspberrypi manager.py[6516]: 2019-04-04 08:05:27,895 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:27 raspberrypi manager.py[6516]: 2019-04-04 08:05:27,896 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:28 raspberrypi manager.py[6516]: 2019-04-04 08:05:28,879 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:28 raspberrypi manager.py[6516]: 2019-04-04 08:05:28,898 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:28 raspberrypi manager.py[6516]: 2019-04-04 08:05:28,899 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:29 raspberrypi manager.py[6516]: 2019-04-04 08:05:29,906 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:29 raspberrypi manager.py[6516]: 2019-04-04 08:05:29,917 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:29 raspberrypi manager.py[6516]: 2019-04-04 08:05:29,923 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:30 raspberrypi manager.py[6516]: 2019-04-04 08:05:30,941 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:30 raspberrypi manager.py[6516]: 2019-04-04 08:05:30,942 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:30 raspberrypi manager.py[6516]: 2019-04-04 08:05:30,944 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:31 raspberrypi manager.py[6516]: 2019-04-04 08:05:31,944 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:31 raspberrypi manager.py[6516]: 2019-04-04 08:05:31,945 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:31 raspberrypi manager.py[6516]: 2019-04-04 08:05:31,973 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:32 raspberrypi manager.py[6516]: 2019-04-04 08:05:32,951 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:32 raspberrypi manager.py[6516]: 2019-04-04 08:05:32,952 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:33 raspberrypi manager.py[6516]: 2019-04-04 08:05:33,954 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:33 raspberrypi manager.py[6516]: 2019-04-04 08:05:33,955 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+Apr 04 08:05:34 raspberrypi manager.py[6516]: 2019-04-04 08:05:34,201 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
+Apr 04 08:05:34 raspberrypi manager.py[6516]: 2019-04-04 08:05:34,958 - INFO - D1C6-0146: Started w 0
+Apr 04 08:05:34 raspberrypi manager.py[6516]: 2019-04-04 08:05:34,959 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+^C
+pi@raspberrypi:~/filesync $ 
