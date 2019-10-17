@@ -352,7 +352,7 @@ class MainWindowApp(QtWidgets.QMainWindow, ui.MainWindow.Ui_MainWindow):
         #     self.setStyleSheet(open("./ui/MainWindow.qss", 'r').read())
         # except Exception as ex:
         #     print(str(ex))
-        
+
         self.statusbar.showMessage("Ready")
 
 
