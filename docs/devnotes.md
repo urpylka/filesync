@@ -1,137 +1,13 @@
-# FileSync
+# Dev notes
 
-This software allows to sync a group of files between devices w difficult access:
-
-* Pixracer (mavros ftp)
-* FlirDuo (external flash drive)
-* website (POST requests, developed for logs.px4.io)
-* FTP server
-
-## Start FTP server & filesync manager
-
-For start ftp-server use:
-
-```bash
-git clone https://github.com/urpylka/filesync
-cd filesync
-mkdir temp
-sudo ./src/ftp_server.py
-```
-
-For start filesync manager use:
-
-```bash
-git clone https://github.com/urpylka/filesync
-cd filesync
-mkdir temp
-sudo ./src/manager.py config.json
-```
-
-## For debug
-
-```bash
-rm -f flir/db.json && clear && sudo ./src/manager.py
-while :; do sleep 1; clear; ls -l Sherlock.s03e01.avi; done
-```
-
-## Config file
-
-Some devices:
-
-```json
-"source": {
-    "device_class": "DISK",
-    "module_path": "device_disk",
-    "args": {
-        "uuid": "D1C6-0146",
-        "mount_point": "/mnt"
-    }
-},
-```
-
-```json
-"target": {
-    "device_class": "FTP",
-    "module_path": "device_ftp",
-    "args": {
-        "host": "192.168.20.131",
-        "user": "test-1",
-        "passwd": "passwd"
-    }
-},
-```
-
-```json
-"source": {
-    "device_class": "LOCAL",
-    "module_path": "device_local",
-    "args": {
-        "dir": "/home/pi/worker1"
-    }
-},
-```
-
-```json
-"target": {
-    "device_class": "POST",
-    "module_path": "device_post",
-    "args": {
-        "uploader_url": "https://logs.px4.io/upload",
-        "values": {
-            "description": "",
-            "additional_feedback": "",
-            "email": "email@test.com",
-            "allow_for_analysis": false,
-            "obfuscated": false
-        }
-    }
-},
-```
-
-```json
-"target": {
-    "device_class": "WEBDAV",
-    "module_path": "device_webdav",
-    "args": {
-        "host": "https://webdav.yandex.ru",
-        "user": "login",
-        "passwd": "passwd"
-    }
-},
-```
-
-## Logic model
-
-### Model of devices
-
-**SOURCE** -> **LOCAL** -> **TARGET**
-
-All sources & targets must be inherited from `device_abstract.py`.
-The local storage placed on computer where executing this program.
-
-### Model of program
-
-Program wrote by pubsub technology & consist three workers:
-
-1. **Finder** – searching new files on **source** and adding those to DB and **DownloadQueue**.
-2. **Downloader** – downloading files from **source** to **local** which contain in **DownloadQueue** and adding those to DB and **UploadQueue**.
-3. **Uploader** – uploading files from **local** to **target** which contain in **UploadQueue** and adding those to DB.
-
-### Also
-
-* The asynchronous DB based on JSON file `json_array.py`.
-* Internet/connection checker.
-
-## Other
-
-### MAVFTP
+## MAVFTP
 
 * For use this script bundle your PixHawk must connect to Companation Computer with USB (NOT UART!)
 * Нельзя запрашивать несколько mavftp-команд параллельно, будет ошибка: "FTP: Busy". По этой причине нельзя создавать несколько downloader'ов, а также по этой причине введена mavftp_lock между downloader'ом и finder'ом. Аналогичным образом работает QGC.
 * Найти ошибку в crc32 для проверки файлов по контрольной сумме
 * Ускорить загрузку логов https://github.com/mavlink/mavros/issues/874
 
-### Что может сломаться
+## Что может сломаться
 
 1. Переполнение лога программы
 2. Не запуск программы из-за ошибки (например, db.json incorrect)
@@ -140,14 +16,14 @@ Program wrote by pubsub technology & consist three workers:
 5. Как помечать на сервере файлы, которые только передаются
 6. Нужно добавить автоматическое создание бекапа бд
 
-### Один из алгоритмов
+## Один из алгоритмов
 
 1. Начинаем качать в буффер сначала или с сохраненной позции
 2. Спрашиваем сколько мы передали без ошибок
 3. Смотрим, что у нас есть в буффере
 4. Сбрасываем буффер (выбрасываем исключение в target.write()), если у нас позиция невходит в него
 
-### Обрабатываемые ситуации
+## Обрабатываемые ситуации
 
 Данные случаи не должны приводить к остановке программы требующей участия человека, а также к перезаписи всего файла сначала
 
@@ -155,7 +31,7 @@ Program wrote by pubsub technology & consist three workers:
 2. Горячее изъятие и вставка флеш-карты
 3. Выключение FTP
 
-### TODO
+## TODO
 
 * Если процесс непрерывный и последовательный, можно сделать одну числовую переменную, описывающую состояния файла. Например:
   * 0 - лог найден в source
@@ -167,7 +43,7 @@ Program wrote by pubsub technology & consist three workers:
 * Reverse direction
 * Надежность
 
-### Ошибки
+## Ошибки
 
 1. Вот так можно сломать:
 
@@ -183,35 +59,36 @@ ERROR: 'Video_Tuner_WP_20151216_004_110904.mp4' points to invalid cluster 0.
 ротация логов
 мб конфиг и бд где то в другом месте держать?
 
-
+```log
 /mnt/20190403_122014/20190403_122537_816_R.jpg
 
 20190403_122533_785_R.jpg.part
+```
 
+```log
 "target_path": "", "downloaded": true, "source_path": "/20190403_122014/20190403_122537_816_R.jpg", "uploaded": false, "dropped": false, "size": 196048
+```
 
-
+```log
 Apr 04 08:14:11 raspberrypi manager.py[314]: 2019-04-04 08:14:11,213 - ERROR - test-1@192.168.20.186: Renaming was interrupted: 550 No such file or directory.
 Apr 04 08:14:11 raspberrypi manager.py[314]: 2019-04-04 08:14:11,984 - INFO - D1C6-0146: Started w 0
 Apr 04 08:14:11 raspberrypi manager.py[314]: 2019-04-04 08:14:11,987 - ERROR - D1C6-0146: Downloading was interrupted: [Errno 2] No such file or directory: '/mnt/20190403_122014/20190403_122537_816_R.jpg'
+```
 
-
-
-
+```log
 [I 2019-04-04 15:07:33] ::ffff:192.168.20.172:55558-[test-1] CWD /Users/smirart/github/filesync/temp 250
 [I 2019-04-04 15:07:33] ::ffff:192.168.20.172:55558-[test-1] RNFR /Users/smirart/github/filesync/temp/20190403_160336_487_R.jpg.part 550 'No such file or directory.'
 [I 2019-04-04 15:07:34] ::ffff:192.168.20.172:55558-[test-1] CWD /Users/smirart/github/filesync/temp 250
 [I 2019-04-04 15:07:34] ::ffff:192.168.20.172:55558-[test-1] RNFR /Users/smirart/github/filesync/temp/20190403_160336_487_R.jpg.part 550 'No such file or directory.'
+```
 
-
-
-
+```log
 drone@drone:~/Desktop/filesync$ sudo ./src/ftp_server.py 
 Traceback (most recent call last):
   File "./src/ftp_server.py", line 7, in <module>
     from pyftpdlib.authorizers import DummyAuthorizer
 ImportError: No module named pyftpdlib.authorizers
-
+```
 
 Добавить в логи разделение \t
 
@@ -239,6 +116,7 @@ https://habrahabr.ru/post/113127/
 Примеры на python
 http://qaru.site/questions/32672/get-md5-hash-of-big-files-in-python
 
+```python
 import hashlib
 def checksum_md5(filename):
     md5 = hashlib.md5()
@@ -249,6 +127,7 @@ def checksum_md5(filename):
     return md5.hexdigest()
 
 print checksum_md5("Downloads/Клубника.rar")
+```
 
 Обход директорий
 https://www.severcart.org/blog/all/list_direcory_content_with_python/
